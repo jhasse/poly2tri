@@ -47,12 +47,6 @@ class Triangulator(var segments: ArrayList[Segment]) {
   // Build the trapezoidal map and query graph
   def process {
     
-    val foo = new Point(0f, 0f)
-    val foo2 = new Point(0f, 3f)
-    val foo3 = new Point(10f, 3f)
-    var bar = List(foo, foo3, foo2)
-    bar -= foo
-    
     for(s <- segments) {
       val traps = queryGraph.followSegment(s)
       // Remove trapezoids from trapezoidal Map
