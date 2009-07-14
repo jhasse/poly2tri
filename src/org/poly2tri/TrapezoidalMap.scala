@@ -40,7 +40,7 @@ class TrapezoidalMap {
   // Trapezoid associated array
   val map = HashSet.empty[Trapezoid]
   // AABB margin
-  var margin = 2f
+  var margin = 20f
     
   // Bottom segment that spans multiple trapezoids
   private var bCross: Segment = null

@@ -33,8 +33,6 @@ package org.poly2tri
 import collection.jcl.ArrayList
 import scala.collection.mutable.{HashSet, Map, Stack, ListBuffer}
 
-import utils.Random
-
 // Based on Raimund Seidel's paper "A simple and fast incremental randomized
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
 class Triangulator(var segments: ArrayList[Segment]) {
@@ -144,6 +142,7 @@ class Triangulator(var segments: ArrayList[Segment]) {
         segs += s
       }
     }
+    // This is actually important: See Seidel's paper
     Random.shuffle(segs)
   }
 }
