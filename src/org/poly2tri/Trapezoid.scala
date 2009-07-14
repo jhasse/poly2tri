@@ -89,13 +89,4 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
     top.mPoints += leftPoint
     top.mPoints += rightPoint
   }
-  
-  // Clear points when dividing this trapezoid
-  def clear {
-    bottom.mPoints -= leftPoint
-    bottom.mPoints -= rightPoint
-    top.mPoints -= leftPoint
-    top.mPoints -= rightPoint
-  }
-
 }

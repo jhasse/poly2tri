@@ -36,7 +36,7 @@ package org.poly2tri
 //           "Computational Geometry in C", 2nd edition, by Joseph O'Rourke
 
 import org.newdawn.slick.{BasicGame, GameContainer, Graphics, Color, AppGameContainer}
-import org.newdawn.slick.geom.Polygon
+import org.newdawn.slick.geom.{Polygon, Circle}
 
 import collection.jcl.ArrayList
 
@@ -55,10 +55,14 @@ object Poly2Tri {
 class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   var tesselator: Triangulator = null
+  
   var quit = false
+  var debug = false
+  var drawMap = false
   
   def init(container: GameContainer) {
     testTesselator
+    //snake
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -67,19 +71,26 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    val red = new Color(1f,0.0f,0.0f)
+    val red = new Color(1f, 0f,0.0f)
     val blue = new Color(0f, 0f, 1f)
     val green = new Color(0f, 1f, 0f)
+    val yellow = new Color(1f, 1f, 0f)
     
-   //for(t <- tesselator.allTrapezoids) {
-   for(t <- tesselator.trapezoids) {
-     val polygon = new Polygon()
-     for(v <- t.vertices) {
-       polygon.addPoint(v.x, v.y)
-     }
-     //g.setColor(red)
-     //g.draw(polygon)
-    }
+   if(debug) {
+	   val draw = if(drawMap) tesselator.allTrapezoids else tesselator.trapezoids
+	   for(t <- draw) {
+	     val polygon = new Polygon()
+	     for(v <- t.vertices) {
+	       polygon.addPoint(v.x, v.y)
+	     }
+	     val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
+	     g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
+	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 6)
+	     g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	     g.setColor(red)
+	     g.draw(polygon)
+	    }
+   }
    
     for(x <- tesselator.xMonoPoly) {
       var t = x.triangles
@@ -94,6 +105,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   override def keyPressed(key:Int, c:Char) {
     if(key == 1) quit = true
+    if(key == 57) debug = !debug
+    if(c == 'm') drawMap = !drawMap
   }
   
   def testTesselator {
@@ -117,6 +130,40 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     tesselator = new Triangulator(segments)
     tesselator.process
    }
+  
+  def snake {
+
+    val scale = 10.0f
+    val displace = 100
+    val p1 = new Point(10,1)*scale+displace
+    val p2 = new Point(20,10)*scale+displace
+    val p3 = new Point(30,1)*scale+displace
+    val p4 = new Point(40,10)*scale+displace
+    val p5 = new Point(50,1)*scale+displace
+    val p6 = new Point(50,10)*scale+displace
+    val p7 = new Point(40,20)*scale+displace
+    val p8 = new Point(30,10)*scale+displace
+    val p9 = new Point(20,20)*scale+displace
+    val p10 = new Point(10,10)*scale+displace
+    val p11 = new Point(1,20)*scale+displace
+    val p12 = new Point(1,10)*scale+displace
+    
+    val segments = new ArrayList[Segment]
+    segments += new Segment(p1, p2)
+    segments += new Segment(p2, p3)
+    segments += new Segment(p3, p4)
+    segments += new Segment(p4, p5)
+    segments += new Segment(p5, p6)
+    segments += new Segment(p6, p7) 
+    segments += new Segment(p7, p8)
+    segments += new Segment(p8, p9)
+    segments += new Segment(p9, p10)
+    segments += new Segment(p10, p11)
+    segments += new Segment(p11, p12)
+    segments += new Segment(p12, p1)
+    tesselator = new Triangulator(segments)
+    tesselator.process
+  }
   
   
 }

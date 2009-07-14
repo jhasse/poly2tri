@@ -99,7 +99,7 @@ class MonotoneMountain {
 	     p.angle = Math.abs(angle(p.prev, p, p.next))
 	     println("angle = " + p.angle)
 	     // Link strictly convex vertices into a list
-	     if(p.angle > 0 && p.angle <= Math.Pi) convexPoints.enqueue(p)
+	     if(p.angle >= 0 && p.angle <= Math.Pi) convexPoints.enqueue(p)
 	     p = p.next
 	   }
     
@@ -114,12 +114,12 @@ class MonotoneMountain {
 	     // Remove ear, update angles and convex list
 	     remove(ear) 
 	     a.angle -= ear.angle
-	     if(a.angle > 0) convexPoints.enqueue(a)
+	     if(a.angle > 0 && a != head && a != tail) convexPoints.enqueue(a)
 	     c.angle -= ear.angle
-	     if(c.angle > 0) convexPoints.enqueue(c)
+	     if(c.angle > 0 && c != head && c != tail) convexPoints.enqueue(c)
 	   }
     
-	   if(size == 3) lastTriangle
+	   if(size > 2)lastTriangle
 	}
    }
  

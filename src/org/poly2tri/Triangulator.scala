@@ -48,7 +48,7 @@ class Triangulator(var segments: ArrayList[Segment]) {
     for(s <- segments) {
       val traps = queryGraph.followSegment(s)
       // Remove trapezoids from trapezoidal Map
-      traps.foreach(t => {trapezoidalMap.remove(t); t.clear})
+      traps.foreach(trapezoidalMap.remove)
       for(t <- traps) {
         var tList: ArrayList[Trapezoid] = null
         val containsP = t.contains(s.p)
@@ -93,6 +93,7 @@ class Triangulator(var segments: ArrayList[Segment]) {
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segments) {
+      println(s.mPoints.size)
        if(s.mPoints.size > 2) {
          val mountain = new MonotoneMountain
          // TODO: Optomize sort? The number of points should be 
