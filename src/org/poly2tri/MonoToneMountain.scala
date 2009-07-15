@@ -43,8 +43,6 @@ class MonotoneMountain {
 	val monoPoly = new ArrayBuffer[Point]
     // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
-	      
-	var angle = 0f
  
 	// Append a point to the list
 	def +=(point: Point) {
@@ -123,16 +121,17 @@ class MonotoneMountain {
 	private def convex(p: Point) = {
 	  val a = (p.next - p) 
 	  val b = (p.prev - p) 
-      angle = Math.atan2(b.y,b.x).toFloat - Math.atan2(a.y,a.x).toFloat
-      if(angle < 0) while(angle < -Math.Pi) angle += Math.Pi.toFloat
-      if(angle > 0) while(angle > Math.Pi) angle -= Math.Pi.toFloat
+      var angle = Math.atan2(b.y,b.x) - Math.atan2(a.y,a.x)
+      if(angle < 0) while(angle < -Math.Pi) angle += Math.Pi
+      if(angle > 0) while(angle > Math.Pi) angle -= Math.Pi
       // For numerical robustness....
-      angle = 0.01f * Math.round( angle * 10.0f)
+      angle = 0.1 * Math.round( angle * 10.0)
+      val cvx = (angle < 0)
       if(p.y >= head.y) {
-        (angle < 0)
+        cvx
       } else {
-        !(angle < 0)
-      }
+        !cvx
+      } 
     }
 
 	private def lastTriangle {

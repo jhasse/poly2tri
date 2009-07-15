@@ -81,7 +81,6 @@ class TrapezoidalMap {
     s.above = trapezoids(1)
     s.below = trapezoids(2)
     
-    t.updateNeighbors(trapezoids(0), trapezoids(0), trapezoids(3), trapezoids(3))
     trapezoids
   }
 
@@ -105,7 +104,6 @@ class TrapezoidalMap {
     s.above = trapezoids(1)
     s.below = trapezoids(2)
     
-    t.updateNeighbors(trapezoids(0), trapezoids(0), trapezoids(1), trapezoids(2))
     trapezoids
   }
   
@@ -126,18 +124,18 @@ class TrapezoidalMap {
     
     if(topCross) {
       trapezoids(0).upperRight = t.upperRight
-      trapezoids(0).rightPoint = t.rightPoint
+      if(t.upperRight != null) t.upperRight.upperLeft = trapezoids(0)
+      trapezoids(0).rightPoint = rp
     } else {
       trapezoids(0).update(t.upperLeft, s.above, t.upperRight, null)
-      if(s.above != null) s.above.lowerRight = trapezoids(0)
     }
     
     if(bottomCross) {
       trapezoids(1).lowerRight = t.lowerRight
-      trapezoids(1).rightPoint = t.rightPoint
+      if(t.lowerRight != null) t.lowerRight.lowerLeft = trapezoids(1)
+      trapezoids(1).rightPoint = rp
     } else {
       trapezoids(1).update(s.below, t.lowerLeft, null, t.lowerRight)
-      if(s.below != null) s.below.upperRight = trapezoids(1)
     }
     
     bCross = t.bottom
@@ -145,7 +143,6 @@ class TrapezoidalMap {
     s.above = trapezoids(0)
     s.below = trapezoids(1)
     
-    t.updateNeighbors(trapezoids(0), trapezoids(1), trapezoids(0), trapezoids(1))
     trapezoids
   }
   
@@ -168,7 +165,6 @@ class TrapezoidalMap {
       trapezoids(0).rightPoint = s.q
     } else {
       trapezoids(0).update(t.upperLeft, s.above, trapezoids(2), null)
-      if(s.above != null) s.above.lowerRight = trapezoids(0)
     }
     
     if(bottomCross) {
@@ -176,14 +172,10 @@ class TrapezoidalMap {
       trapezoids(1).rightPoint = s.q
     } else {
       trapezoids(1).update(s.below, t.lowerLeft, null, trapezoids(2))
-      if(s.below != null) s.below.upperRight = trapezoids(1)
     }
+    
     trapezoids(2).update(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
     
-    s.above = trapezoids(0)
-    s.below = trapezoids(1)
-    
-    t.updateNeighbors(trapezoids(0), trapezoids(1), trapezoids(2), trapezoids(2))
     trapezoids
   }
   

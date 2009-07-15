@@ -36,10 +36,11 @@ import scala.collection.mutable.ArrayBuffer
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
 class Triangulator(var segments: ArrayBuffer[Segment]) {
   
-  // Trapezoid decomposition list
-  var trapezoids : ArrayBuffer[Trapezoid] = null
   // Triangle decomposition list
   var triangles = new ArrayBuffer[Array[Point]]
+  
+  // Order and randomize the segments
+  segments = orderSegments
   
   // Build the trapezoidal map and query graph
   def process {
@@ -81,10 +82,14 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
     for(i <- 0 until xMonoPoly.size)
       for(t <- xMonoPoly(i).triangles)
     	  triangles += t
+    
+    println("# triangles = " + triangles.size)
   }
   
-  // For debugging
+  // The trapezoidal map 
   def trapezoidMap = trapezoidalMap.map
+  // Trapezoid decomposition list
+  var trapezoids : ArrayBuffer[Trapezoid] = null
   // Monotone polygons - these are monotone mountains
   def monoPolies: ArrayBuffer[ArrayBuffer[Point]] = {
     val polies = new ArrayBuffer[ArrayBuffer[Point]]
@@ -99,8 +104,6 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
   private val queryGraph = new QueryGraph(new Sink(boundingBox))
   private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
                                         
-  segments = orderSegments
-  
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segments) {
@@ -143,9 +146,8 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
         s.p = s.q
         s.q = tmp
         segs += s
-      } else if(s.p.x < s.q.x) {
-        segs += s
-      }
+      } else if(s.p.x < s.q.x)
+          segs += s
     }
     // This is actually important: See Seidel's paper
     Random.shuffle(segs)

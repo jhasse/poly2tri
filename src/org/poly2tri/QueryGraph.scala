@@ -48,7 +48,7 @@ class QueryGraph(var head: Node) {
 	      if(s > trapezoids(j).rightPoint) {
 	        trapezoids += trapezoids(j).upperRight
 	      } else {
-	        trapezoids += trapezoids(j).lowerRight
+	          trapezoids += trapezoids(j).lowerRight
 	      }
 	      j += 1
 	    }

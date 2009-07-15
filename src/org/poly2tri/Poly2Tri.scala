@@ -59,6 +59,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var quit = false
   var debug = false
   var drawMap = false
+  var hiLighter = 0
   
   def init(container: GameContainer) {
     snake
@@ -92,11 +93,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    }
    
    if(!debug) {
+    var i = 0
     for(t <- tesselator.triangles) {
         val triangle = new Polygon
         t.foreach(p => triangle.addPoint(p.x, p.y))
-        g.setColor(red)
+        val color = if(i == hiLighter) blue else red
+        g.setColor(color)
         g.draw(triangle)
+        i += 1
       }
    } else {
     for(mp <- tesselator.monoPolies) {
@@ -110,12 +114,27 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   }
   
   override def keyPressed(key:Int, c:Char) {
+    // ESC
     if(key == 1) quit = true
+    // SPACE
     if(key == 57) debug = !debug
+    // UP
+    if(key == 200) {
+      hiLighter += 1
+      if (hiLighter == tesselator.triangles.size)
+        hiLighter = 0
+    }
+    // DOWN
+    if(key == 208) {
+      hiLighter -= 1
+      if (hiLighter == -1)
+        hiLighter = tesselator.triangles.size-1
+    }
     if(c == 'm') drawMap = !drawMap
-    if(c == '1') poly
-    if(c == '2') snake
-    if(c == '3') star
+    if(c == '1') {poly; hiLighter = 0}
+    if(c == '2') {snake; hiLighter = 0}
+    if(c == '3') {star; hiLighter = 0}
+
   }
   
   // Test #1
@@ -143,18 +162,16 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def star {
 	
-	val scale = 1.0f
-    val displace = 0f
-    val p1 = new Point(350,75)*scale+displace
-    val p2 = new Point(379,161)*scale+displace
-    val p3 = new Point(469,161)*scale+displace
-    val p4 = new Point(397,215)*scale+displace
-    val p5 = new Point(423,301)*scale+displace
-    val p6 = new Point(350,250)*scale+displace
-    val p7 = new Point(277,301)*scale+displace
-    val p8 = new Point(303,215)*scale+displace
-    val p9 = new Point(231,161)*scale+displace
-    val p10 = new Point(321,161)*scale+displace
+    val p1 = new Point(350,75)
+    val p2 = new Point(379,161)
+    val p3 = new Point(469,161)
+    val p4 = new Point(397,215)
+    val p5 = new Point(423,301)
+    val p6 = new Point(350,250)
+    val p7 = new Point(277,301)
+    val p8 = new Point(303,215)
+    val p9 = new Point(231,161)
+    val p10 = new Point(321,161)
     
     val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)

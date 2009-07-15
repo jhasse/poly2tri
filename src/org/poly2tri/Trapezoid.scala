@@ -41,18 +41,21 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   var upperRight: Trapezoid = null
   var lowerRight: Trapezoid = null
   
-  def updateNeighbors(ul: Trapezoid, ll: Trapezoid, ur: Trapezoid, lr: Trapezoid) {
+  def updateLeftNeighbors(ul: Trapezoid, ll: Trapezoid) {
     if(upperLeft != null && upperLeft.top == top) upperLeft.upperRight = ul
     if(lowerLeft != null && lowerLeft.bottom == bottom) lowerLeft.lowerRight = ll
+  }
+  
+  def updateRightNeighbors(ur: Trapezoid, lr: Trapezoid) {
     if(upperRight != null && upperRight.top == top) upperRight.upperLeft = ur
     if(lowerRight != null && lowerRight.bottom == bottom) lowerRight.lowerLeft = lr
   }
   
   def update(ul: Trapezoid, ll: Trapezoid, ur: Trapezoid, lr: Trapezoid) {
-    upperLeft = ul
-    lowerLeft = ll
-    upperRight = ur
-    lowerRight = lr
+    upperLeft = ul; if(ul != null) ul.upperRight = this
+    lowerLeft = ll; if(ll != null) ll.lowerRight = this
+    upperRight = ur; if(ur != null) ur.upperLeft = this
+    lowerRight = lr; if(lr != null) lr.lowerLeft = this    
   }
   
   def markNeighbors {
