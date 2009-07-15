@@ -44,6 +44,8 @@ class MonotoneMountain {
     // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
  
+	var slop = 0.0f
+ 
 	// Append a point to the list
 	def +=(point: Point) {
 	  size match {
@@ -92,7 +94,7 @@ class MonotoneMountain {
 	     
 	     val ear = convexPoints.dequeue
 	     val a = ear.prev.clone
-	     val b = ear
+	     val b = ear.clone
 	     val c = ear.next.clone
 	     val triangle = Array(a, b, c)
 	     triangles += triangle
@@ -103,6 +105,11 @@ class MonotoneMountain {
          if(c.prev != null && convex(c)) convexPoints.enqueue(c)
 
 	   }    
+	   if(size >= 4) {
+	     println("Size = " + size)
+	     println(convex(head.next) + ", Angle: " + slop)
+	     println(convex(head.next.next) + ", Angle: " + slop)
+	   }
 	   assert(size <= 3, "Triangulation bug")
 	   if(size == 3)lastTriangle
 	}
@@ -119,19 +126,11 @@ class MonotoneMountain {
  
 	// Determines if the inslide angle between edge v2-v3 and edge v2-v1 is convex 
 	private def convex(p: Point) = {
-	  val a = (p.next - p) 
-	  val b = (p.prev - p) 
-      var angle = Math.atan2(b.y,b.x) - Math.atan2(a.y,a.x)
-      if(angle < 0) while(angle < -Math.Pi) angle += Math.Pi
-      if(angle > 0) while(angle > Math.Pi) angle -= Math.Pi
-      // For numerical robustness....
-      angle = 0.1 * Math.round( angle * 10.0)
-      val cvx = (angle < 0)
-      if(p.y >= head.y) {
-        cvx
-      } else {
-        !cvx
-      } 
+	  val a = (p.next - p).normalize
+	  val b = (p.prev - p).normalize
+      slop = a dot b
+      slop = 0.1f * Math.round( slop * 10.0f)
+     (slop >= 0f || slop == -1f || slop == 1f)
     }
 
 	private def lastTriangle {

@@ -85,8 +85,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	     }
 	     val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
 	     g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
-	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 6)
-	     //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 4)
+	     g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
 	     g.setColor(red)
 	     g.draw(polygon)
 	    }
@@ -95,6 +95,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    if(!debug) {
     var i = 0
     for(t <- tesselator.triangles) {
+    	if(t.size < 3) println("wtf")
         val triangle = new Polygon
         t.foreach(p => triangle.addPoint(p.x, p.y))
         val color = if(i == hiLighter) blue else red
