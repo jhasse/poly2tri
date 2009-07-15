@@ -39,7 +39,12 @@ class MonotoneMountain {
 	var size = 0
 
 	val convexPoints = new Queue[Point]
+    // Monotone mountain points
+	val monoPoly = new ArrayBuffer[Point]
+    // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
+	      
+	var angle = 0f
  
 	// Append a point to the list
 	def +=(point: Point) {
@@ -70,7 +75,10 @@ class MonotoneMountain {
 	// Partition a x-monotone mountain into triangles O(n)
 	// See "Computational Geometry in C", 2nd edition, by Joseph O'Rourke, page 52
 	def triangulate {
-		
+	
+	  // create monotone polygon - for dubug purposes
+	  genMonoPoly
+   
 	  if(size == 3) {
 	    lastTriangle
 	  } else {
@@ -96,29 +104,30 @@ class MonotoneMountain {
 	     if(a.prev != null && convex(a)) convexPoints.enqueue(a); 
          if(c.prev != null && convex(c)) convexPoints.enqueue(c)
 
-	   }
+	   }    
+	   assert(size <= 3, "Triangulation bug")
 	   if(size == 3)lastTriangle
 	}
    }
  
 	// Return the monotone polygon 
-	def monoPoly: Array[Point] = {
-	  val poly = new Array[Point](size)
-	  var i = 0
+	private def genMonoPoly { 
       var p = head
 	  while(p != null) {
-	      poly(i) = p
+	      monoPoly += p
 	      p = p.next
-          i += 1
 	  }
-	  poly
 	}
  
 	// Determines if the inslide angle between edge v2-v3 and edge v2-v1 is convex 
 	private def convex(p: Point) = {
 	  val a = (p.next - p) 
 	  val b = (p.prev - p) 
-      var angle = Math.atan2(b.y,b.x).toFloat - Math.atan2(a.y,a.x).toFloat
+      angle = Math.atan2(b.y,b.x).toFloat - Math.atan2(a.y,a.x).toFloat
+      if(angle < 0) while(angle < -Math.Pi) angle += Math.Pi.toFloat
+      if(angle > 0) while(angle > Math.Pi) angle -= Math.Pi.toFloat
+      // For numerical robustness....
+      angle = 0.01f * Math.round( angle * 10.0f)
       if(p.y >= head.y) {
         (angle < 0)
       } else {

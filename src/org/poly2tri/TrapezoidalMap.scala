@@ -30,8 +30,7 @@
  */
 package org.poly2tri
 
-import collection.jcl.ArrayList
-import scala.collection.mutable.{Map, HashSet}
+import scala.collection.mutable.{Map, HashSet, ArrayBuffer}
 
 // See "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
 
@@ -68,7 +67,7 @@ class TrapezoidalMap {
     
     assert(s.p.x != s.q.x)
     
-    val trapezoids = new ArrayList[Trapezoid]
+    val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
     trapezoids += new Trapezoid(s.p, s.q, t.top, s)
     trapezoids += new Trapezoid(s.p, s.q, s, t.bottom)
@@ -92,7 +91,7 @@ class TrapezoidalMap {
     
     val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
     
-    val trapezoids = new ArrayList[Trapezoid]
+    val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
     trapezoids += new Trapezoid(s.p, rp, t.top, s)
     trapezoids += new Trapezoid(s.p, rp, s, t.bottom)
@@ -121,7 +120,7 @@ class TrapezoidalMap {
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
     
-    val trapezoids = new ArrayList[Trapezoid]
+    val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += {if(topCross) t.upperLeft else new Trapezoid(lp, rp, t.top, s)}
     trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(lp, rp, s, t.bottom)}
     
@@ -159,7 +158,7 @@ class TrapezoidalMap {
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
     
-    val trapezoids = new ArrayList[Trapezoid]
+    val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += {if(topCross) t.upperLeft else new Trapezoid(lp, s.q, t.top, s)}
     trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(lp, s.q, s, t.bottom)}
     trapezoids += new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
@@ -189,7 +188,7 @@ class TrapezoidalMap {
   }
   
   // Create an AABB around segments
-  def boundingBox(segments: ArrayList[Segment]): Trapezoid = {
+  def boundingBox(segments: ArrayBuffer[Segment]): Trapezoid = {
    
     var max = segments(0).p + margin
     var min = segments(0).q + margin

@@ -38,7 +38,7 @@ package org.poly2tri
 import org.newdawn.slick.{BasicGame, GameContainer, Graphics, Color, AppGameContainer}
 import org.newdawn.slick.geom.{Polygon, Circle}
 
-import collection.jcl.ArrayList
+import scala.collection.mutable.ArrayBuffer
 
 // TODO: Lots of documentation!
 
@@ -61,9 +61,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawMap = false
   
   def init(container: GameContainer) {
-    // TODO: Add text file point loader
-    //poly
-    //poly2
     snake
   }
   
@@ -79,7 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val yellow = new Color(1f, 1f, 0f)
     
    if(debug) {
-	   val draw = if(drawMap) tesselator.allTrapezoids else tesselator.trapezoids
+	   val draw = if(drawMap) tesselator.trapezoidMap else tesselator.trapezoids
 	   for(t <- draw) {
 	     val polygon = new Polygon()
 	     for(v <- t.vertices) {
@@ -88,32 +85,37 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	     val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
 	     g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
 	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 6)
-	     g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	     //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
 	     g.setColor(red)
 	     g.draw(polygon)
 	    }
    }
    
-    var i = 0
-    for(x <- tesselator.xMonoPoly) {
-      var t = x.triangles
-      var j = 0
-      for(t <- x.triangles) { 
-        val triangle = new Polygon()
+   if(!debug) {
+    for(t <- tesselator.triangles) {
+        val triangle = new Polygon
         t.foreach(p => triangle.addPoint(p.x, p.y))
-        val color = if(i == 0 && j == 3) blue else green
-        g.setColor(color)
+        g.setColor(red)
         g.draw(triangle)
-        j += 1
       }
-      i += 1
+   } else {
+    for(mp <- tesselator.monoPolies) {
+      val poly = new Polygon
+      mp.foreach(p => poly.addPoint(p.x, p.y))
+      g.setColor(yellow)
+      g.draw(poly)
+      }
     }
+    
   }
   
   override def keyPressed(key:Int, c:Char) {
     if(key == 1) quit = true
     if(key == 57) debug = !debug
     if(c == 'm') drawMap = !drawMap
+    if(c == '1') poly
+    if(c == '2') snake
+    if(c == '3') star
   }
   
   // Test #1
@@ -127,7 +129,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p5 = new Point(400,300)*scale
     val p6 = new Point(650,250)*scale
     
-    val segments = new ArrayList[Segment]
+    val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p3, p4)
     segments += new Segment(p1, p3)
@@ -139,8 +141,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     tesselator.process
    }
   
-  def poly2 {
-
+  def star {
+	
 	val scale = 1.0f
     val displace = 0f
     val p1 = new Point(350,75)*scale+displace
@@ -154,7 +156,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p9 = new Point(231,161)*scale+displace
     val p10 = new Point(321,161)*scale+displace
     
-    val segments = new ArrayList[Segment]
+    val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)
@@ -187,7 +189,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p11 = new Point(1,20)*scale+displace
     val p12 = new Point(1,10)*scale+displace
     
-    val segments = new ArrayList[Segment]
+    val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)

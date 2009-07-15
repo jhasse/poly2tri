@@ -30,17 +30,16 @@
  */
 package org.poly2tri
 
-import collection.jcl.ArrayList
-import scala.collection.mutable.{HashSet, Map, Stack, ListBuffer}
+import scala.collection.mutable.ArrayBuffer
 
 // Based on Raimund Seidel's paper "A simple and fast incremental randomized
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
-class Triangulator(var segments: ArrayList[Segment]) {
+class Triangulator(var segments: ArrayBuffer[Segment]) {
   
   // Trapezoid decomposition list
-  var trapezoids : ArrayList[Trapezoid] = null
+  var trapezoids : ArrayBuffer[Trapezoid] = null
   // Triangle decomposition list
-  // var triangles: ArrayList[Triangle] = null
+  var triangles = new ArrayBuffer[Array[Point]]
   
   // Build the trapezoidal map and query graph
   def process {
@@ -50,7 +49,7 @@ class Triangulator(var segments: ArrayList[Segment]) {
       // Remove trapezoids from trapezoidal Map
       traps.foreach(trapezoidalMap.remove)
       for(t <- traps) {
-        var tList: ArrayList[Trapezoid] = null
+        var tList: ArrayBuffer[Trapezoid] = null
         val containsP = t.contains(s.p)
         val containsQ = t.contains(s.q)
         if(containsP && containsQ) {
@@ -77,39 +76,48 @@ class Triangulator(var segments: ArrayList[Segment]) {
     }
     trapezoids = trim
     createMountains
+    
+    // Extract all the triangles into a single list
+    for(i <- 0 until xMonoPoly.size)
+      for(t <- xMonoPoly(i).triangles)
+    	  triangles += t
   }
   
-  def allTrapezoids = trapezoidalMap.map
+  // For debugging
+  def trapezoidMap = trapezoidalMap.map
+  // Monotone polygons - these are monotone mountains
+  def monoPolies: ArrayBuffer[ArrayBuffer[Point]] = {
+    val polies = new ArrayBuffer[ArrayBuffer[Point]]
+    for(i <- 0 until xMonoPoly.size)
+     polies += xMonoPoly(i).monoPoly
+    return polies
+  }
   
   // Initialize trapezoidal map and query structure
   private val trapezoidalMap = new TrapezoidalMap
   private val boundingBox = trapezoidalMap.boundingBox(segments)
   private val queryGraph = new QueryGraph(new Sink(boundingBox))
-  
-  val xMonoPoly = new ArrayList[MonotoneMountain]
+  private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
                                         
   segments = orderSegments
   
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segments) {
-       if(s.mPoints.size > 0) {
          val mountain = new MonotoneMountain
          val k = Util.msort((x: Point, y: Point) => x < y)(s.mPoints.toList)
          val points = s.p :: k ::: List(s.q)
          points.foreach(p => mountain += p.clone)
          if(mountain.size > 2) {
            mountain.triangulate
-           //mountain.monoPoly
            xMonoPoly += mountain
          }
-       }
     }   
   }
   
   // Trim off the extraneous trapezoids surrounding the polygon
   private def trim = {
-    val traps = new ArrayList[Trapezoid]
+    val traps = new ArrayBuffer[Trapezoid]
     // Mark outside trapezoids
     for(t <- trapezoidalMap.map) {
 	  if(t.top == boundingBox.top || t.bottom == boundingBox.bottom) {
@@ -127,7 +135,7 @@ class Triangulator(var segments: ArrayList[Segment]) {
   
   private def orderSegments = {
     // Ignore vertical segments!
-    val segs = new ArrayList[Segment]
+    val segs = new ArrayBuffer[Segment]
     for(s <- segments) {
       // Point p must be to the left of point q
       if(s.p.x > s.q.x) {

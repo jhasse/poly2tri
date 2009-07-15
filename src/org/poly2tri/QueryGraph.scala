@@ -30,29 +30,30 @@
  */
 package org.poly2tri
 
-import collection.jcl.ArrayList
+import scala.collection.mutable.ArrayBuffer
 
 // Directed Acyclic graph (DAG)
 // See "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
                            
 class QueryGraph(var head: Node) {
 
-  def locate(s: Segment): Trapezoid = {
-    val sink = head.locate(s)
-    return sink.trapezoid
-  }
+  def locate(s: Segment) = head.locate(s).trapezoid
   
   def followSegment(s: Segment) = {
-    val trapezoids = new ArrayList[Trapezoid]
+    val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += locate(s)
     var j = 0
-    while(s.q.x > trapezoids(j).rightPoint.x) {
-      if(s > trapezoids(j).rightPoint) {
-        trapezoids += trapezoids(j).upperRight
-      } else {
-        trapezoids += trapezoids(j).lowerRight
-      }
-      j += 1
+    try {
+	    while(s.q.x > trapezoids(j).rightPoint.x) {
+	      if(s > trapezoids(j).rightPoint) {
+	        trapezoids += trapezoids(j).upperRight
+	      } else {
+	        trapezoids += trapezoids(j).lowerRight
+	      }
+	      j += 1
+	    }
+    } catch {
+      case e => println("# of Trapezoids = " + j)
     }
     trapezoids
   }
@@ -65,25 +66,25 @@ class QueryGraph(var head: Node) {
     }
   }
   
-  def case1(sink: Sink, s: Segment, tList: ArrayList[Trapezoid]) {
+  def case1(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(1)), Sink.init(tList(2)))
     val qNode = new XNode(new Point(s.q.x, s.q.y, s), yNode, Sink.init(tList(3)))
 	val pNode = new XNode(new Point(s.p.x, s.p.y, s), Sink.init(tList(0)), qNode)
     replace(sink, pNode)
   }
   
-  def case2(sink: Sink, s: Segment, tList: ArrayList[Trapezoid]) {
+  def case2(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(1)), Sink.init(tList(2)))
 	val pNode = new XNode(new Point(s.p.x, s.p.y, s), Sink.init(tList(0)), yNode)
     replace(sink, pNode)
   }
   
-  def case3(sink: Sink, s: Segment, tList: ArrayList[Trapezoid]) {
+  def case3(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(0)), Sink.init(tList(1)))
     replace(sink, yNode)
   }
   
-  def case4(sink: Sink, s: Segment, tList: ArrayList[Trapezoid]) {
+  def case4(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(0)), Sink.init(tList(1)))
     if(s.left != null) {
       val pNode = new XNode(new Point(s.p.x, s.p.y, s), Sink.init(s.left), yNode)
