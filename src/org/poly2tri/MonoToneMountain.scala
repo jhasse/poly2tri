@@ -32,6 +32,7 @@ package org.poly2tri
 
 import scala.collection.mutable.{ArrayBuffer, Queue}
 
+// Doubly linked list
 class MonotoneMountain {
 
 	var tail, head: Point = null
@@ -40,7 +41,7 @@ class MonotoneMountain {
 	val convexPoints = new Queue[Point]
 	val triangles = new ArrayBuffer[Array[Point]]
  
-	// Append
+	// Append a point to the list
 	def +=(point: Point) {
 	  size match {
 	    case 0 => 
@@ -57,8 +58,8 @@ class MonotoneMountain {
 	  size += 1
 	}
 
-	// Remove
-	private def remove(point: Point) {
+	// Remove a point from the list
+	def remove(point: Point) {
 		val next = point.next
 		val prev = point.prev
 		point.prev.next = next
@@ -66,16 +67,66 @@ class MonotoneMountain {
 		size -= 1
 	}
  
-	// Determines if the inslide angle between edge v2-v3 and edge v2-v1 is convex (< PI)
-	private def angle(v1: Point, v2: Point, v3: Point) = {
-	  val a = (v2 - v1) 
-	  val b = (v2 - v3) 
-      val angle = Math.atan2(b.y,b.x).toFloat - Math.atan2(a.y,a.x).toFloat
-      angle
+	// Partition a x-monotone mountain into triangles O(n)
+	// See "Computational Geometry in C", 2nd edition, by Joseph O'Rourke, page 52
+	def triangulate {
+		
+	  if(size == 3) {
+	    lastTriangle
+	  } else {
+	   // Initialize internal angles at each nonbase vertex
+	   var p = head.next
+	   while(p != tail) {
+	     // Link strictly convex vertices into a list
+	     if(convex(p)) convexPoints.enqueue(p)
+	     p = p.next
+	   }
+    
+	   while(!convexPoints.isEmpty) {
+	     
+	     val ear = convexPoints.dequeue
+	     val a = ear.prev.clone
+	     val b = ear
+	     val c = ear.next.clone
+	     val triangle = Array(a, b, c)
+	     triangles += triangle
+	     
+	     // Remove ear, update angles and convex list
+	     remove(ear) 
+	     if(a.prev != null && convex(a)) convexPoints.enqueue(a); 
+         if(c.prev != null && convex(c)) convexPoints.enqueue(c)
+
+	   }
+	   if(size == 3)lastTriangle
+	}
+   }
+ 
+	// Return the monotone polygon 
+	def monoPoly: Array[Point] = {
+	  val poly = new Array[Point](size)
+	  var i = 0
+      var p = head
+	  while(p != null) {
+	      poly(i) = p
+	      p = p.next
+          i += 1
+	  }
+	  poly
+	}
+ 
+	// Determines if the inslide angle between edge v2-v3 and edge v2-v1 is convex 
+	private def convex(p: Point) = {
+	  val a = (p.next - p) 
+	  val b = (p.prev - p) 
+      var angle = Math.atan2(b.y,b.x).toFloat - Math.atan2(a.y,a.x).toFloat
+      if(p.y >= head.y) {
+        (angle < 0)
+      } else {
+        !(angle < 0)
+      }
     }
 
-	def lastTriangle = {
-	  assert(size == 3, "Number of points = " + size)
+	private def lastTriangle {
 	  val triangle = new Array[Point](3)
 	  var i = 0
       var p = head
@@ -85,54 +136,5 @@ class MonotoneMountain {
           i += 1
 	  }
 	  triangles += triangle
-	}
- 
-	// Partition a x-monotone mountain into triangles o(n)
-	// See "Computational Geometry in C", 2nd edition, by Joseph O'Rourke, page 52
-	def triangulate {
-	  if(size == 3) {
-	    lastTriangle
-	  } else {
-	   // Initialize internal angles at each nonbase vertex
-	   var p = head.next
-	   while(p != tail) {
-	     p.angle = Math.abs(angle(p.prev, p, p.next))
-	     println("angle = " + p.angle)
-	     // Link strictly convex vertices into a list
-	     if(p.angle >= 0 && p.angle <= Math.Pi) convexPoints.enqueue(p)
-	     p = p.next
-	   }
-    
-	   while(!convexPoints.isEmpty) {
-	     val ear = convexPoints.dequeue
-	     val a = ear.prev.clone
-	     val b = ear
-	     val c = ear.next.clone
-	     val triangle = Array(a, b, c)
-	     triangles += triangle
-      
-	     // Remove ear, update angles and convex list
-	     remove(ear) 
-	     a.angle -= ear.angle
-	     if(a.angle > 0 && a != head && a != tail) convexPoints.enqueue(a)
-	     c.angle -= ear.angle
-	     if(c.angle > 0 && c != head && c != tail) convexPoints.enqueue(c)
-	   }
-    
-	   if(size > 2)lastTriangle
-	}
-   }
- 
-	def monoPoly {
-	  val triangle = new Array[Point](size)
-	  var i = 0
-      var p = head
-	  while(p != null) {
-	      triangle(i) = p
-	      p = p.next
-          i += 1
-	  }
-	  triangles += triangle
-	  println(size)
 	}
 }

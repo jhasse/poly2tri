@@ -93,15 +93,11 @@ class Triangulator(var segments: ArrayList[Segment]) {
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segments) {
-      println(s.mPoints.size)
-       if(s.mPoints.size > 2) {
+       if(s.mPoints.size > 0) {
          val mountain = new MonotoneMountain
-         // TODO: Optomize sort? The number of points should be 
-         // fairly small => insertion or merge?
-         val points = s.mPoints.toList
-         for(p <- points.sort((e1,e2) => e1 < e2)) {
-           mountain += p.clone
-         }
+         val k = Util.msort((x: Point, y: Point) => x < y)(s.mPoints.toList)
+         val points = s.p :: k ::: List(s.q)
+         points.foreach(p => mountain += p.clone)
          if(mountain.size > 2) {
            mountain.triangulate
            //mountain.monoPoly

@@ -3,6 +3,21 @@ package org.poly2tri
 
 import collection.jcl.ArrayList
 
+object Util {
+  
+  // From "Scala By Example," by Martin Odersky
+  def msort[A](less: (A, A) => Boolean)(xs: List[A]): List[A] = {
+    def merge(xs1: List[A], xs2: List[A]): List[A] =
+      if (xs1.isEmpty) xs2
+      else if (xs2.isEmpty) xs1
+      else if (less(xs1.head, xs2.head)) xs1.head :: merge(xs1.tail, xs2)
+      else xs2.head :: merge(xs1, xs2.tail)
+      val n = xs.length/2
+      if (n == 0) xs
+      else merge(msort(less)(xs take n), msort(less)(xs drop n))
+  }
+}
+
 /** The object <code>Random</code> offers a default implementation
  *  of scala.util.Random and random-related convenience methods.
  *
@@ -33,5 +48,5 @@ object Random extends scala.util.Random {
       swap(n - 1, k)
     }
     buf
-  }
+  } 
 }

@@ -40,7 +40,8 @@ class Segment(var p: Point, var q: Point) {
   var above, below, left: Trapezoid = null
   
   // Montone mountain points
-  val mPoints = HashSet(p, q)
+  // Use a HashSet to avoid repeats
+  val mPoints = HashSet.empty[Point]
   
   // Equation of a line: y = m*x + b
   // Slope of the line (m)

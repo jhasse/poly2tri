@@ -61,8 +61,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawMap = false
   
   def init(container: GameContainer) {
-    testTesselator
-    //snake
+    // TODO: Add text file point loader
+    //poly
+    //poly2
+    snake
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -92,14 +94,19 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    }
    }
    
+    var i = 0
     for(x <- tesselator.xMonoPoly) {
       var t = x.triangles
+      var j = 0
       for(t <- x.triangles) { 
         val triangle = new Polygon()
         t.foreach(p => triangle.addPoint(p.x, p.y))
-        g.setColor(green)
+        val color = if(i == 0 && j == 3) blue else green
+        g.setColor(color)
         g.draw(triangle)
+        j += 1
       }
+      i += 1
     }
   }
   
@@ -109,7 +116,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == 'm') drawMap = !drawMap
   }
   
-  def testTesselator {
+  // Test #1
+  def poly {
    
     val scale = 1.0f
     val p1 = new Point(100,300)*scale
@@ -131,6 +139,37 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     tesselator.process
    }
   
+  def poly2 {
+
+	val scale = 1.0f
+    val displace = 0f
+    val p1 = new Point(350,75)*scale+displace
+    val p2 = new Point(379,161)*scale+displace
+    val p3 = new Point(469,161)*scale+displace
+    val p4 = new Point(397,215)*scale+displace
+    val p5 = new Point(423,301)*scale+displace
+    val p6 = new Point(350,250)*scale+displace
+    val p7 = new Point(277,301)*scale+displace
+    val p8 = new Point(303,215)*scale+displace
+    val p9 = new Point(231,161)*scale+displace
+    val p10 = new Point(321,161)*scale+displace
+    
+    val segments = new ArrayList[Segment]
+    segments += new Segment(p1, p2)
+    segments += new Segment(p2, p3)
+    segments += new Segment(p3, p4)
+    segments += new Segment(p4, p5)
+    segments += new Segment(p5, p6)
+    segments += new Segment(p6, p7) 
+    segments += new Segment(p7, p8)
+    segments += new Segment(p8, p9)
+    segments += new Segment(p9, p10)
+    segments += new Segment(p10, p1)
+    tesselator = new Triangulator(segments)
+    tesselator.process
+  }
+  
+  // Test #2
   def snake {
 
     val scale = 10.0f

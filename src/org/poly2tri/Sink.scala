@@ -39,7 +39,6 @@ object Sink {
       new Sink(trapezoid)
     }
   }
-  
 }
 
 class Sink(val trapezoid: Trapezoid) extends Node(null, null) {

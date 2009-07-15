@@ -82,11 +82,10 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   } 
   
   // Add points to monotone mountain
-  // Use HashSet to aboid repeats
   def mark {
-    bottom.mPoints += leftPoint
-    bottom.mPoints += rightPoint
-    top.mPoints += leftPoint
-    top.mPoints += rightPoint
+    if(leftPoint != bottom.p) bottom.mPoints += leftPoint
+    if(rightPoint != bottom.q) bottom.mPoints += rightPoint
+    if(leftPoint != top.p) top.mPoints += leftPoint
+    if(rightPoint != top.q) top.mPoints += rightPoint
   }
 }
