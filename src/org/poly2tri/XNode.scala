@@ -37,16 +37,11 @@ class XNode(point: Point, lChild: Node, rChild: Node) extends Node(lChild, rChil
       // Move to the right in the graph
       return right.locate(s)
     } else if(s.p.x == point.x) {
-      if(point.y > s.p.y) {
-        s.left = point.segment.below
-      } else {
-        s.left = point.segment.above
-      }
+      // Move to the right in the graph
       return right.locate(s)
     } else {
       // Move to the left in the graph
       return left.locate(s)
     } 
   }
-
 }
