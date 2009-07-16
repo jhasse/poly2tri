@@ -43,8 +43,10 @@ class MonotoneMountain {
 	val monoPoly = new ArrayBuffer[Point]
     // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
- 
-	var slop = 0.0f
+	// Used to track which side of the line we are on                                
+	var positive = false
+	// Almost Pi!
+	val SLOP = 3.1
  
 	// Append a point to the list
 	def +=(point: Point) {
@@ -83,10 +85,15 @@ class MonotoneMountain {
 	    lastTriangle
 	  } else {
 	   // Initialize internal angles at each nonbase vertex
+	   // Link strictly convex vertices into a list, ignore reflex vertices
 	   var p = head.next
 	   while(p != tail) {
-	     // Link strictly convex vertices into a list
-	     if(convex(p)) convexPoints.enqueue(p)
+	     val a = angle(p)
+         // If the point is almost colinear with it's neighbor, remove it!
+	     if(a >= SLOP || a <= -SLOP) 
+           remove(p)
+	     else 
+	       if(convex(p)) convexPoints.enqueue(p)
 	     p = p.next
 	   }
     
@@ -97,6 +104,7 @@ class MonotoneMountain {
 	     val b = ear.clone
 	     val c = ear.next.clone
 	     val triangle = Array(a, b, c)
+      
 	     triangles += triangle
 	     
 	     // Remove ear, update angles and convex list
@@ -105,17 +113,12 @@ class MonotoneMountain {
          if(c.prev != null && convex(c)) convexPoints.enqueue(c)
 
 	   }    
-	   if(size >= 4) {
-	     println("Size = " + size)
-	     println(convex(head.next) + ", Angle: " + slop)
-	     println(convex(head.next.next) + ", Angle: " + slop)
-	   }
 	   assert(size <= 3, "Triangulation bug")
 	   if(size == 3)lastTriangle
 	}
    }
  
-	// Return the monotone polygon 
+	// Create the monotone polygon 
 	private def genMonoPoly { 
       var p = head
 	  while(p != null) {
@@ -124,13 +127,21 @@ class MonotoneMountain {
 	  }
 	}
  
-	// Determines if the inslide angle between edge v2-v3 and edge v2-v1 is convex 
+	def angle(p: Point) = {
+	  val a = (p.next - p)
+	  val b = (p.prev - p)
+	  Math.atan2(a cross b, a dot b)
+	}
+ 
+	// Determines if the inslide angle is convex or reflex
 	private def convex(p: Point) = {
-	  val a = (p.next - p).normalize
-	  val b = (p.prev - p).normalize
-      slop = a dot b
-      slop = 0.1f * Math.round( slop * 10.0f)
-     (slop >= 0f || slop == -1f || slop == 1f)
+	  val cvx = (angle(p) >= 0)
+	  if(p.prev == head) 
+	    positive = cvx
+	  if(positive != cvx)
+        false
+      else
+        true
     }
 
 	private def lastTriangle {

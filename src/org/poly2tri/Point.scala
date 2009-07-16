@@ -45,6 +45,7 @@ class Point(val x: Float, val y: Float, var segment: Segment) {
   def +(f: Float) = new Point(x + f, y + f)
   def *(f: Float) = new Point(x * f, y * f)
   def /(a: Float) = new Point(x / a, y / a)
+  def cross(p: Point) = x * p.y - y * p.x
   def dot(p: Point) = x * p.x + y * p.y
   def length = Math.sqrt(x * x + y * y).toFloat
   def normalize = this / length
