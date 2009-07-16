@@ -46,7 +46,7 @@ class MonotoneMountain {
 	// Used to track which side of the line we are on                                
 	var positive = false
 	// Almost Pi!
-	val SLOP = 3.1
+	val PI_SLOP = 3.1
  
 	// Append a point to the list
 	def +=(point: Point) {
@@ -78,6 +78,8 @@ class MonotoneMountain {
 	// See "Computational Geometry in C", 2nd edition, by Joseph O'Rourke, page 52
 	def triangulate {
 	
+	  // Establish the proper sign
+	  positive = initAngle
 	  // create monotone polygon - for dubug purposes
 	  genMonoPoly
    
@@ -90,7 +92,7 @@ class MonotoneMountain {
 	   while(p != tail) {
 	     val a = angle(p)
          // If the point is almost colinear with it's neighbor, remove it!
-	     if(a >= SLOP || a <= -SLOP) 
+	     if(a >= PI_SLOP || a <= -PI_SLOP) 
            remove(p)
 	     else 
 	       if(convex(p)) convexPoints.enqueue(p)
@@ -100,17 +102,17 @@ class MonotoneMountain {
 	   while(!convexPoints.isEmpty) {
 	     
 	     val ear = convexPoints.dequeue
-	     val a = ear.prev.clone
-	     val b = ear.clone
-	     val c = ear.next.clone
+	     val a = ear.prev
+	     val b = ear
+	     val c = ear.next
 	     val triangle = Array(a, b, c)
       
 	     triangles += triangle
 	     
 	     // Remove ear, update angles and convex list
 	     remove(ear) 
-	     if(a.prev != null && convex(a)) convexPoints.enqueue(a); 
-         if(c.prev != null && convex(c)) convexPoints.enqueue(c)
+	     if(valid(a)) convexPoints.enqueue(a); 
+         if(valid(c)) convexPoints.enqueue(c)
 
 	   }    
 	   assert(size <= 3, "Triangulation bug")
@@ -118,6 +120,8 @@ class MonotoneMountain {
 	}
    }
  
+	def valid(p: Point) = (p.prev != null && p.next != null && convex(p))
+	  
 	// Create the monotone polygon 
 	private def genMonoPoly { 
       var p = head
@@ -133,12 +137,15 @@ class MonotoneMountain {
 	  Math.atan2(a cross b, a dot b)
 	}
  
+	def initAngle = {
+	  val a = (head.next - head)
+	  val b = (tail - head)
+	  (Math.atan2(a cross b, a dot b) >= 0)
+	}
+ 
 	// Determines if the inslide angle is convex or reflex
 	private def convex(p: Point) = {
-	  val cvx = (angle(p) >= 0)
-	  if(p.prev == head) 
-	    positive = cvx
-	  if(positive != cvx)
+	  if(positive != (angle(p) >= 0))
         false
       else
         true

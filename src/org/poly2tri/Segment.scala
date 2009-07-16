@@ -30,14 +30,13 @@
  */
 package org.poly2tri
 
-import collection.jcl.ArrayList
 import scala.collection.mutable.HashSet
 
 // Represents a simple polygon's edge
 class Segment(var p: Point, var q: Point) {
 
-  // Pointer used for building trapezoidal map
-  var above, below, left: Trapezoid = null
+  // Pointers used for building trapezoidal map
+  var above, below: Trapezoid = null
   
   // Montone mountain points
   // Use a HashSet to avoid repeats

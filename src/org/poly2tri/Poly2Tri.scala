@@ -86,7 +86,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	     val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
 	     g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
 	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 4)
-	     g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	     //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
 	     g.setColor(red)
 	     g.draw(polygon)
 	    }
@@ -140,22 +140,41 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   // Test #1
   def poly {
-   
-    val scale = 1.0f
-    val p1 = new Point(100,300)*scale
-    val p2 = new Point(400,500)*scale
-    val p3 = new Point(260,200)*scale
-    val p4 = new Point(600,175)*scale
-    val p5 = new Point(400,300)*scale
-    val p6 = new Point(650,250)*scale
+
+    val p1 = Point(400,472)
+    val p2 = Point(500,392)
+    val p3 = Point(520,272)
+    val p4 = Point(460,232)
+    val p5 = Point(580,212)
+    val p6 = Point(480,152)
+    val p7 = Point(360,172)
+    val p8 = Point(360,52)
+    val p9 = Point(300,112)
+    val p10 = Point(200,32)
+    val p11 = Point(120,92)
+    val p12 = Point(200,72)
+    val p13 = Point(340,272)
+    val p14 = Point(208,212)
+    val p15 = Point(180,352)
+    val p16 = Point(300,312)
     
     val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
+    segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)
-    segments += new Segment(p1, p3)
-    segments += new Segment(p5, p2)
+    segments += new Segment(p4, p5)
     segments += new Segment(p5, p6)
-    segments += new Segment(p4, p6) 
+    segments += new Segment(p6, p7) 
+    segments += new Segment(p7, p8)
+    segments += new Segment(p8, p9)
+    segments += new Segment(p9, p10)
+    segments += new Segment(p10, p11) 
+    segments += new Segment(p11, p12)
+    segments += new Segment(p12, p13) 
+    segments += new Segment(p13, p14)
+    segments += new Segment(p14, p15)
+    segments += new Segment(p15, p16)
+    segments += new Segment(p16, p1)     
     
     tesselator = new Triangulator(segments)
     tesselator.process
@@ -163,16 +182,16 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def star {
 	
-    val p1 = new Point(350,75)
-    val p2 = new Point(379,161)
-    val p3 = new Point(469,161)
-    val p4 = new Point(397,215)
-    val p5 = new Point(423,301)
-    val p6 = new Point(350,250)
-    val p7 = new Point(277,301)
-    val p8 = new Point(303,215)
-    val p9 = new Point(231,161)
-    val p10 = new Point(321,161)
+    val p1 = Point(350,75)
+    val p2 = Point(379,161)
+    val p3 = Point(469,161)
+    val p4 = Point(397,215)
+    val p5 = Point(423,301)
+    val p6 = Point(350,250)
+    val p7 = Point(277,301)
+    val p8 = Point(303,215)
+    val p9 = Point(231,161)
+    val p10 = Point(321,161)
     
     val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
@@ -194,18 +213,18 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 
     val scale = 10.0f
     val displace = 100
-    val p1 = new Point(10,1)*scale+displace
-    val p2 = new Point(20,10)*scale+displace
-    val p3 = new Point(30,1)*scale+displace
-    val p4 = new Point(40,10)*scale+displace
-    val p5 = new Point(50,1)*scale+displace
-    val p6 = new Point(50,10)*scale+displace
-    val p7 = new Point(40,20)*scale+displace
-    val p8 = new Point(30,10)*scale+displace
-    val p9 = new Point(20,20)*scale+displace
-    val p10 = new Point(10,10)*scale+displace
-    val p11 = new Point(1,20)*scale+displace
-    val p12 = new Point(1,10)*scale+displace
+    val p1 = Point(10,1)*scale+displace
+    val p2 = Point(20,10)*scale+displace
+    val p3 = Point(30,1)*scale+displace
+    val p4 = Point(40,10)*scale+displace
+    val p5 = Point(50,1)*scale+displace
+    val p6 = Point(50,10)*scale+displace
+    val p7 = Point(40,20)*scale+displace
+    val p8 = Point(30,10)*scale+displace
+    val p9 = Point(20,20)*scale+displace
+    val p10 = Point(10,10)*scale+displace
+    val p11 = Point(1,20)*scale+displace
+    val p12 = Point(1,10)*scale+displace
     
     val segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)

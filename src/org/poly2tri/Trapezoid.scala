@@ -33,7 +33,7 @@ package org.poly2tri
 class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, val bottom: Segment) {
 
   var sink: Sink = null
-  var outside = false
+  var inside = true
   
   // Neighbor pointers
   var upperLeft: Trapezoid = null
@@ -58,11 +58,15 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
     lowerRight = lr; if(lr != null) lr.lowerLeft = this    
   }
   
-  def markNeighbors {
-    if(upperLeft != null) upperLeft.outside = true
-    if(lowerLeft != null) lowerLeft.outside = true
-    if(upperRight != null) upperRight.outside = true
-    if(lowerRight != null) lowerRight.outside = true
+  // Recursively trim neightbors
+  def trimNeighbors {
+    if(inside) {
+      inside = false
+      if(upperLeft != null) {upperLeft.trimNeighbors}
+      if(lowerLeft != null) {lowerLeft.trimNeighbors}
+      if(upperRight != null) {upperRight.trimNeighbors}
+      if(lowerRight != null) {lowerRight.trimNeighbors}
+    }
   }
   
   // Determines if this point lies inside the trapezoid
@@ -85,7 +89,7 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   } 
   
   // Add points to monotone mountain
-  def mark {
+  def addPoints {
     if(leftPoint != bottom.p) bottom.mPoints += leftPoint
     if(rightPoint != bottom.q) bottom.mPoints += rightPoint
     if(leftPoint != top.p) top.mPoints += leftPoint

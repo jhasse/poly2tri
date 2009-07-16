@@ -70,12 +70,22 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
           tList = trapezoidalMap.case4(t, s)
           queryGraph.case4(t.sink, s, tList)
         }
-        // Add new trapezoids to the trapezoidal map
+        // Add new trapezoids to map
         tList.foreach(trapezoidalMap.add)
       }
       trapezoidalMap reset
     }
-    trapezoids = trim
+    
+    // Mark outside trapezoids
+    trapezoidalMap.map.foreach(markOutside)
+    
+    // Collect interior trapezoids
+    for(t <- trapezoidalMap.map) 
+      if(t.inside) {
+        trapezoids += t
+        t addPoints
+      }
+   
     createMountains
     
     // Extract all the triangles into a single list
@@ -89,7 +99,7 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
   // The trapezoidal map 
   def trapezoidMap = trapezoidalMap.map
   // Trapezoid decomposition list
-  var trapezoids : ArrayBuffer[Trapezoid] = null
+  var trapezoids = new ArrayBuffer[Trapezoid]
   // Monotone polygons - these are monotone mountains
   def monoPolies: ArrayBuffer[ArrayBuffer[Point]] = {
     val polies = new ArrayBuffer[ArrayBuffer[Point]]
@@ -101,14 +111,15 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
   // Initialize trapezoidal map and query structure
   private val trapezoidalMap = new TrapezoidalMap
   private val boundingBox = trapezoidalMap.boundingBox(segments)
-  private val queryGraph = new QueryGraph(new Sink(boundingBox))
+  trapezoidalMap add boundingBox
+  private val queryGraph = new QueryGraph(Sink.init(boundingBox))
   private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
                                         
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segments) {
          val mountain = new MonotoneMountain
-         val k = Util.msort((x: Point, y: Point) => x < y)(s.mPoints.toList)
+         val k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
          val points = s.p :: k ::: List(s.q)
          points.foreach(p => mountain += p.clone)
          if(mountain.size > 2) {
@@ -118,22 +129,11 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
     }   
   }
   
-  // Trim off the extraneous trapezoids surrounding the polygon
-  private def trim = {
-    val traps = new ArrayBuffer[Trapezoid]
-    // Mark outside trapezoids
-    for(t <- trapezoidalMap.map) {
+  // Mark the outside trapezoids surrounding the polygon
+  private def markOutside(t: Trapezoid) {
 	  if(t.top == boundingBox.top || t.bottom == boundingBox.bottom) {
-	    t.outside = true
-	    t.markNeighbors
+	    t trimNeighbors
 	  }
-    }
-    // Collect interior trapezoids
-    for(t <- trapezoidalMap.map) if(!t.outside) {
-      traps += t
-      t.mark
-    }
-    traps
   }
   
   private def orderSegments = {
@@ -142,14 +142,12 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
     for(s <- segments) {
       // Point p must be to the left of point q
       if(s.p.x > s.q.x) {
-        val tmp = s.p
-        s.p = s.q
-        s.q = tmp
-        segs += s
+        segs += new Segment(s.q.clone, s.p.clone)
       } else if(s.p.x < s.q.x)
-          segs += s
+          segs += new Segment(s.p.clone, s.q.clone)
     }
     // This is actually important: See Seidel's paper
-    Random.shuffle(segs)
+    //Random.shuffle(segs)
+    segs
   }
 }

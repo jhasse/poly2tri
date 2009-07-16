@@ -30,21 +30,17 @@
  */
 package org.poly2tri
 
-class Point(val x: Float, val y: Float, var segment: Segment) {
-  
-  def this(x: Float, y: Float) = this(x, y, null)
+case class Point(val x: Float, val y: Float) {
   
   // Pointers to next and previous points in Monontone Mountain
   var next, prev: Point = null
   
-  /* Internal angle */
-  var angle = 0f
-  
-  def -(p: Point) = new Point(x - p.x, y - p.y) 
-  def +(p: Point) = new Point(x + p.x, y + p.y)
-  def +(f: Float) = new Point(x + f, y + f)
-  def *(f: Float) = new Point(x * f, y * f)
-  def /(a: Float) = new Point(x / a, y / a)
+  def -(p: Point) = Point(x - p.x, y - p.y) 
+  def +(p: Point) = Point(x + p.x, y + p.y)
+  def +(f: Float) = Point(x + f, y + f)
+  def -(f: Float) = Point(x - f, y - f)
+  def *(f: Float) = Point(x * f, y * f)
+  def /(a: Float) = Point(x / a, y / a)
   def cross(p: Point) = x * p.y - y * p.x
   def dot(p: Point) = x * p.x + y * p.y
   def length = Math.sqrt(x * x + y * y).toFloat
@@ -52,12 +48,11 @@ class Point(val x: Float, val y: Float, var segment: Segment) {
   
   def <(p: Point) = {
     if(p.x == x) 
-      if(y > p.y) true
+      if(y <= p.y) true
       else false
     else
       (x < p.x)
   }
     
-  
-  override def clone = new Point(x, y)
+  override def clone = Point(x, y)
 }

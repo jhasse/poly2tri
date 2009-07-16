@@ -39,7 +39,7 @@ class TrapezoidalMap {
   // Trapezoid associated array
   val map = HashSet.empty[Trapezoid]
   // AABB margin
-  var margin = 20f
+  var margin = 50f
     
   // Bottom segment that spans multiple trapezoids
   private var bCross: Segment = null
@@ -48,11 +48,13 @@ class TrapezoidalMap {
   
   // Add a trapezoid to the map
   def add(t: Trapezoid) {
+    assert(t != null)
     map += t
   }
   
   // Remove a trapezoid from the map
   def remove(t: Trapezoid) {
+    assert(t != null)
     map -=t
   }
   
@@ -66,6 +68,7 @@ class TrapezoidalMap {
   def case1(t: Trapezoid, s: Segment) = {
     
     assert(s.p.x != s.q.x)
+    assert(s.p.x < s.q.x)
     
     val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
@@ -87,6 +90,8 @@ class TrapezoidalMap {
   // Case 2: Trapezoid contains point p, q lies outside
   //         break trapezoid into 3 smaller trapezoids
   def case2(t: Trapezoid, s: Segment) = {
+    
+    assert(s.p.x < s.q.x)
     
     val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
     
@@ -111,6 +116,7 @@ class TrapezoidalMap {
   def case3(t: Trapezoid, s: Segment) = {
     
     assert(s.p.x != s.q.x)
+    assert(s.p.x < s.q.x)
     
     val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
     val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
@@ -150,6 +156,8 @@ class TrapezoidalMap {
   //         break trapezoid into 3 smaller trapezoids
   def case4(t: Trapezoid, s: Segment) = {
     
+    assert(s.p.x < s.q.x)
+    
     val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
     
     val topCross = (tCross == t.top)
@@ -176,6 +184,9 @@ class TrapezoidalMap {
     
     trapezoids(2).update(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
     
+    s.above = trapezoids(0)
+    s.below = trapezoids(1)
+    
     trapezoids
   }
   
@@ -183,21 +194,21 @@ class TrapezoidalMap {
   def boundingBox(segments: ArrayBuffer[Segment]): Trapezoid = {
    
     var max = segments(0).p + margin
-    var min = segments(0).q + margin
+    var min = segments(0).q - margin
 
     for(s <- segments) {
-      if(s.p.x > max.x) max = new Point(s.p.x + margin, max.y)
-      if(s.p.y > max.y) max = new Point(max.x, s.p.y + margin)
-      if(s.q.x > max.x) max = new Point(s.q.x+margin, max.y)
-      if(s.q.y > max.y) max = new Point(max.x, s.q.y+margin)
-      if(s.p.x < min.x) min = new Point(s.p.x-margin, min.y)
-      if(s.p.y < min.y) min = new Point(min.x, s.p.y-margin)
-      if(s.q.x < min.x) min = new Point(s.q.x-margin, min.y)
-      if(s.q.y < min.y) min = new Point(min.x, s.q.y-margin)
+      if(s.p.x > max.x) max = Point(s.p.x + margin, max.y)
+      if(s.p.y > max.y) max = Point(max.x, s.p.y + margin)
+      if(s.q.x > max.x) max = Point(s.q.x+margin, max.y)
+      if(s.q.y > max.y) max = Point(max.x, s.q.y+margin)
+      if(s.p.x < min.x) min = Point(s.p.x-margin, min.y)
+      if(s.p.y < min.y) min = Point(min.x, s.p.y-margin)
+      if(s.q.x < min.x) min = Point(s.q.x-margin, min.y)
+      if(s.q.y < min.y) min = Point(min.x, s.q.y-margin)
     }
 
-    val top = new Segment(new Point(min.x, max.y), new Point(max.x, max.y))
-    val bottom = new Segment(new Point(min.x, min.y), new Point(max.x, min.y))
+    val top = new Segment(Point(min.x, max.y), Point(max.x, max.y))
+    val bottom = new Segment(Point(min.x, min.y), Point(max.x, min.y))
     val left = bottom.p
     val right = top.q
     
