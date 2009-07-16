@@ -34,18 +34,18 @@ import scala.collection.mutable.ArrayBuffer
 
 // Based on Raimund Seidel's paper "A simple and fast incremental randomized
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
-class Triangulator(var segments: ArrayBuffer[Segment]) {
+class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Triangle decomposition list
   var triangles = new ArrayBuffer[Array[Point]]
   
   // Order and randomize the segments
-  segments = orderSegments
+  val segs = orderSegments
   
   // Build the trapezoidal map and query graph
   def process {
     
-    for(s <- segments) {
+    for(s <- segs) {
       val traps = queryGraph.followSegment(s)
       // Remove trapezoids from trapezoidal Map
       traps.foreach(trapezoidalMap.remove)
@@ -139,14 +139,18 @@ class Triangulator(var segments: ArrayBuffer[Segment]) {
   private def orderSegments = {
     // Ignore vertical segments!
     val segs = new ArrayBuffer[Segment]
-    for(s <- segments) {
+    for(s <- segments) 
       // Point p must be to the left of point q
       if(s.p.x > s.q.x) {
-        segs += new Segment(s.q.clone, s.p.clone)
+        val tmp = s.p
+        s.p = s.q
+        s.q = tmp
+        segs += s
       } else if(s.p.x < s.q.x)
-          segs += new Segment(s.p.clone, s.q.clone)
-    }
-    // This is actually important: See Seidel's paper
+          segs += s
+    // Randomized triangulation improves performance
+    // See Seidel's paper, or O'Rourke's book, p. 57 
+    // Turn this off for now because of stupid pointer bug somewhere!
     //Random.shuffle(segs)
     segs
   }
