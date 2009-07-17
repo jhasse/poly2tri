@@ -48,13 +48,13 @@ class TrapezoidalMap {
   
   // Add a trapezoid to the map
   def add(t: Trapezoid) {
-    assert(t != null)
+    assert(t != null, "Bad value")
     map += t
   }
   
   // Remove a trapezoid from the map
   def remove(t: Trapezoid) {
-    assert(t != null)
+    assert(t != null, "Bad value")
     map -=t
   }
   
@@ -93,12 +93,10 @@ class TrapezoidalMap {
     
     assert(s.p.x < s.q.x)
     
-    val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
-    
     val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
-    trapezoids += new Trapezoid(s.p, rp, t.top, s)
-    trapezoids += new Trapezoid(s.p, rp, s, t.bottom)
+    trapezoids += new Trapezoid(s.p, t.rightPoint, t.top, s)
+    trapezoids += new Trapezoid(s.p, t.rightPoint, s, t.bottom)
    
     trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
     trapezoids(1).update(trapezoids(0), null, t.upperRight, null)
@@ -118,20 +116,17 @@ class TrapezoidalMap {
     assert(s.p.x != s.q.x)
     assert(s.p.x < s.q.x)
     
-    val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
-    val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
-    
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
     
     val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(lp, rp, t.top, s)}
-    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(lp, rp, s, t.bottom)}
+    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, t.rightPoint, t.top, s)}
+    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, t.rightPoint, s, t.bottom)}
     
     if(topCross) {
       trapezoids(0).upperRight = t.upperRight
       if(t.upperRight != null) t.upperRight.upperLeft = trapezoids(0)
-      trapezoids(0).rightPoint = rp
+      trapezoids(0).rightPoint = t.rightPoint
     } else {
       trapezoids(0).update(t.upperLeft, s.above, t.upperRight, null)
     }
@@ -139,7 +134,7 @@ class TrapezoidalMap {
     if(bottomCross) {
       trapezoids(1).lowerRight = t.lowerRight
       if(t.lowerRight != null) t.lowerRight.lowerLeft = trapezoids(1)
-      trapezoids(1).rightPoint = rp
+      trapezoids(1).rightPoint = t.rightPoint
     } else {
       trapezoids(1).update(s.below, t.lowerLeft, null, t.lowerRight)
     }
@@ -157,15 +152,13 @@ class TrapezoidalMap {
   def case4(t: Trapezoid, s: Segment) = {
     
     assert(s.p.x < s.q.x)
-    
-    val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
-    
+       
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
-    
+
     val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(lp, s.q, t.top, s)}
-    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(lp, s.q, s, t.bottom)}
+    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, s.q, t.top, s)}
+    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, s.q, s, t.bottom)}
     trapezoids += new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     if(topCross) {
@@ -210,7 +203,7 @@ class TrapezoidalMap {
     val top = new Segment(Point(min.x, max.y), Point(max.x, max.y))
     val bottom = new Segment(Point(min.x, min.y), Point(max.x, min.y))
     val left = bottom.p
-    val right = top.q
+    val right = bottom.q
     
     return new Trapezoid(left, right, top, bottom)
   }

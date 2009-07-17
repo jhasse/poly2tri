@@ -55,10 +55,12 @@ object Poly2Tri {
 class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   var tesselator: Triangulator = null
+  var segments: ArrayBuffer[Segment] = null
   
   var quit = false
   var debug = false
   var drawMap = false
+  var drawSegs = false
   var hiLighter = 0
   
   def init(container: GameContainer) {
@@ -79,14 +81,17 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    if(debug) {
 	   val draw = if(drawMap) tesselator.trapezoidMap else tesselator.trapezoids
 	   for(t <- draw) {
+	     assert(t.rightPoint != t.leftPoint)
 	     val polygon = new Polygon()
 	     for(v <- t.vertices) {
 	       polygon.addPoint(v.x, v.y)
 	     }
-	     val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
-	     g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
-	     val rCirc = new Circle(t.rightPoint.x, t.rightPoint.y, 4)
-	     //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	     if(!drawMap) {
+	       val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
+	       g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
+	       val rCirc = new Circle(t.rightPoint.x+5, t.rightPoint.y, 4)
+	       g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+         }                          
 	     g.setColor(red)
 	     g.draw(polygon)
 	    }
@@ -98,12 +103,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     	if(t.size < 3) println("wtf")
         val triangle = new Polygon
         t.foreach(p => triangle.addPoint(p.x, p.y))
-        val color = if(i == hiLighter) blue else red
-        g.setColor(color)
+        g.setColor(red)
         g.draw(triangle)
-        i += 1
       }
-   } else {
+      val triangle = new Polygon
+      tesselator.triangles(hiLighter).foreach(p => triangle.addPoint(p.x, p.y))
+      g.setColor(blue)
+      g.draw(triangle)
+   } else if (debug && drawMap){
     for(mp <- tesselator.monoPolies) {
       val poly = new Polygon
       mp.foreach(p => poly.addPoint(p.x, p.y))
@@ -111,6 +118,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       g.draw(poly)
       }
     }
+   
+   if(drawSegs) {
+     g.setColor(green)
+     for(s <- segments) 
+         g.drawLine(s.p.x,s.p.y,s.q.x,s.q.y)
+   }
     
   }
   
@@ -135,6 +148,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '1') {poly; hiLighter = 0}
     if(c == '2') {snake; hiLighter = 0}
     if(c == '3') {star; hiLighter = 0}
+    if(c == 's') drawSegs = !drawSegs
 
   }
   
@@ -158,7 +172,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p15 = Point(180,352)
     val p16 = Point(300,312)
     
-    val segments = new ArrayBuffer[Segment]
+    segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)
@@ -193,7 +207,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p9 = Point(231,161)
     val p10 = Point(321,161)
     
-    val segments = new ArrayBuffer[Segment]
+    segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)
@@ -226,7 +240,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p11 = Point(1,20)*scale+displace
     val p12 = Point(1,10)*scale+displace
     
-    val segments = new ArrayBuffer[Segment]
+    segments = new ArrayBuffer[Segment]
     segments += new Segment(p1, p2)
     segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)

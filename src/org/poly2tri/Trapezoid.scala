@@ -80,7 +80,7 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
     verts(1) = lineIntersect(bottom, leftPoint.x)
     verts(2) = lineIntersect(bottom, rightPoint.x)
     verts(3) = lineIntersect(top, rightPoint.x)
-    return verts
+    verts
   }
   
   def lineIntersect(s: Segment, x: Float) = {

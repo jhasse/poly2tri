@@ -115,8 +115,7 @@ class MonotoneMountain {
          if(valid(c)) convexPoints.enqueue(c)
 
 	   }    
-	   assert(size <= 3, "Triangulation bug")
-	   if(size == 3)lastTriangle
+	   assert(size <= 2, "Triangulation bug")
 	}
    }
  

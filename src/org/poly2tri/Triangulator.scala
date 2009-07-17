@@ -75,7 +75,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       }
       trapezoidalMap reset
     }
-    
+  
     // Mark outside trapezoids
     trapezoidalMap.map.foreach(markOutside)
     
@@ -111,7 +111,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   // Initialize trapezoidal map and query structure
   private val trapezoidalMap = new TrapezoidalMap
   private val boundingBox = trapezoidalMap.boundingBox(segments)
-  trapezoidalMap add boundingBox
   private val queryGraph = new QueryGraph(Sink.init(boundingBox))
   private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
                                         
