@@ -30,7 +30,7 @@
  */
 package org.poly2tri
 
-import collection.jcl.ArrayList
+import scala.collection.mutable.ArrayBuffer
 
 // Node for a Directed Acyclic graph (DAG)
 abstract class Node(var left: Node, var right: Node) {
@@ -38,7 +38,7 @@ abstract class Node(var left: Node, var right: Node) {
   if(left != null) left.parentList += this
   if(right != null) right.parentList += this
   
-  var parentList = new ArrayList[Node]
+  var parentList = new ArrayBuffer[Node]
   
   def locate(s: Segment): Sink
   
@@ -46,13 +46,9 @@ abstract class Node(var left: Node, var right: Node) {
   // Make sure parent pointers are updated
   def replace(node: Node) {
    for(parent <- node.parentList) {
-     // Select the correct node (left or right child)
-     if(parent.left == node) {
-     	parent.left = this
-     } else {
-        parent.right = this
-     }
-     // Decouple the node
+     // Select the correct node to replace (left or right child)
+     if(parent.left == node) parent.left = this
+     else parent.right = this 
      parentList += parent
    }
   }

@@ -40,7 +40,7 @@ class YNode(segment: Segment, lChild: Node, rChild: Node) extends Node(lChild, r
       // Move up the graph
       left.locate(s)
     } else {
-      // s and segment share the same endpoint
+      // s and segment share the same endpoint, p
       if (s.slope < segment.slope) {
         // Move down the graph
         return right.locate(s)

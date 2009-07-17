@@ -39,9 +39,9 @@ class MonotoneMountain {
 	var size = 0
 
 	val convexPoints = new Queue[Point]
-    // Monotone mountain points
+  // Monotone mountain points
 	val monoPoly = new ArrayBuffer[Point]
-    // Triangles that constitute the mountain
+  // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
 	// Used to track which side of the line we are on                                
 	var positive = false
@@ -53,14 +53,14 @@ class MonotoneMountain {
 	  size match {
 	    case 0 => 
 	      head = point
-        case 1 =>
-          tail = point
-		  tail.prev = head
-		  head.next = tail
-        case _ =>
-          tail.next = point
-          point.prev = tail
-          tail = point
+      case 1 =>
+        tail = point
+        tail.prev = head
+        head.next = tail
+      case _ =>
+        tail.next = point
+        point.prev = tail
+        tail = point
 	  }
 	  size += 1
 	}
@@ -79,54 +79,53 @@ class MonotoneMountain {
 	def triangulate {
 	
 	  // Establish the proper sign
-	  positive = initAngle
+	  positive = angleSign
 	  // create monotone polygon - for dubug purposes
 	  genMonoPoly
    
 	  if(size == 3) {
 	    lastTriangle
 	  } else {
-	   // Initialize internal angles at each nonbase vertex
-	   // Link strictly convex vertices into a list, ignore reflex vertices
-	   var p = head.next
-	   while(p != tail) {
-	     val a = angle(p)
-         // If the point is almost colinear with it's neighbor, remove it!
-	     if(a >= PI_SLOP || a <= -PI_SLOP) 
-           remove(p)
-	     else 
-	       if(convex(p)) convexPoints.enqueue(p)
-	     p = p.next
-	   }
+      // Initialize internal angles at each nonbase vertex
+      // Link strictly convex vertices into a list, ignore reflex vertices
+      var p = head.next
+      while(p != tail) {
+        val a = angle(p)
+        // If the point is almost colinear with it's neighbor, remove it!
+        if(a >= PI_SLOP || a <= -PI_SLOP)
+        remove(p)
+        else
+        if(convex(p)) convexPoints.enqueue(p)
+        p = p.next
+      }
     
-	   while(!convexPoints.isEmpty) {
+      while(!convexPoints.isEmpty) {
 	     
-	     val ear = convexPoints.dequeue
-	     val a = ear.prev
-	     val b = ear
-	     val c = ear.next
-	     val triangle = Array(a, b, c)
+        val ear = convexPoints.dequeue
+        val a = ear.prev
+        val b = ear
+        val c = ear.next
+        val triangle = Array(a, b, c)
       
-	     triangles += triangle
+        triangles += triangle
 	     
-	     // Remove ear, update angles and convex list
-	     remove(ear) 
-	     if(valid(a)) convexPoints.enqueue(a); 
-         if(valid(c)) convexPoints.enqueue(c)
-
-	   }    
-	   assert(size <= 2, "Triangulation bug")
-	}
-   }
+        // Remove ear, update angles and convex list
+        remove(ear)
+        if(valid(a)) convexPoints.enqueue(a)
+        if(valid(c)) convexPoints.enqueue(c)
+      }
+      assert(size <= 3, "Triangulation bug")
+    }
+  }
  
 	def valid(p: Point) = (p.prev != null && p.next != null && convex(p))
 	  
 	// Create the monotone polygon 
 	private def genMonoPoly { 
-      var p = head
+    var p = head
 	  while(p != null) {
-	      monoPoly += p
-	      p = p.next
+      monoPoly += p
+      p = p.next
 	  }
 	}
  
@@ -136,7 +135,7 @@ class MonotoneMountain {
 	  Math.atan2(a cross b, a dot b)
 	}
  
-	def initAngle = {
+	def angleSign = {
 	  val a = (head.next - head)
 	  val b = (tail - head)
 	  (Math.atan2(a cross b, a dot b) >= 0)
@@ -144,20 +143,18 @@ class MonotoneMountain {
  
 	// Determines if the inslide angle is convex or reflex
 	private def convex(p: Point) = {
-	  if(positive != (angle(p) >= 0))
-        false
-      else
-        true
-    }
+	  if(positive != (angle(p) >= 0)) false
+    else true
+  }
 
 	private def lastTriangle {
 	  val triangle = new Array[Point](3)
 	  var i = 0
-      var p = head
+    var p = head
 	  while(p != null) {
-	      triangle(i) = p
-	      p = p.next
-          i += 1
+      triangle(i) = p
+      p = p.next
+      i += 1
 	  }
 	  triangles += triangle
 	}

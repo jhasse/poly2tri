@@ -44,17 +44,13 @@ class QueryGraph(var head: Node) {
     val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += locate(s)
     var j = 0
-    try {
-	    while(s.q.x > trapezoids(j).rightPoint.x) {
-	      if(s > trapezoids(j).rightPoint) {
-	        trapezoids += trapezoids(j).upperRight
-	      } else {
-	        trapezoids += trapezoids(j).lowerRight
-	      }
-	      j += 1
-	    }
-    } catch {
-      case e => println("# of Trapezoids = " + j)
+    while(s.q.x > trapezoids(j).rightPoint.x) {
+      if(s > trapezoids(j).rightPoint) {
+        trapezoids += trapezoids(j).upperRight
+      } else {
+        trapezoids += trapezoids(j).lowerRight
+      }
+      j += 1
     }
     trapezoids
   }
@@ -63,31 +59,32 @@ class QueryGraph(var head: Node) {
     if(sink.parentList.size == 0) {
       head = node
     } else {
-      node.replace(sink)
+      node replace sink
     }
   }
   
-  def case1(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
+  def case1(sink: Sink, s: Segment, tList: Array[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(1)), Sink.init(tList(2)))
     val qNode = new XNode(s.q, yNode, Sink.init(tList(3)))
 	val pNode = new XNode(s.p, Sink.init(tList(0)), qNode)
     replace(sink, pNode)
   }
   
-  def case2(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
+  def case2(sink: Sink, s: Segment, tList: Array[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(1)), Sink.init(tList(2)))
 	val pNode = new XNode(s.p, Sink.init(tList(0)), yNode)
     replace(sink, pNode)
   }
   
-  def case3(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
+  def case3(sink: Sink, s: Segment, tList: Array[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(0)), Sink.init(tList(1)))
     replace(sink, yNode)
   }
   
-  def case4(sink: Sink, s: Segment, tList: ArrayBuffer[Trapezoid]) {
+  def case4(sink: Sink, s: Segment, tList: Array[Trapezoid]) {
     val yNode = new YNode(s, Sink.init(tList(0)), Sink.init(tList(1)))
     val qNode = new XNode(s.q, yNode, Sink.init(tList(2)))
     replace(sink, qNode)
   }
+  
 }

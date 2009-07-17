@@ -30,7 +30,7 @@
  */
 package org.poly2tri
 
-import scala.collection.mutable.{Map, HashSet, ArrayBuffer}
+import scala.collection.mutable.{HashSet, ArrayBuffer}
 
 // See "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
 
@@ -70,11 +70,11 @@ class TrapezoidalMap {
     assert(s.p.x != s.q.x)
     assert(s.p.x < s.q.x)
     
-    val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
-    trapezoids += new Trapezoid(s.p, s.q, t.top, s)
-    trapezoids += new Trapezoid(s.p, s.q, s, t.bottom)
-    trapezoids += new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
+    val trapezoids = new Array[Trapezoid](4)
+    trapezoids(0) = new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
+    trapezoids(1) = new Trapezoid(s.p, s.q, t.top, s)
+    trapezoids(2) = new Trapezoid(s.p, s.q, s, t.bottom)
+    trapezoids(3) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
     trapezoids(1).update(trapezoids(0), null, trapezoids(3), null)
@@ -93,10 +93,10 @@ class TrapezoidalMap {
     
     assert(s.p.x < s.q.x)
     
-    val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
-    trapezoids += new Trapezoid(s.p, t.rightPoint, t.top, s)
-    trapezoids += new Trapezoid(s.p, t.rightPoint, s, t.bottom)
+    val trapezoids = new Array[Trapezoid](3)
+    trapezoids(0) = new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
+    trapezoids(1) = new Trapezoid(s.p, t.rightPoint, t.top, s)
+    trapezoids(2) = new Trapezoid(s.p, t.rightPoint, s, t.bottom)
    
     trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
     trapezoids(1).update(trapezoids(0), null, t.upperRight, null)
@@ -119,9 +119,9 @@ class TrapezoidalMap {
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
     
-    val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, t.rightPoint, t.top, s)}
-    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, t.rightPoint, s, t.bottom)}
+    val trapezoids = new Array[Trapezoid](2)
+    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, t.rightPoint, t.top, s)
+    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, t.rightPoint, s, t.bottom)
     
     if(topCross) {
       trapezoids(0).upperRight = t.upperRight
@@ -156,10 +156,10 @@ class TrapezoidalMap {
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
 
-    val trapezoids = new ArrayBuffer[Trapezoid]
-    trapezoids += {if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, s.q, t.top, s)}
-    trapezoids += {if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, s.q, s, t.bottom)}
-    trapezoids += new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
+    val trapezoids = new Array[Trapezoid](3)
+    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(t.leftPoint, s.q, t.top, s)
+    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint, s.q, s, t.bottom)
+    trapezoids(2) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     if(topCross) {
       trapezoids(0).upperRight = trapezoids(2)

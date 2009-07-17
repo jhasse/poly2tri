@@ -40,17 +40,17 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   var triangles = new ArrayBuffer[Array[Point]]
   
   // Order and randomize the segments
-  val segs = orderSegments
+  val segmentList = orderSegments
   
   // Build the trapezoidal map and query graph
   def process {
     
-    for(s <- segs) {
-      val traps = queryGraph.followSegment(s)
+    for(s <- segmentList) {
+      var traps = queryGraph.followSegment(s)
       // Remove trapezoids from trapezoidal Map
       traps.foreach(trapezoidalMap.remove)
       for(t <- traps) {
-        var tList: ArrayBuffer[Trapezoid] = null
+        var tList: Array[Trapezoid] = null
         val containsP = t.contains(s.p)
         val containsQ = t.contains(s.q)
         if(containsP && containsQ) {
@@ -75,7 +75,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       }
       trapezoidalMap reset
     }
-  
+
     // Mark outside trapezoids
     trapezoidalMap.map.foreach(markOutside)
     
@@ -93,13 +93,14 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       for(t <- xMonoPoly(i).triangles)
     	  triangles += t
     
-    println("# triangles = " + triangles.size)
+    //println("# triangles = " + triangles.size)
   }
   
   // The trapezoidal map 
   def trapezoidMap = trapezoidalMap.map
   // Trapezoid decomposition list
   var trapezoids = new ArrayBuffer[Trapezoid]
+  
   // Monotone polygons - these are monotone mountains
   def monoPolies: ArrayBuffer[ArrayBuffer[Point]] = {
     val polies = new ArrayBuffer[ArrayBuffer[Point]]
@@ -116,15 +117,15 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
                                         
   // Build a list of x-monotone mountains
   private def createMountains {
-    for(s <- segments) {
+    for(s <- segmentList) {
+      if(s.mPoints.size > 0) {
          val mountain = new MonotoneMountain
          val k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
          val points = s.p :: k ::: List(s.q)
          points.foreach(p => mountain += p.clone)
-         if(mountain.size > 2) {
-           mountain.triangulate
-           xMonoPoly += mountain
-         }
+         mountain.triangulate
+         xMonoPoly += mountain
+      }
     }   
   }
   
@@ -141,15 +142,14 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
     for(s <- segments) 
       // Point p must be to the left of point q
       if(s.p.x > s.q.x) {
-        val tmp = s.p
-        s.p = s.q
-        s.q = tmp
-        segs += s
+        segs += new Segment(s.q.clone, s.p.clone)
       } else if(s.p.x < s.q.x)
-          segs += s
+          segs += new Segment(s.p.clone, s.q.clone)
     // Randomized triangulation improves performance
     // See Seidel's paper, or O'Rourke's book, p. 57 
-    // Turn this off for now because of stupid pointer bug somewhere!
+    // Turn this off for now because of pointer bug somewhere in DAG?
+    // The solution to this bug may be more apparent with a better Trapezoidal Map
+    // data structure... Maybe a modified doubly connected edge list?
     //Random.shuffle(segs)
     segs
   }

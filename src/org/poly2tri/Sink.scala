@@ -33,11 +33,10 @@ package org.poly2tri
 object Sink {
   
   def init(trapezoid: Trapezoid) = {
-    if(trapezoid.sink != null) {
+    if(trapezoid.sink != null) 
       trapezoid.sink
-    } else {
+    else 
       new Sink(trapezoid)
-    }
   }
 }
 

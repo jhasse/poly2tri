@@ -64,7 +64,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   
   def init(container: GameContainer) {
-    snake
+    poly
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -81,7 +81,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    if(debug) {
 	   val draw = if(drawMap) tesselator.trapezoidMap else tesselator.trapezoids
 	   for(t <- draw) {
-	     assert(t.rightPoint != t.leftPoint)
 	     val polygon = new Polygon()
 	     for(v <- t.vertices) {
 	       polygon.addPoint(v.x, v.y)
@@ -93,14 +92,13 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	       g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
          }                          
 	     g.setColor(red)
-	     g.draw(polygon)
+	     g.draw(polygon) 
 	    }
    }
    
    if(!debug) {
     var i = 0
     for(t <- tesselator.triangles) {
-    	if(t.size < 3) println("wtf")
         val triangle = new Polygon
         t.foreach(p => triangle.addPoint(p.x, p.y))
         g.setColor(red)
@@ -154,7 +152,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   // Test #1
   def poly {
-
+	
     val p1 = Point(400,472)
     val p2 = Point(500,392)
     val p3 = Point(520,272)
@@ -224,7 +222,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   // Test #2
   def snake {
-
+	
     val scale = 10.0f
     val displace = 100
     val p1 = Point(10,1)*scale+displace
