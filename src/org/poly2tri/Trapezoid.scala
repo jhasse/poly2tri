@@ -41,16 +41,6 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   var upperRight: Trapezoid = null
   var lowerRight: Trapezoid = null
   
-  def updateLeftNeighbors(ul: Trapezoid, ll: Trapezoid) {
-    if(upperLeft != null && upperLeft.top == top) upperLeft.upperRight = ul
-    if(lowerLeft != null && lowerLeft.bottom == bottom) lowerLeft.lowerRight = ll
-  }
-  
-  def updateRightNeighbors(ur: Trapezoid, lr: Trapezoid) {
-    if(upperRight != null && upperRight.top == top) upperRight.upperLeft = ur
-    if(lowerRight != null && lowerRight.bottom == bottom) lowerRight.lowerLeft = lr
-  }
-  
   def update(ul: Trapezoid, ll: Trapezoid, ur: Trapezoid, lr: Trapezoid) {
     upperLeft = ul; if(ul != null) ul.upperRight = this
     lowerLeft = ll; if(ll != null) ll.lowerRight = this
@@ -62,10 +52,10 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   def trimNeighbors {
     if(inside) {
       inside = false
-      if(upperLeft != null) {upperLeft.trimNeighbors}
-      if(lowerLeft != null) {lowerLeft.trimNeighbors}
-      if(upperRight != null) {upperRight.trimNeighbors}
-      if(lowerRight != null) {lowerRight.trimNeighbors}
+      if(upperLeft != null) upperLeft.trimNeighbors
+      if(lowerLeft != null) lowerLeft.trimNeighbors
+      if(upperRight != null) upperRight.trimNeighbors
+      if(lowerRight != null) lowerRight.trimNeighbors
     }
   }
   
@@ -85,14 +75,14 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   
   def lineIntersect(s: Segment, x: Float) = {
     val y =  s.slope * x + s.b
-    new Point(x, y)
+    Point(x, y)
   } 
   
   // Add points to monotone mountain
   def addPoints {
-    if(leftPoint != bottom.p) bottom.mPoints += leftPoint
-    if(rightPoint != bottom.q) bottom.mPoints += rightPoint
-    if(leftPoint != top.p) top.mPoints += leftPoint
-    if(rightPoint != top.q) top.mPoints += rightPoint
+    if(leftPoint ! bottom.p) bottom.mPoints += leftPoint.clone
+    if(rightPoint ! bottom.q) bottom.mPoints += rightPoint.clone
+    if(leftPoint ! top.p) top.mPoints += leftPoint.clone
+    if(rightPoint ! top.q) top.mPoints += rightPoint.clone
   }
 }

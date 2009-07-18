@@ -40,7 +40,7 @@ class QueryGraph(var head: Node) {
   def locate(s: Segment) = head.locate(s).trapezoid
   
   def followSegment(s: Segment) = {
-    assert(s.p.x < s.q.x)
+    
     val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += locate(s)
     var j = 0

@@ -122,7 +122,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
          val mountain = new MonotoneMountain
          val k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
          val points = s.p :: k ::: List(s.q)
-         points.foreach(p => mountain += p.clone)
+         points.foreach(p => mountain += p)
          mountain.triangulate
          xMonoPoly += mountain
       }
@@ -147,9 +147,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
           segs += new Segment(s.p.clone, s.q.clone)
     // Randomized triangulation improves performance
     // See Seidel's paper, or O'Rourke's book, p. 57 
-    // Turn this off for now because of pointer bug somewhere in DAG?
-    // The solution to this bug may be more apparent with a better Trapezoidal Map
-    // data structure... Maybe a modified doubly connected edge list?
+    // Turn this off for now because of pointer bug somewhere in DAG / trapezoidal map
     //Random.shuffle(segs)
     segs
   }

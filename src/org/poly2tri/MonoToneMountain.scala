@@ -39,9 +39,9 @@ class MonotoneMountain {
 	var size = 0
 
 	val convexPoints = new Queue[Point]
-  // Monotone mountain points
+    // Monotone mountain points
 	val monoPoly = new ArrayBuffer[Point]
-  // Triangles that constitute the mountain
+    // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
 	// Used to track which side of the line we are on                                
 	var positive = false
@@ -83,9 +83,6 @@ class MonotoneMountain {
 	  // create monotone polygon - for dubug purposes
 	  genMonoPoly
    
-	  if(size == 3) {
-	    lastTriangle
-	  } else {
       // Initialize internal angles at each nonbase vertex
       // Link strictly convex vertices into a list, ignore reflex vertices
       var p = head.next
@@ -115,17 +112,17 @@ class MonotoneMountain {
         if(valid(c)) convexPoints.enqueue(c)
       }
       assert(size <= 3, "Triangulation bug")
-    }
+   
   }
  
 	def valid(p: Point) = (p.prev != null && p.next != null && convex(p))
 	  
 	// Create the monotone polygon 
 	private def genMonoPoly { 
-    var p = head
+      var p = head
 	  while(p != null) {
-      monoPoly += p
-      p = p.next
+        monoPoly += p
+        p = p.next
 	  }
 	}
  
@@ -147,15 +144,4 @@ class MonotoneMountain {
     else true
   }
 
-	private def lastTriangle {
-	  val triangle = new Array[Point](3)
-	  var i = 0
-    var p = head
-	  while(p != null) {
-      triangle(i) = p
-      p = p.next
-      i += 1
-	  }
-	  triangles += triangle
-	}
 }

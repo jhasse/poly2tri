@@ -60,7 +60,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var quit = false
   var debug = false
   var drawMap = false
-  var drawSegs = false
+  var drawSegs = true
   var hiLighter = 0
   
   def init(container: GameContainer) {
@@ -104,10 +104,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         g.setColor(red)
         g.draw(triangle)
       }
-      val triangle = new Polygon
-      tesselator.triangles(hiLighter).foreach(p => triangle.addPoint(p.x, p.y))
-      g.setColor(blue)
-      g.draw(triangle)
+      //val triangle = new Polygon
+      //tesselator.triangles(hiLighter).foreach(p => triangle.addPoint(p.x, p.y))
+      //g.setColor(blue)
+      //g.draw(triangle)
    } else if (debug && drawMap){
     for(mp <- tesselator.monoPolies) {
       val poly = new Polygon
@@ -189,7 +189,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p16, p1)     
     
     tesselator = new Triangulator(segments)
-    tesselator.process
+    tesselator process
    }
   
   def star {
@@ -217,7 +217,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p9, p10)
     segments += new Segment(p10, p1)
     tesselator = new Triangulator(segments)
-    tesselator.process
+    tesselator process
   }
   
   // Test #2
@@ -252,7 +252,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p11, p12)
     segments += new Segment(p12, p1)
     tesselator = new Triangulator(segments)
-    tesselator.process
+    tesselator process
   }
   
   
