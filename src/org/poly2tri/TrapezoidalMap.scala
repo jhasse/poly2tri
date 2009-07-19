@@ -68,10 +68,10 @@ class TrapezoidalMap {
   def case1(t: Trapezoid, s: Segment) = {
     
     val trapezoids = new Array[Trapezoid](4)
-    trapezoids(0) = new Trapezoid(t.leftPoint.clone, s.p.clone, t.top, t.bottom)
-    trapezoids(1) = new Trapezoid(s.p.clone, s.q.clone, t.top, s)
-    trapezoids(2) = new Trapezoid(s.p.clone, s.q.clone, s, t.bottom)
-    trapezoids(3) = new Trapezoid(s.q.clone, t.rightPoint.clone, t.top, t.bottom)
+    trapezoids(0) = new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
+    trapezoids(1) = new Trapezoid(s.p, s.q, t.top, s)
+    trapezoids(2) = new Trapezoid(s.p, s.q, s, t.bottom)
+    trapezoids(3) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
     trapezoids(1).update(trapezoids(0), null, trapezoids(3), null)
@@ -88,12 +88,12 @@ class TrapezoidalMap {
   //         break trapezoid into 3 smaller trapezoids
   def case2(t: Trapezoid, s: Segment) = {
     
-    assert(s.p.x < s.q.x)
+    val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
     
     val trapezoids = new Array[Trapezoid](3)
-    trapezoids(0) = new Trapezoid(t.leftPoint.clone, s.p.clone, t.top, t.bottom)
-    trapezoids(1) = new Trapezoid(s.p.clone, t.rightPoint.clone, t.top, s)
-    trapezoids(2) = new Trapezoid(s.p.clone, t.rightPoint.clone, s, t.bottom)
+    trapezoids(0) = new Trapezoid(t.leftPoint, s.p, t.top, t.bottom)
+    trapezoids(1) = new Trapezoid(s.p, rp, t.top, s)
+    trapezoids(2) = new Trapezoid(s.p, rp, s, t.bottom)
    
     trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
     trapezoids(1).update(trapezoids(0), null, t.upperRight, null)
@@ -110,17 +110,20 @@ class TrapezoidalMap {
   // Case 3: Trapezoid is bisected
   def case3(t: Trapezoid, s: Segment) = {
     
+    val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
+    val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
+    
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
     
     val trapezoids = new Array[Trapezoid](2)
-    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(t.leftPoint.clone, t.rightPoint.clone, t.top, s)
-    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint.clone, t.rightPoint.clone, s, t.bottom)
+    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(lp, rp, t.top, s)
+    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(lp, rp, s, t.bottom)
     
     if(topCross) {
       trapezoids(0).upperRight = t.upperRight
       if(t.upperRight != null) t.upperRight.upperLeft = trapezoids(0)
-      trapezoids(0).rightPoint = t.rightPoint.clone
+      trapezoids(0).rightPoint = rp
     } else {
       trapezoids(0).update(t.upperLeft, s.above, t.upperRight, null)
     }
@@ -128,7 +131,7 @@ class TrapezoidalMap {
     if(bottomCross) {
       trapezoids(1).lowerRight = t.lowerRight
       if(t.lowerRight != null) t.lowerRight.lowerLeft = trapezoids(1)
-      trapezoids(1).rightPoint = t.rightPoint.clone
+      trapezoids(1).rightPoint = rp
     } else {
       trapezoids(1).update(s.below, t.lowerLeft, null, t.lowerRight)
     }
@@ -144,25 +147,28 @@ class TrapezoidalMap {
   // Case 4: Trapezoid contains point q, p lies outside
   //         break trapezoid into 3 smaller trapezoids
   def case4(t: Trapezoid, s: Segment) = {
-       
+      
+    val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
+    val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
+    
     val topCross = (tCross == t.top)
     val bottomCross = (bCross == t.bottom)
 
     val trapezoids = new Array[Trapezoid](3)
-    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(t.leftPoint.clone, s.q.clone, t.top, s)
-    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(t.leftPoint.clone, s.q.clone, s, t.bottom)
-    trapezoids(2) = new Trapezoid(s.q.clone, t.rightPoint.clone, t.top, t.bottom)
+    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(lp, s.q, t.top, s)
+    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(lp, s.q, s, t.bottom)
+    trapezoids(2) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     if(topCross) {
       trapezoids(0).upperRight = trapezoids(2)
-      trapezoids(0).rightPoint = s.q.clone
+      trapezoids(0).rightPoint = s.q
     } else {
       trapezoids(0).update(t.upperLeft, s.above, trapezoids(2), null)
     }
     
     if(bottomCross) {
       trapezoids(1).lowerRight = trapezoids(2)
-      trapezoids(1).rightPoint = s.q.clone
+      trapezoids(1).rightPoint = s.q
     } else {
       trapezoids(1).update(s.below, t.lowerLeft, null, trapezoids(2))
     }
@@ -178,24 +184,24 @@ class TrapezoidalMap {
   // Create an AABB around segments
   def boundingBox(segments: ArrayBuffer[Segment]): Trapezoid = {
    
-    var max = segments(0).p.clone + margin
-    var min = segments(0).q.clone - margin
+    var max = segments(0).p + margin
+    var min = segments(0).q - margin
 
     for(s <- segments) {
-      if(s.p.clone.x > max.x) max = Point(s.p.x + margin, max.y)
-      if(s.p.clone.y > max.y) max = Point(max.x, s.p.y + margin)
-      if(s.q.clone.x > max.x) max = Point(s.q.x+margin, max.y)
-      if(s.q.clone.y > max.y) max = Point(max.x, s.q.y+margin)
-      if(s.p.clone.x < min.x) min = Point(s.p.x-margin, min.y)
-      if(s.p.clone.y < min.y) min = Point(min.x, s.p.y-margin)
-      if(s.q.clone.x < min.x) min = Point(s.q.x-margin, min.y)
-      if(s.q.clone.y < min.y) min = Point(min.x, s.q.y-margin)
+      if(s.p.x > max.x) max = Point(s.p.x + margin, max.y)
+      if(s.p.y > max.y) max = Point(max.x, s.p.y + margin)
+      if(s.q.x > max.x) max = Point(s.q.x+margin, max.y)
+      if(s.q.y > max.y) max = Point(max.x, s.q.y+margin)
+      if(s.p.x < min.x) min = Point(s.p.x-margin, min.y)
+      if(s.p.y < min.y) min = Point(min.x, s.p.y-margin)
+      if(s.q.x < min.x) min = Point(s.q.x-margin, min.y)
+      if(s.q.y < min.y) min = Point(min.x, s.q.y-margin)
     }
 
     val top = new Segment(Point(min.x, max.y), Point(max.x, max.y))
     val bottom = new Segment(Point(min.x, min.y), Point(max.x, min.y))
-    val left = bottom.p.clone
-    val right = bottom.q.clone
+    val left = bottom.p
+    val right = bottom.q
     
     return new Trapezoid(left, right, top, bottom)
   }

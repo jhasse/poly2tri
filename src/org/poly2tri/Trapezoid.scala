@@ -74,7 +74,7 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   }
   
   def lineIntersect(s: Segment, x: Float) = {
-    val y =  (s.slope * x + s.b).toFloat
+    val y =  s.slope * x + s.b
     Point(x, y)
   } 
   

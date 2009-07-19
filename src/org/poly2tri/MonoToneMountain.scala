@@ -111,11 +111,11 @@ class MonotoneMountain {
         if(valid(a)) convexPoints.enqueue(a)
         if(valid(c)) convexPoints.enqueue(c)
       }
-      assert(size <= 3, "Triangulation bug")
+      assert(size <= 3, "Triangulation bug, please report")
    
   }
  
-	def valid(p: Point) = (p.prev != null && p.next != null && convex(p))
+	def valid(p: Point) = (p != head && p != tail && convex(p))
 	  
 	// Create the monotone polygon 
 	private def genMonoPoly { 

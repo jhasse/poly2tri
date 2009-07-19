@@ -65,8 +65,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def init(container: GameContainer) {
     poly
-    val foo = 1.4
-    println(Math.round(foo.toDouble))
   }
   
   def update(gc: GameContainer, delta: Int) {
