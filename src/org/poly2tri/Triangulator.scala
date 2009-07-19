@@ -144,11 +144,11 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       if(s.p.x > s.q.x) {
         segs += new Segment(s.q.clone, s.p.clone)
       } else if(s.p.x < s.q.x)
-          segs += new Segment(s.p.clone, s.q.clone)
+        segs += new Segment(s.p.clone, s.q.clone)
     // Randomized triangulation improves performance
     // See Seidel's paper, or O'Rourke's book, p. 57 
     // Turn this off for now because of pointer bug somewhere in DAG / trapezoidal map
-    //Random.shuffle(segs)
+    Random.shuffle(segs)
     segs
   }
 }

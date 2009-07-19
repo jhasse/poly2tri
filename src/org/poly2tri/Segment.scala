@@ -49,7 +49,7 @@ class Segment(var p: Point, var q: Point) {
   val b = p.y - (p.x * slope)
   
   // Determines if this segment lies above the given point
-  def > (point: Point) = (point.y < slope * point.x + b)
+  def > (point: Point) = (point.y < Math.floor(slope * point.x + b))
   // Determines if this segment lies below the given point
   def < (point: Point) = (point.y > slope * point.x + b) 
 

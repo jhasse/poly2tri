@@ -35,10 +35,11 @@ class YNode(segment: Segment, lChild: Node, rChild: Node) extends Node(lChild, r
   override def locate(s: Segment): Sink = {
     if (segment > s.p) {
       // Move down the graph
-      right.locate(s)
+      return right.locate(s)
     } else if (segment < s.p){
       // Move up the graph
-      left.locate(s)
+      return left.locate(s)
+      
     } else {
       // s and segment share the same endpoint, p
       if (s.slope < segment.slope) {
