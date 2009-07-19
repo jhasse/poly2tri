@@ -65,6 +65,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def init(container: GameContainer) {
     poly
+    val foo = 1.4
+    println(Math.round(foo.toDouble))
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -171,14 +173,13 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p16 = Point(300,312)
     
     segments = new ArrayBuffer[Segment]
-    segments += new Segment(p2, p3)
     segments += new Segment(p1, p2)
-    segments += new Segment(p7, p1)
-    segments += new Segment(p4, p5)
+    segments += new Segment(p2, p3)
     segments += new Segment(p3, p4)
+    segments += new Segment(p4, p5)
     segments += new Segment(p5, p6)
     segments += new Segment(p6, p7) 
-    segments += new Segment(p3, p4)
+    segments += new Segment(p7, p8)
     segments += new Segment(p8, p9)
     segments += new Segment(p9, p10)
     segments += new Segment(p10, p11) 

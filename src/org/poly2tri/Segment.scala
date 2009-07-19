@@ -44,13 +44,13 @@ class Segment(var p: Point, var q: Point) {
   
   // Equation of a line: y = m*x + b
   // Slope of the line (m)
-  val slope = (q.y - p.y)/(q.x - p.x)
+  val slope = ((q.y - p.y)/(q.x - p.x)).toDouble
   // Y intercept
-  val b = p.y - (p.x * slope)
+  val b = (p.y - (p.x * slope)).toDouble
   
   // Determines if this segment lies above the given point
-  def > (point: Point) = (point.y < Math.floor(slope * point.x + b))
+  def > (point: Point) = (point.y.toFloat < Math.round(slope * point.x.toDouble + b))
   // Determines if this segment lies below the given point
-  def < (point: Point) = (point.y > slope * point.x + b) 
+  def < (point: Point) = (point.y.toFloat > Math.round(slope * point.x.toDouble + b))
 
 }

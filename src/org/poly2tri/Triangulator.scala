@@ -147,8 +147,8 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
         segs += new Segment(s.p.clone, s.q.clone)
     // Randomized triangulation improves performance
     // See Seidel's paper, or O'Rourke's book, p. 57 
-    // Turn this off for now because of pointer bug somewhere in DAG / trapezoidal map
-    Random.shuffle(segs)
+    // Turn this off for while bug hunting math robustness issues
+    //Random.shuffle(segs)
     segs
   }
 }
