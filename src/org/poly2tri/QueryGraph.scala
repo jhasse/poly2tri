@@ -44,6 +44,7 @@ class QueryGraph(var head: Node) {
     val trapezoids = new ArrayBuffer[Trapezoid]
     trapezoids += locate(s)
     var j = 0
+    try {
     while(s.q.x > trapezoids(j).rightPoint.x) {
       if(s > trapezoids(j).rightPoint) {
         trapezoids += trapezoids(j).upperRight
@@ -51,6 +52,14 @@ class QueryGraph(var head: Node) {
         trapezoids += trapezoids(j).lowerRight
       }
       j += 1
+    }
+    } catch {
+      case e => {
+        println("Number of trapezoids = " + j)
+        trapezoids(j-1).debugData
+        e.printStackTrace()
+        System.exit(0)
+      }
     }
     trapezoids
   }

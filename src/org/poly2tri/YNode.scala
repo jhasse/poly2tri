@@ -33,16 +33,20 @@ package org.poly2tri
 class YNode(segment: Segment, lChild: Node, rChild: Node) extends Node(lChild, rChild) {
 
   override def locate(s: Segment): Sink = {
+    //println(s.p.y)
+    //println(Math.round(segment.slope * s.p.x + segment.b))
     if (segment > s.p) {
       // Move down the graph
       return right.locate(s)
-    } else if (segment < s.p){
+    } else if (segment < s.p) {
+      //println("*****")
+      //println(s.p.y)
+      //println(Math.round(segment.slope * s.p.x + segment.b))
       // Move up the graph
       return left.locate(s)
-      
     } else {
       // s and segment share the same endpoint, p
-      if (s.slope < segment.slope) {
+      if (Math.round(s.slope) < Math.round(segment.slope)) {
         // Move down the graph
         return right.locate(s)
       } else {

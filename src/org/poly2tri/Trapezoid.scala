@@ -61,7 +61,7 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   
   // Determines if this point lies inside the trapezoid
   def contains(point: Point) = {
-     (point.x > leftPoint.x && point.x < rightPoint.x && top > point && bottom < point)
+    (point.x > leftPoint.x && point.x < rightPoint.x && top > point && bottom < point)
   }
   
   def vertices: Array[Point] = {
@@ -80,9 +80,15 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   
   // Add points to monotone mountain
   def addPoints {
-    if(leftPoint ! bottom.p) bottom.mPoints += leftPoint.clone
-    if(rightPoint ! bottom.q) bottom.mPoints += rightPoint.clone
-    if(leftPoint ! top.p) top.mPoints += leftPoint.clone
-    if(rightPoint ! top.q) top.mPoints += rightPoint.clone
+    if(leftPoint != bottom.p) bottom.mPoints += leftPoint.clone
+    if(rightPoint != bottom.q) bottom.mPoints += rightPoint.clone
+    if(leftPoint != top.p) top.mPoints += leftPoint.clone
+    if(rightPoint != top.q) top.mPoints += rightPoint.clone
+  }
+  
+  def debugData {
+    println("LeftPoint = " + leftPoint + " | RightPoint = " + rightPoint)
+    println("Top Segment: p = " + top.p + ", q = " + top.q)
+    println("Bottom Segment: p = " + bottom.p + ", q = " + bottom.q)
   }
 }

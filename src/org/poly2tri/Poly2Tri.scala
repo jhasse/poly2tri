@@ -104,10 +104,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         g.setColor(red)
         g.draw(triangle)
       }
-      //val triangle = new Polygon
-      //tesselator.triangles(hiLighter).foreach(p => triangle.addPoint(p.x, p.y))
-      //g.setColor(blue)
-      //g.draw(triangle)
    } else if (debug && drawMap){
     for(mp <- tesselator.monoPolies) {
       val poly = new Polygon
@@ -171,22 +167,22 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p16 = Point(300,312)
     
     segments = new ArrayBuffer[Segment]
-    segments += new Segment(p1, p2)
-    segments += new Segment(p2, p3)
-    segments += new Segment(p3, p4)
-    segments += new Segment(p4, p5)
+    segments += new Segment(p16, p1) 
+    segments += new Segment(p9, p10)
+    segments += new Segment(p13, p14)
     segments += new Segment(p5, p6)
-    segments += new Segment(p6, p7) 
+    segments += new Segment(p2, p3)
+    segments += new Segment(p1, p2)
+    segments += new Segment(p4, p5)
     segments += new Segment(p7, p8)
     segments += new Segment(p8, p9)
-    segments += new Segment(p9, p10)
-    segments += new Segment(p10, p11) 
+    segments += new Segment(p10, p11)
     segments += new Segment(p11, p12)
-    segments += new Segment(p12, p13) 
-    segments += new Segment(p13, p14)
-    segments += new Segment(p14, p15)
+    segments += new Segment(p12, p13)
+    segments += new Segment(p3, p4)
     segments += new Segment(p15, p16)
-    segments += new Segment(p16, p1)     
+    segments += new Segment(p14, p15)
+    segments += new Segment(p6, p7)
     
     tesselator = new Triangulator(segments)
     tesselator process

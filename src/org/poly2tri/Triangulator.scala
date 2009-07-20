@@ -111,17 +111,17 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Initialize trapezoidal map and query structure
   private val trapezoidalMap = new TrapezoidalMap
-  private val boundingBox = trapezoidalMap.boundingBox(segments)
+  private val boundingBox = trapezoidalMap.boundingBox(segmentList)
   private val queryGraph = new QueryGraph(Sink.init(boundingBox))
   private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
-                                        
+  
   // Build a list of x-monotone mountains
   private def createMountains {
     for(s <- segmentList) {
       if(s.mPoints.size > 0) {
          val mountain = new MonotoneMountain
          val k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
-         val points = s.p :: k ::: List(s.q)
+         val points = s.p.clone :: k ::: List(s.q.clone)
          points.foreach(p => mountain += p)
          mountain.triangulate
          xMonoPoly += mountain
@@ -139,16 +139,25 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   private def orderSegments = {
     // Ignore vertical segments!
     val segs = new ArrayBuffer[Segment]
-    for(s <- segments) 
+    for(s <- segments) {
+      val p = shearTransform(s.p)
+      val q = shearTransform(s.q)
       // Point p must be to the left of point q
-      if(s.p.x > s.q.x) {
-        segs += new Segment(s.q.clone, s.p.clone)
-      } else if(s.p.x < s.q.x)
-        segs += new Segment(s.p.clone, s.q.clone)
+      if(p.x > q.x) {
+        segs += new Segment(q, p)
+      } else if(p.x < q.x) {
+        segs += new Segment(p, q)
+      }
+    }
     // Randomized triangulation improves performance
     // See Seidel's paper, or O'Rourke's book, p. 57 
-    // Turn this off for while bug hunting math robustness issues
-    //Random.shuffle(segs)
+    Random.shuffle(segs)
     segs
   }
+  
+  // Prevents any two distinct endpoints from lying on a common vertical line, and avoiding
+  // the degenerate case. See Mark de Berg et al, Chapter 6.3
+  //val SHEER = 0.001f
+  def shearTransform(point: Point) = Point(point.x + 0.0001f * point.y, point.y)
+ 
 }

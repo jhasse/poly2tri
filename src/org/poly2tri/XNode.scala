@@ -33,10 +33,7 @@ package org.poly2tri
 class XNode(point: Point, lChild: Node, rChild: Node) extends Node(lChild, rChild) {
 
   override def locate(s: Segment): Sink = {
-    if(s.p.x > point.x) {
-      // Move to the right in the graph
-      return right.locate(s)
-    } else if(s.p.x == point.x) {
+    if(s.p.x >= point.x) {
       // Move to the right in the graph
       return right.locate(s)
     } else {
