@@ -39,7 +39,7 @@ class Segment(var p: Point, var q: Point) {
   var above, below: Trapezoid = null
   
   // This can be adjusted accordingly
-  val MAX_MPOINTS = 25
+  val MAX_MPOINTS = 20
   // Montone mountain points
   val mPoints = new Array[Point](MAX_MPOINTS)
   // mPoints index counter
@@ -52,8 +52,8 @@ class Segment(var p: Point, var q: Point) {
   val b = p.y - (p.x * slope)
   
   // Determines if this segment lies above the given point
-  def > (point: Point) = (point.y < Math.round(slope * point.x + b))
+  @inline def > (point: Point) = (point.y < Math.round(slope * point.x + b))
   // Determines if this segment lies below the given point
-  def < (point: Point) = (point.y > Math.round(slope * point.x + b))
+  @inline def < (point: Point) = (point.y > Math.round(slope * point.x + b))
 
 }

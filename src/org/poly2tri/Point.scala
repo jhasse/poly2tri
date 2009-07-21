@@ -35,17 +35,17 @@ case class Point(val x: Float, val y: Float) {
   // Pointers to next and previous points in Monontone Mountain
   var next, prev: Point = null
   
-  def -(p: Point) = Point(x - p.x, y - p.y) 
-  def +(p: Point) = Point(x + p.x, y + p.y)
-  def +(f: Float) = Point(x + f, y + f)
-  def -(f: Float) = Point(x - f, y - f)
-  def *(f: Float) = Point(x * f, y * f)
-  def /(a: Float) = Point(x / a, y / a)
-  def cross(p: Point) = x * p.y - y * p.x
-  def dot(p: Point) = x * p.x + y * p.y
-  def length = Math.sqrt(x * x + y * y).toFloat
-  def normalize = this / length  
-  def <(p: Point) = (x < p.x)    
-  def !(p: Point) = !(p.x == x && p.y == y)
-  override def clone = Point(x, y)
+  @inline def -(p: Point) = Point(x - p.x, y - p.y) 
+  @inline def +(p: Point) = Point(x + p.x, y + p.y)
+  @inline def +(f: Float) = Point(x + f, y + f)
+  @inline def -(f: Float) = Point(x - f, y - f)
+  @inline def *(f: Float) = Point(x * f, y * f)
+  @inline def /(a: Float) = Point(x / a, y / a)
+  @inline def cross(p: Point) = x * p.y - y * p.x
+  @inline def dot(p: Point) = x * p.x + y * p.y
+  @inline def length = Math.sqrt(x * x + y * y).toFloat
+  @inline def normalize = this / length  
+  @inline def <(p: Point) = (x < p.x)    
+  @inline def !(p: Point) = !(p.x == x && p.y == y)
+  @inline override def clone = Point(x, y)
 }

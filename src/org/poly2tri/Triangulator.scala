@@ -49,17 +49,22 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Build the trapezoidal map and query graph
   def process {
+    
     val t1 = System.nanoTime
     var i = 0
+    
     while(i < segmentList.size) {
+      
       val s = segmentList(i)
       var traps = queryGraph.followSegment(s)
+      
       // Remove trapezoids from trapezoidal Map
       var j = 0
       while(j < traps.size) {
         trapezoidalMap.remove(traps(j))
         j += 1
       }
+      
       j = 0
       while(j < traps.size) {
         val t = traps(j)
@@ -91,9 +96,11 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
         }
         j += 1
       }
+      
       trapezoidalMap.reset
       i += 1
     }
+    
     coreTime = System.nanoTime - t1
     
     // Mark outside trapezoids
