@@ -80,10 +80,10 @@ class Trapezoid(val leftPoint: Point, var rightPoint: Point, val top: Segment, v
   
   // Add points to monotone mountain
   def addPoints {
-    if(leftPoint != bottom.p) bottom.mPoints += leftPoint.clone
-    if(rightPoint != bottom.q) bottom.mPoints += rightPoint.clone
-    if(leftPoint != top.p) top.mPoints += leftPoint.clone
-    if(rightPoint != top.q) top.mPoints += rightPoint.clone
+    if(leftPoint != bottom.p) {bottom.mPoints(bottom.np) = leftPoint.clone; bottom.np += 1}
+    if(rightPoint != bottom.q) {bottom.mPoints(bottom.np) = rightPoint.clone; bottom.np += 1}
+    if(leftPoint != top.p) {top.mPoints(top.np) = leftPoint.clone; top.np += 1}
+    if(rightPoint != top.q) {top.mPoints(top.np) = rightPoint.clone; top.np += 1}
   }
   
   def debugData {

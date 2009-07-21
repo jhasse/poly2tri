@@ -16,6 +16,30 @@ object Util {
       if (n == 0) xs
       else merge(msort(less)(xs take n), msort(less)(xs drop n))
   }
+  
+  def insertionSort(values : List[Point], matcher : (Float, Float) => Boolean) : List[Point] = {
+       def iSort(values : List[Point]) : List[Point] = {
+           val result = values match {
+               case List() => List()
+               case value :: valuesTail => insert(value, iSort(valuesTail))
+           }
+           result
+       }
+       def insert(value : Point, values : List[Point]) : List[Point] = {
+           val result = values match {
+               // if list is empty return new list with single element in it
+               case List() => List(value)
+               // otherwise insert into list in order, recursively
+               case x :: xTail =>
+                   if (matcher(value.x, x.x)) 
+                       value :: values
+                   else 
+                       x :: insert(value, xTail)
+           }
+           result
+       }
+       iSort(values)
+   }
 }
 
 /** The object <code>Random</code> offers a default implementation

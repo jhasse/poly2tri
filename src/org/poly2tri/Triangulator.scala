@@ -36,6 +36,11 @@ import scala.collection.mutable.ArrayBuffer
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
 class Triangulator(segments: ArrayBuffer[Segment]) {
   
+  var sortTime = 0.0
+  var coreTime = 0.0
+  var trapezoidTime = 0.0
+  var markTime = 0.0
+  
   // Triangle decomposition list
   var triangles = new ArrayBuffer[Array[Point]]
   
@@ -44,12 +49,20 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Build the trapezoidal map and query graph
   def process {
-    
-    for(s <- segmentList) {
+    val t1 = System.nanoTime
+    var i = 0
+    while(i < segmentList.size) {
+      val s = segmentList(i)
       var traps = queryGraph.followSegment(s)
       // Remove trapezoids from trapezoidal Map
-      traps.foreach(trapezoidalMap.remove)
-      for(t <- traps) {
+      var j = 0
+      while(j < traps.size) {
+        trapezoidalMap.remove(traps(j))
+        j += 1
+      }
+      j = 0
+      while(j < traps.size) {
+        val t = traps(j)
         var tList: Array[Trapezoid] = null
         val containsP = t.contains(s.p)
         val containsQ = t.contains(s.q)
@@ -71,13 +84,21 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
           queryGraph.case4(t.sink, s, tList)
         }
         // Add new trapezoids to map
-        tList.foreach(trapezoidalMap.add)
+        var k = 0
+        while(k < tList.size) {
+          trapezoidalMap.add(tList(k))
+          k += 1
+        }
+        j += 1
       }
-      trapezoidalMap reset
+      trapezoidalMap.reset
+      i += 1
     }
-
+    coreTime = System.nanoTime - t1
+    
     // Mark outside trapezoids
-    trapezoidalMap.map.foreach(markOutside)
+    for(t <- trapezoidalMap.map) 
+      markOutside(t)
     
     // Collect interior trapezoids
     for(t <- trapezoidalMap.map) 
@@ -85,13 +106,18 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
         trapezoids += t
         t addPoints
       }
-   
-    createMountains
+
+    // Generate the triangles
+    createMountains 
     
     // Extract all the triangles into a single list
-    for(i <- 0 until xMonoPoly.size)
-      for(t <- xMonoPoly(i).triangles)
-    	  triangles += t
+    for(i <- 0 until xMonoPoly.size) {
+      var j = 0
+      while(j < xMonoPoly(i).triangles.size) {
+    	triangles += xMonoPoly(i).triangles(j)
+        j += 1
+      }
+    }
     
     //println("# triangles = " + triangles.size)
   }
@@ -117,15 +143,32 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Build a list of x-monotone mountains
   private def createMountains {
-    for(s <- segmentList) {
-      if(s.mPoints.size > 0) {
+    var i = 0
+    while(i < segmentList.size) {
+      val s = segmentList(i)
+      if(s.np > 0) {
          val mountain = new MonotoneMountain
-         val k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
-         val points = s.p.clone :: k ::: List(s.q.clone)
-         points.foreach(p => mountain += p)
+         var k: List[Point] = null
+         val tmp = new Array[Point](s.np)
+         for(i <- 0 until s.np) tmp(i) = s.mPoints(i)
+         if(s.np < 10) 
+           // Insertion sort is one of the fastest algorithms for sorting arrays containing 
+           // fewer than ten elements, or for lists that are already mostly sorted.
+           k = Util.insertionSort(tmp.toList, {(x1, x2) => x1 <= x2} )
+         else 
+           k = Util.msort((p1: Point, p2: Point) => p1 < p2)(tmp.toList)
+         val points = s.p :: k ::: List(s.q)
+         var j = 0
+         while(j < points.size) {
+           mountain += points(j)
+           j += 1
+         }
+         val t1 = System.nanoTime
          mountain.triangulate
+         coreTime += System.nanoTime - t1
          xMonoPoly += mountain
       }
+      i += 1
     }   
   }
   

@@ -44,15 +44,8 @@ case class Point(val x: Float, val y: Float) {
   def cross(p: Point) = x * p.y - y * p.x
   def dot(p: Point) = x * p.x + y * p.y
   def length = Math.sqrt(x * x + y * y).toFloat
-  def normalize = this / length
-  
-  def <(p: Point) = {
-    if(p.x == x) 
-      if(y <= p.y) true
-      else false
-    else
-      (x < p.x)
-  }
-    
+  def normalize = this / length  
+  def <(p: Point) = (x < p.x)    
+  def !(p: Point) = !(p.x == x && p.y == y)
   override def clone = Point(x, y)
 }

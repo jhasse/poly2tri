@@ -38,7 +38,7 @@ class MonotoneMountain {
 	var tail, head: Point = null
 	var size = 0
 
-	val convexPoints = new Queue[Point]
+	val convexPoints = new ArrayBuffer[Point]
     // Monotone mountain points
 	val monoPoly = new ArrayBuffer[Point]
     // Triangles that constitute the mountain
@@ -53,16 +53,24 @@ class MonotoneMountain {
 	  size match {
 	    case 0 => 
 	      head = point
+	      size += 1
       case 1 =>
-        tail = point
-        tail.prev = head
-        head.next = tail
+        // Keep repeat points out of the list
+        if(point ! head) {
+	        tail = point
+	        tail.prev = head
+	        head.next = tail
+	        size += 1
+        }
       case _ =>
-        tail.next = point
-        point.prev = tail
-        tail = point
+        // Keep repeat points out of the list
+        if(point ! tail) {
+	        tail.next = point
+	        point.prev = tail
+	        tail = point
+	        size += 1
+        }
 	  }
-	  size += 1
 	}
 
 	// Remove a point from the list
@@ -92,13 +100,13 @@ class MonotoneMountain {
         if(a >= PI_SLOP || a <= -PI_SLOP)
         remove(p)
         else
-        if(convex(p)) convexPoints.enqueue(p)
+        if(convex(p)) convexPoints += p
         p = p.next
       }
     
       while(!convexPoints.isEmpty) {
 	     
-        val ear = convexPoints.dequeue
+        val ear = convexPoints.remove(0)
         val a = ear.prev
         val b = ear
         val c = ear.next
@@ -108,8 +116,8 @@ class MonotoneMountain {
 	     
         // Remove ear, update angles and convex list
         remove(ear)
-        if(valid(a)) convexPoints.enqueue(a)
-        if(valid(c)) convexPoints.enqueue(c)
+        if(valid(a)) convexPoints += a
+        if(valid(c)) convexPoints += c
       }
       assert(size <= 3, "Triangulation bug, please report")
    

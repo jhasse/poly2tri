@@ -63,8 +63,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawSegs = true
   var hiLighter = 0
   
+  var earClipResults = new Array[Triangle](14)
+  val earClip = new EarClip
+  
   def init(container: GameContainer) {
     poly
+    earClipPoly
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -118,7 +122,17 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
      for(s <- segments) 
          g.drawLine(s.p.x,s.p.y,s.q.x,s.q.y)
    }
-    
+   
+    /*
+   earClipResults.foreach(t => {
+      val triangle = new Polygon
+      triangle.addPoint(t.x(0), t.y(0))
+      triangle.addPoint(t.x(1), t.y(1))
+      triangle.addPoint(t.x(2), t.y(2))
+      g.setColor(red)
+      g.draw(triangle)
+    })*/
+   
   }
   
   override def keyPressed(key:Int, c:Char) {
@@ -139,7 +153,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         hiLighter = tesselator.triangles.size-1
     }
     if(c == 'm') drawMap = !drawMap
-    if(c == '1') {poly; hiLighter = 0}
+    if(c == '1') {poly; earClipPoly; hiLighter = 0}
     if(c == '2') {snake; hiLighter = 0}
     if(c == '3') {star; hiLighter = 0}
     if(c == 's') drawSegs = !drawSegs
@@ -185,7 +199,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p6, p7)
     
     tesselator = new Triangulator(segments)
+    val t1 = System.nanoTime
     tesselator process
+    val t2 = System.nanoTime
+    println
+    println("**Poly1**")
+    println("Poly2Tri core (ms) = " + tesselator.coreTime*1e-6)
+    println("Poly2Tri total (ms) = " + (t2-t1)*1e-6)
+
    }
   
   def star {
@@ -213,7 +234,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p9, p10)
     segments += new Segment(p10, p1)
     tesselator = new Triangulator(segments)
+    
+    val t1 = System.nanoTime
     tesselator process
+    val t2 = System.nanoTime
+    println
+    println("**Star**")
+    println("Poly2Tri core (ms) = " + tesselator.coreTime*1e-6)
+    println("Poly2Tri total (ms) = " + (t2-t1)*1e-6)
   }
   
   // Test #2
@@ -248,8 +276,62 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p11, p12)
     segments += new Segment(p12, p1)
     tesselator = new Triangulator(segments)
+    
+    val t1 = System.nanoTime
     tesselator process
+    val t2 = System.nanoTime
+    println
+    println("**Snake**")
+    println("Poly2Tri core (ms) = " + tesselator.coreTime*1e-6)
+    println("Poly2Tri total (ms) = " + (t2-t1)*1e-6)
+
   }
   
+  def earClipPoly {
+    
+    val polyX = Array(400f, 500f, 520f, 460f, 580f, 480f, 360f, 360f, 300f, 200f, 120f, 200f, 340f, 208f, 180f, 300f)
+    val polyY = Array(472f, 392f, 272f, 232f, 212f, 152f, 172f, 52f, 112f, 32f, 92f, 72f, 272f, 212f, 352f, 312f)
+    
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val t1 = System.nanoTime
+    earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
+    val t2 = System.nanoTime
+    println("Earclip total (ms) =  " + (t2-t1)*1e-6)
+  }
+  
+  def earClipSnake {
+    
+    val polyX = Array(200f, 300f, 400f, 500f, 600f, 600f, 500f, 400f, 300f, 200f, 110f, 110f)
+    val polyY = Array(110f, 200f, 110f, 200f, 110f, 200f, 300f, 200f, 300f, 200f, 300f, 200f)
+    
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val t1 = System.nanoTime
+    earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
+    val t2 = System.nanoTime
+    println("Earclip total (ms) =  " + (t2-t1)*1e-6)
+  }
+  
+  def earClipStar {
+    
+    val p1 = Point(350,75)
+    val p2 = Point(379,161)
+    val p3 = Point(469,161)
+    val p4 = Point(397,215)
+    val p5 = Point(423,301)
+    val p6 = Point(350,250)
+    val p7 = Point(277,301)
+    val p8 = Point(303,215)
+    val p9 = Point(231,161)
+    val p10 = Point(321,161)
+    
+    val polyX = Array(350f, 379f, 469f, 397f, 423f, 350f, 277f, 303f, 231f, 321f)
+    val polyY = Array(75f, 161f, 161f, 215f, 301f, 250f, 301f,215f, 161f, 161f)
+    
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val t1 = System.nanoTime
+    earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
+    val t2 = System.nanoTime
+    println("Earclip total (ms) =  " + (t2-t1)*1e-6)
+  }
   
 }
