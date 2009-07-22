@@ -332,9 +332,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     var t1: Float = 0f
     var t2: Float = 0f
     var runTime: Float = 0
-    val iterations = 100
+    val iterations = 1
     
     println("Iteration count = " + iterations)
+    println("Number of points = " + polyX.size)
     println("Seidel triangulation:")
             
     for(i <- 0 until iterations) {
