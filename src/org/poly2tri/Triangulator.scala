@@ -36,11 +36,6 @@ import scala.collection.mutable.ArrayBuffer
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
 class Triangulator(segments: ArrayBuffer[Segment]) {
   
-  var sortTime = 0.0
-  var coreTime = 0.0
-  var trapezoidTime = 0.0
-  var markTime = 0.0
-  
   // Triangle decomposition list
   var triangles = new ArrayBuffer[Array[Point]]
   
@@ -49,14 +44,11 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Build the trapezoidal map and query graph
   def process {
-    
-    val t1 = System.nanoTime
-    
+
     var i = 0
     while(i < segmentList.size) {
       
       val s = segmentList(i)
-      
       var traps = queryGraph.followSegment(s)
       
       // Remove trapezoids from trapezoidal Map
@@ -103,8 +95,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       i += 1
     
     }
-    
-    coreTime = System.nanoTime - t1
     
     // Mark outside trapezoids
     for(t <- trapezoidalMap.map) 
@@ -174,9 +164,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
          }
          
          // Triangulate monotone mountain
-         val t1 = System.nanoTime
          mountain.triangulate
-         coreTime += System.nanoTime - t1
          
          // Extract the triangles into a single list
          j = 0
