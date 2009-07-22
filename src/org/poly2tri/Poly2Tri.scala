@@ -39,6 +39,7 @@ import org.newdawn.slick.{BasicGame, GameContainer, Graphics, Color, AppGameCont
 import org.newdawn.slick.geom.{Polygon, Circle}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
 
 // TODO: Lots of documentation!
 
@@ -67,6 +68,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def init(container: GameContainer) {
     poly
     earClipPoly
+    bird
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -283,6 +285,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     println("Poly2Tri core (ms) = " + tesselator.coreTime*1e-6)
     println("Poly2Tri total (ms) = " + (t2-t1)*1e-6)
 
+  }
+  
+  def bird {
+    
+    for (line <- Source.fromFile("data/bird.dat").getLines)
+      print(line)
   }
   
   def earClipPoly {
