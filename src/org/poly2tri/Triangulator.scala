@@ -51,20 +51,21 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   def process {
     
     val t1 = System.nanoTime
-    var i = 0
     
+    var i = 0
     while(i < segmentList.size) {
       
       val s = segmentList(i)
+      
       var traps = queryGraph.followSegment(s)
       
       // Remove trapezoids from trapezoidal Map
       var j = 0
       while(j < traps.size) {
-        trapezoidalMap.remove(traps(j))
+        trapezoidalMap.map -= traps(j)
         j += 1
       }
-      
+     
       j = 0
       while(j < traps.size) {
         val t = traps(j)
@@ -88,17 +89,19 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
           tList = trapezoidalMap.case4(t, s)
           queryGraph.case4(t.sink, s, tList)
         }
+        
         // Add new trapezoids to map
         var k = 0
         while(k < tList.size) {
-          trapezoidalMap.add(tList(k))
+          trapezoidalMap.map += tList(k)
           k += 1
         }
         j += 1
       }
       
-      trapezoidalMap.reset
+      trapezoidalMap.clear
       i += 1
+    
     }
     
     coreTime = System.nanoTime - t1
@@ -116,15 +119,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
 
     // Generate the triangles
     createMountains 
-    
-    // Extract all the triangles into a single list
-    for(i <- 0 until xMonoPoly.size) {
-      var j = 0
-      while(j < xMonoPoly(i).triangles.size) {
-    	triangles += xMonoPoly(i).triangles(j)
-        j += 1
-      }
-    }
     
     //println("# triangles = " + triangles.size)
   }
@@ -150,29 +144,47 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Build a list of x-monotone mountains
   private def createMountains {
+    
     var i = 0
     while(i < segmentList.size) {
+      
       val s = segmentList(i)
-      if(s.np > 0) {
+      
+      if(s.mPoints.size > 0) {
+        
          val mountain = new MonotoneMountain
          var k: List[Point] = null
-         val tmp = new Array[Point](s.np)
-         for(i <- 0 until s.np) tmp(i) = s.mPoints(i)
-         if(s.np < 10) 
+    
+         // Sorting is a perfromance hit. Literature says this can be accomplised in
+         // linear time, although I don't see a way around using traditional methods
+         // when using a randomized incremental algorithm
+         if(s.mPoints.size < 10) 
            // Insertion sort is one of the fastest algorithms for sorting arrays containing 
            // fewer than ten elements, or for lists that are already mostly sorted.
-           k = Util.insertionSort(tmp.toList, {(x1, x2) => x1 <= x2} )
+           k = Util.insertSort(s.mPoints).toList
          else 
-           k = Util.msort((p1: Point, p2: Point) => p1 < p2)(tmp.toList)
+           k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
+         
          val points = s.p :: k ::: List(s.q)
+         
          var j = 0
          while(j < points.size) {
            mountain += points(j)
            j += 1
          }
+         
+         // Triangulate monotone mountain
          val t1 = System.nanoTime
          mountain.triangulate
          coreTime += System.nanoTime - t1
+         
+         // Extract the triangles into a single list
+         j = 0
+         while(j < mountain.triangles.size) {
+    	   triangles += mountain.triangles(j)
+           j += 1
+         }
+         
          xMonoPoly += mountain
       }
       i += 1

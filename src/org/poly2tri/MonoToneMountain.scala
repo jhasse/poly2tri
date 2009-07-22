@@ -38,15 +38,15 @@ class MonotoneMountain {
 	var tail, head: Point = null
 	var size = 0
 
-	val convexPoints = new ArrayBuffer[Point]
+	private val convexPoints = new ArrayBuffer[Point]
     // Monotone mountain points
 	val monoPoly = new ArrayBuffer[Point]
     // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
 	// Used to track which side of the line we are on                                
-	var positive = false
+	private var positive = false
 	// Almost Pi!
-	val PI_SLOP = 3.1
+	private val PI_SLOP = 3.1
  
 	// Append a point to the list
 	def +=(point: Point) {
@@ -123,7 +123,7 @@ class MonotoneMountain {
    
   }
  
-	def valid(p: Point) = (p != head && p != tail && convex(p))
+	private def valid(p: Point) = (p != head && p != tail && convex(p))
 	  
 	// Create the monotone polygon 
 	private def genMonoPoly { 
@@ -134,13 +134,13 @@ class MonotoneMountain {
 	  }
 	}
  
-	def angle(p: Point) = {
+	private def angle(p: Point) = {
 	  val a = (p.next - p)
 	  val b = (p.prev - p)
 	  Math.atan2(a cross b, a dot b)
 	}
  
-	def angleSign = {
+	private def angleSign = {
 	  val a = (head.next - head)
 	  val b = (tail - head)
 	  (Math.atan2(a cross b, a dot b) >= 0)
@@ -149,7 +149,7 @@ class MonotoneMountain {
 	// Determines if the inslide angle is convex or reflex
 	private def convex(p: Point) = {
 	  if(positive != (angle(p) >= 0)) false
-    else true
+      else true
   }
 
 }

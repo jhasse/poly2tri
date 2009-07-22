@@ -46,19 +46,7 @@ class TrapezoidalMap {
   // Top segment that spans multiple trapezoids
   private var tCross: Segment = null
   
-  // Add a trapezoid to the map
-  def add(t: Trapezoid) {
-    assert(t != null, "Bad value")
-    map += t
-  }
-  
-  // Remove a trapezoid from the map
-  def remove(t: Trapezoid) {
-    assert(t != null, "Bad value")
-    map -=t
-  }
-  
-  def reset {
+  def clear {
     bCross = null
     tCross = null
   }
@@ -73,10 +61,10 @@ class TrapezoidalMap {
     trapezoids(2) = new Trapezoid(s.p, s.q, s, t.bottom)
     trapezoids(3) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
-    trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
-    trapezoids(1).update(trapezoids(0), null, trapezoids(3), null)
-    trapezoids(2).update(null, trapezoids(0), null, trapezoids(3))
-    trapezoids(3).update(trapezoids(1), trapezoids(2), t.upperRight, t.lowerRight)
+    trapezoids(0).updateLeft(t.upperLeft, t.lowerLeft)
+    trapezoids(1).updateLeftRight(trapezoids(0), null, trapezoids(3), null)
+    trapezoids(2).updateLeftRight(null, trapezoids(0), null, trapezoids(3))
+    trapezoids(3).updateRight(t.upperRight, t.lowerRight)
     
     trapezoids
   }
@@ -92,9 +80,9 @@ class TrapezoidalMap {
     trapezoids(1) = new Trapezoid(s.p, rp, t.top, s)
     trapezoids(2) = new Trapezoid(s.p, rp, s, t.bottom)
    
-    trapezoids(0).update(t.upperLeft, t.lowerLeft, trapezoids(1), trapezoids(2))
-    trapezoids(1).update(trapezoids(0), null, t.upperRight, null)
-    trapezoids(2).update(null, trapezoids(0), null, t.lowerRight)
+    trapezoids(0).updateLeft(t.upperLeft, t.lowerLeft)
+    trapezoids(1).updateLeftRight(trapezoids(0), null, t.upperRight, null)
+    trapezoids(2).updateLeftRight(null, trapezoids(0), null, t.lowerRight)
     
     bCross = t.bottom
     tCross = t.top
@@ -122,7 +110,7 @@ class TrapezoidalMap {
       if(t.upperRight != null) t.upperRight.upperLeft = trapezoids(0)
       trapezoids(0).rightPoint = rp
     } else {
-      trapezoids(0).update(t.upperLeft, s.above, t.upperRight, null)
+      trapezoids(0).updateLeftRight(t.upperLeft, s.above, t.upperRight, null)
     }
     
     if(bottomCross) {
@@ -130,7 +118,7 @@ class TrapezoidalMap {
       if(t.lowerRight != null) t.lowerRight.lowerLeft = trapezoids(1)
       trapezoids(1).rightPoint = rp
     } else {
-      trapezoids(1).update(s.below, t.lowerLeft, null, t.lowerRight)
+      trapezoids(1).updateLeftRight(s.below, t.lowerLeft, null, t.lowerRight)
     }
     
     bCross = t.bottom
@@ -156,20 +144,18 @@ class TrapezoidalMap {
     trapezoids(2) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
     if(topCross) {
-      trapezoids(0).upperRight = trapezoids(2)
       trapezoids(0).rightPoint = s.q
     } else {
-      trapezoids(0).update(t.upperLeft, s.above, trapezoids(2), null)
+      trapezoids(0).updateLeft(t.upperLeft, s.above)
     }
     
     if(bottomCross) {
-      trapezoids(1).lowerRight = trapezoids(2)
       trapezoids(1).rightPoint = s.q
     } else {
-      trapezoids(1).update(s.below, t.lowerLeft, null, trapezoids(2))
+      trapezoids(1).updateLeft(s.below, t.lowerLeft)
     }
     
-    trapezoids(2).update(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
+    trapezoids(2).updateLeftRight(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
     
     s.above = trapezoids(0)
     s.below = trapezoids(1)

@@ -34,7 +34,6 @@ object Sink {
   
   def init(trapezoid: Trapezoid) = {
     if(trapezoid.sink != null) 
-      // What about adding to the parent list?
       trapezoid.sink
     else 
       new Sink(trapezoid)

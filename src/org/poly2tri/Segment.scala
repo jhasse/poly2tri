@@ -37,14 +37,9 @@ class Segment(var p: Point, var q: Point) {
 
   // Pointers used for building trapezoidal map
   var above, below: Trapezoid = null
-  
-  // This can be adjusted accordingly
-  val MAX_MPOINTS = 20
   // Montone mountain points
-  val mPoints = new Array[Point](MAX_MPOINTS)
-  // mPoints index counter
-  var np = 0
-  
+  val mPoints = new ArrayBuffer[Point]
+
   // Equation of a line: y = m*x + b
   // Slope of the line (m)
   val slope = (q.y - p.y)/(q.x - p.x)
@@ -52,8 +47,8 @@ class Segment(var p: Point, var q: Point) {
   val b = p.y - (p.x * slope)
   
   // Determines if this segment lies above the given point
-  @inline def > (point: Point) = (point.y < Math.round(slope * point.x + b))
+  def > (point: Point) = (point.y < Math.round(slope * point.x + b))
   // Determines if this segment lies below the given point
-  @inline def < (point: Point) = (point.y > Math.round(slope * point.x + b))
+  def < (point: Point) = (point.y > Math.round(slope * point.x + b))
 
 }
