@@ -33,6 +33,8 @@ class EarClip {
 	var pinchIndexB = -1
 	var pin: Poly = null
  
+	var numTriangles = 0
+ 
 	def triangulatePolygon(xv: Array[Float], yv: Array[Float], vn: Int, results: Array[Triangle]): Int = {
 			
 	        if (vn < 3) return 0
@@ -53,7 +55,8 @@ class EarClip {
 				val nA = triangulatePolygon(pA.x,pA.y,pA.nVertices,mergeA)
 				val nB = triangulatePolygon(pB.x,pB.y,pB.nVertices,mergeB)
 				if (nA == -1 || nB == -1){
-					return -1;
+				    numTriangles = -1
+					return numTriangles
 				}
 				for (i <- 0 until nA){
 					results(i).set(mergeA(i));
@@ -61,7 +64,8 @@ class EarClip {
 				for (i <- 0 until nB){
 					results(nA+i).set(mergeB(i));
 				}
-				return (nA+nB);
+				numTriangles = (nA+nB)
+				return numTriangles
 			}
 
 	        val buffer = new Array[Triangle](vNum-2);
@@ -119,7 +123,10 @@ class EarClip {
 					}
 			
 					if (bufferSize > 0) return bufferSize;
-	                else return -1;
+	                else {
+	                  numTriangles = -1
+	                  return numTriangles
+                   }
 				}
 				
 	            // Clip off the ear:
@@ -157,8 +164,8 @@ class EarClip {
 	        for (i <- 0 until bufferSize) {
 	            results(i).set(buffer(i))
 	        }
-			
-	        return bufferSize;
+			numTriangles = bufferSize
+	        return numTriangles
 	}
  
 	/**

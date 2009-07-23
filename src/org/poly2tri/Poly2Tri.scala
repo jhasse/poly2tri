@@ -71,8 +71,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   
+  val nazcaMonkey = "data/nazca_monkey.dat"
+  val bird = "data/bird.dat"
+  var currentModel = nazcaMonkey
+  
   def init(container: GameContainer) {
-    bird
+    selectModel
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -80,6 +84,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   }
   
   def render(container: GameContainer, g: Graphics) {
+    
+    g.drawString("'1-5' to cycle models", 10, 540)
+    g.drawString("'SPACE' to turn on debug info", 10, 552)
+    g.drawString("'m' to show trapezoidal map (debug mode)", 10, 564)
+    g.drawString("'e' to switch Seidel / EarClip", 10, 576)
     
     val red = new Color(1f, 0f,0.0f)
     val blue = new Color(0f, 0f, 1f)
@@ -142,6 +151,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   }
   
   override def keyPressed(key:Int, c:Char) {
+    
     // ESC
     if(key == 1) quit = true
     // SPACE
@@ -158,13 +168,25 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       if (hiLighter == -1)
         hiLighter = tesselator.triangles.size-1
     }
-    if(c == 'm') drawMap = !drawMap
-    if(c == '1') bird
-    if(c == '2') {poly; earClipPoly}
-    if(c == '3') snake
-    if(c == '4') star
+    if(c == 'm') drawMap = !drawMap 
+    if(c == '1') {currentModel = nazcaMonkey; selectModel}
+    if(c == '2') {currentModel = bird; selectModel}
+    if(c == '3') {poly; earClipPoly}
+    if(c == '4') snake
+    if(c == '5') star
     if(c == 's') drawSegs = !drawSegs
-    if(c == 'e') drawEarClip = !drawEarClip
+    if(c == 'e') {drawEarClip = !drawEarClip; selectModel}
+  }
+    
+  def selectModel {
+    currentModel match {
+      case "data/nazca_monkey.dat" => 
+        loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
+      case "data/bird.dat" => 
+        loadModel(bird, 25f, Point(400, 300), 350)
+      case _ => 
+        assert(false)
+    }
   }
   
   // Test #1
@@ -291,17 +313,15 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 
   }
   
-  def bird {
+  def loadModel(model: String, scale: Float, center: Point, maxTriangles: Int) {
     
-    println("*** Bird ***")
+    println("*** " + model + " ***")
     
     polyX = new ArrayBuffer[Float]
     polyY = new ArrayBuffer[Float]
     
-    val scale = 25.0f
-    val center = Point(400, 300)
     val angle = Math.Pi
-    for (line <- Source.fromFile("data/bird.dat").getLines) {
+    for (line <- Source.fromFile(model).getLines) {
       val s = line.replaceAll("\n", "")
       val tokens = s.split("[ ]+")
       if(tokens.size == 2) {	
@@ -329,41 +349,38 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val p2 = segments(segments.length-1).q
     segments += new Segment(p2, p1)
     
-    var t1: Float = 0f
-    var t2: Float = 0f
-    var runTime: Float = 0
-    val iterations = 1
-    
-    println("Iteration count = " + iterations)
     println("Number of points = " + polyX.size)
-    println("Seidel triangulation:")
-            
-    for(i <- 0 until iterations) {
-	    // Run benchmarks
+    println
+     
+    if(!drawEarClip) {  
+      
+	    // Sediel triangulation
 	    tesselator = new Triangulator(segments)
-	    t1 = System.nanoTime
+	    val t1 = System.nanoTime
 	    tesselator.process
-	    runTime += System.nanoTime - t1
-    }
-    println("Poly2Tri average (ms) =  " + runTime*1e-6/iterations)
-    println("Number of triangles = " + tesselator.triangles.size)
-    
-    println("Earclip triangulation:")
-    // Earclip
-    earClipResults = new Array[Triangle](500)
-    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
-    val xVerts = polyX.toArray.reverse
-    val yVerts = polyY.toArray.reverse
-    
-    runTime = 0
-    for(i <- 0 until iterations) {
-	    t1 = System.nanoTime
+	    val runTime = System.nanoTime - t1
+	
+	    println("Poly2Tri average (ms) =  " + runTime*1e-6)
+	    println("Number of triangles = " + tesselator.triangles.size)
+     
+    } else {
+      
+    	// Earclip
+	    
+	    earClipResults = new Array[Triangle](maxTriangles)
+     
+	    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+	    val xVerts = polyX.toArray.reverse
+	    val yVerts = polyY.toArray.reverse
+	   
+	    val t1 = System.nanoTime
 	    earClip.triangulatePolygon(xVerts, yVerts, xVerts.size, earClipResults)
-	    runTime += System.nanoTime - t1
+	    val runTime = System.nanoTime - t1
+	
+	    println
+	    println("Earclip average (ms) =  " + runTime*1e-6) 
+	    println("Number of triangles = " + earClip.numTriangles)
     }
-    println("Earclip average (ms) =  " + runTime*1e-6/iterations)
-    val numTriangles = earClip.triangulatePolygon(xVerts, yVerts, xVerts.size, earClipResults)
-    println("Number of triangles = " + numTriangles)
   }
   
   def earClipPoly {
