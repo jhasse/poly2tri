@@ -86,6 +86,7 @@ class TrapezoidalMap {
     
     bCross = t.bottom
     tCross = t.top
+    
     s.above = trapezoids(1)
     s.below = trapezoids(2)
     
@@ -98,31 +99,29 @@ class TrapezoidalMap {
     val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
     val rp = if(s.q.x == t.rightPoint.x) s.q else t.rightPoint
     
-    val topCross = (tCross == t.top)
-    val bottomCross = (bCross == t.bottom)
-    
     val trapezoids = new Array[Trapezoid](2)
-    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(lp, rp, t.top, s)
-    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(lp, rp, s, t.bottom)
-    
-    if(topCross) {
-      trapezoids(0).upperRight = t.upperRight
-      if(t.upperRight != null) t.upperRight.upperLeft = trapezoids(0)
+
+    if(tCross == t.top) {
+      trapezoids(0) = t.upperLeft
+      trapezoids(0).updateRight(t.upperRight, null)
       trapezoids(0).rightPoint = rp
     } else {
+      trapezoids(0) = new Trapezoid(lp, rp, t.top, s)
       trapezoids(0).updateLeftRight(t.upperLeft, s.above, t.upperRight, null)
     }
     
-    if(bottomCross) {
-      trapezoids(1).lowerRight = t.lowerRight
-      if(t.lowerRight != null) t.lowerRight.lowerLeft = trapezoids(1)
+    if(bCross == t.bottom) {
+      trapezoids(1) = t.lowerLeft
+      trapezoids(1).updateRight(null, t.lowerRight)
       trapezoids(1).rightPoint = rp
     } else {
+      trapezoids(1) =  new Trapezoid(lp, rp, s, t.bottom)
       trapezoids(1).updateLeftRight(s.below, t.lowerLeft, null, t.lowerRight)
     }
     
     bCross = t.bottom
     tCross = t.top
+    
     s.above = trapezoids(0)
     s.below = trapezoids(1)
     
@@ -134,27 +133,26 @@ class TrapezoidalMap {
   def case4(t: Trapezoid, s: Segment) = {
       
     val lp = if(s.p.x == t.leftPoint.x) s.p else t.leftPoint
-    
-    val topCross = (tCross == t.top)
-    val bottomCross = (bCross == t.bottom)
 
     val trapezoids = new Array[Trapezoid](3)
-    trapezoids(0) = if(topCross) t.upperLeft else new Trapezoid(lp, s.q, t.top, s)
-    trapezoids(1) = if(bottomCross) t.lowerLeft else new Trapezoid(lp, s.q, s, t.bottom)
-    trapezoids(2) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     
-    if(topCross) {
+    if(tCross == t.top) {
+      trapezoids(0) = t.upperLeft
       trapezoids(0).rightPoint = s.q
     } else {
+      trapezoids(0) = new Trapezoid(lp, s.q, t.top, s)
       trapezoids(0).updateLeft(t.upperLeft, s.above)
     }
     
-    if(bottomCross) {
+    if(bCross == t.bottom) {
+      trapezoids(1) = t.lowerLeft
       trapezoids(1).rightPoint = s.q
     } else {
+      trapezoids(1) = new Trapezoid(lp, s.q, s, t.bottom)
       trapezoids(1).updateLeft(s.below, t.lowerLeft)
     }
     
+    trapezoids(2) = new Trapezoid(s.q, t.rightPoint, t.top, t.bottom)
     trapezoids(2).updateLeftRight(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
     
     trapezoids
