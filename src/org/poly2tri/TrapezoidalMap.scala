@@ -157,9 +157,6 @@ class TrapezoidalMap {
     
     trapezoids(2).updateLeftRight(trapezoids(0), trapezoids(1), t.upperRight, t.lowerRight)
     
-    s.above = trapezoids(0)
-    s.below = trapezoids(1)
-    
     trapezoids
   }
   
