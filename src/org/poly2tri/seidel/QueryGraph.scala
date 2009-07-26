@@ -28,9 +28,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.poly2tri
+package org.poly2tri.seidel
 
 import scala.collection.mutable.ArrayBuffer
+
+import shapes.{Segment, Trapezoid}
 
 // Directed Acyclic graph (DAG)
 // See "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2

@@ -41,6 +41,10 @@ import org.newdawn.slick.geom.{Polygon, Circle}
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
+import seidel.Triangulator
+import shapes.{Segment, Point, Triangle}
+import earClip.EarClip
+
 // TODO: Lots of documentation!
 
 object Poly2Tri {
@@ -103,10 +107,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	       polygon.addPoint(v.x, v.y)
 	     }
 	     if(!drawMap) {
-	       val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
-	       g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
-	       val rCirc = new Circle(t.rightPoint.x+5, t.rightPoint.y, 4)
-	       g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	       //val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
+	       //g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
+	       //val rCirc = new Circle(t.rightPoint.x+5, t.rightPoint.y, 4)
+	       //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
          }                          
 	     g.setColor(red)
 	     g.draw(polygon) 

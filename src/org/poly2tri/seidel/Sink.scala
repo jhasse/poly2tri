@@ -28,26 +28,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.poly2tri
+package org.poly2tri.seidel
 
-class YNode(segment: Segment, lChild: Node, rChild: Node) extends Node(lChild, rChild) {
+import shapes.{Segment, Trapezoid}
 
-  override def locate(s: Segment): Sink = {
-    if (segment > s.p) {
-      // Move down the graph
-      return right.locate(s)
-    } else if (segment < s.p) {
-      // Move up the graph
-      return left.locate(s)
-    } else {
-      // s and segment share the same endpoint, p
-      if (s.slope < segment.slope) {
-        // Move down the graph
-        return right.locate(s)
-      } else {
-        // Move up the graph
-        return left.locate(s)
-      }
-    }
+object Sink {
+  
+  def init(trapezoid: Trapezoid) = {
+    if(trapezoid.sink != null) 
+      trapezoid.sink
+    else 
+      new Sink(trapezoid)
   }
+}
+
+class Sink(val trapezoid: Trapezoid) extends Node(null, null) {
+
+  trapezoid.sink = this
+  override def locate(s: Segment): Sink = this
+  
 }

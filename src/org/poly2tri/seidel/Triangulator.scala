@@ -28,9 +28,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.poly2tri
+package org.poly2tri.seidel
 
 import scala.collection.mutable.ArrayBuffer
+
+import utils.{Util, Random}
+import shapes.{Point, Segment, Trapezoid}
 
 // Based on Raimund Seidel's paper "A simple and fast incremental randomized
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
@@ -207,7 +210,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Prevents any two distinct endpoints from lying on a common vertical line, and avoiding
   // the degenerate case. See Mark de Berg et al, Chapter 6.3
-  //val SHEER = 0.001f
+  //val SHEER = 0.0001f
   def shearTransform(point: Point) = Point(point.x + 0.0001f * point.y, point.y)
  
 }

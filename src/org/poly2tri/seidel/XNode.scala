@@ -28,24 +28,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.poly2tri
+package org.poly2tri.seidel
 
-case class Point(val x: Float, val y: Float) {
-  
-  // Pointers to next and previous points in Monontone Mountain
-  var next, prev: Point = null
-  
-  @inline def -(p: Point) = Point(x - p.x, y - p.y) 
-  @inline def +(p: Point) = Point(x + p.x, y + p.y)
-  @inline def +(f: Float) = Point(x + f, y + f)
-  @inline def -(f: Float) = Point(x - f, y - f)
-  @inline def *(f: Float) = Point(x * f, y * f)
-  @inline def /(a: Float) = Point(x / a, y / a)
-  @inline def cross(p: Point) = x * p.y - y * p.x
-  @inline def dot(p: Point) = x * p.x + y * p.y
-  @inline def length = Math.sqrt(x * x + y * y).toFloat
-  @inline def normalize = this / length  
-  @inline def <(p: Point) = (x < p.x)    
-  @inline def !(p: Point) = !(p.x == x && p.y == y)
-  @inline override def clone = Point(x, y)
+import shapes.{Point, Segment}
+
+class XNode(point: Point, lChild: Node, rChild: Node) extends Node(lChild, rChild) {
+
+  override def locate(s: Segment): Sink = {
+    
+    if(s.p.x >= point.x) {
+      // Move to the right in the graph
+      return right.locate(s)
+    } else {
+      // Move to the left in the graph
+      return left.locate(s)
+    } 
+  }
 }
