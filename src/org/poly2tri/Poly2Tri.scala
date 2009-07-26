@@ -30,11 +30,6 @@
  */
 package org.poly2tri
 
-// Based on Raimund Seidel's paper "A simple and fast incremental randomized
-// algorithm for computing trapezoidal decompositions and for triangulating polygons"
-// See also: "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
-//           "Computational Geometry in C", 2nd edition, by Joseph O'Rourke
-
 import org.newdawn.slick.{BasicGame, GameContainer, Graphics, Color, AppGameContainer}
 import org.newdawn.slick.geom.{Polygon, Circle}
 

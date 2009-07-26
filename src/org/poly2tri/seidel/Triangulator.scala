@@ -37,6 +37,8 @@ import shapes.{Point, Segment, Trapezoid}
 
 // Based on Raimund Seidel's paper "A simple and fast incremental randomized
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
+// See also: "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
+//           "Computational Geometry in C", 2nd edition, by Joseph O'Rourke
 class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Triangle decomposition list
