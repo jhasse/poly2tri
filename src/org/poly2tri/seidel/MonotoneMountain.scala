@@ -35,7 +35,7 @@ import scala.collection.mutable.{ArrayBuffer, Queue}
 import shapes.Point
 
 // Doubly linked list
-class MonotoneMountain {
+class MonotoneMountain(buildTriangles: Boolean) {
 
 	var tail, head: Point = null
 	var size = 0
@@ -45,6 +45,8 @@ class MonotoneMountain {
 	val monoPoly = new ArrayBuffer[Point]
     // Triangles that constitute the mountain
 	val triangles = new ArrayBuffer[Array[Point]]
+	// Convex polygons that constitute the mountain
+	val convexPolies = new ArrayBuffer[Array[Point]]
 	// Used to track which side of the line we are on                                
 	private var positive = false
 	// Almost Pi!
@@ -86,7 +88,7 @@ class MonotoneMountain {
  
 	// Partition a x-monotone mountain into triangles O(n)
 	// See "Computational Geometry in C", 2nd edition, by Joseph O'Rourke, page 52
-	def triangulate {
+	def process {
 	
 	  // Establish the proper sign
 	  positive = angleSign
@@ -105,7 +107,16 @@ class MonotoneMountain {
         if(convex(p)) convexPoints += p
         p = p.next
       }
-    
+      
+      if(buildTriangles) 
+    	triangulate
+       else
+        hertelMehlhorn
+
+    }
+ 
+	private def triangulate {
+	  
       while(!convexPoints.isEmpty) {
 	     
         val ear = convexPoints.remove(0)
@@ -123,7 +134,30 @@ class MonotoneMountain {
       }
       assert(size <= 3, "Triangulation bug, please report")
    
-  }
+	}
+ 
+	private def hertelMehlhorn {
+	  
+		while(!convexPoints.isEmpty) {
+	        val ear = convexPoints.remove(0)
+	        val a = ear.prev
+	        val b = ear
+	        val c = ear.next
+	        val triangle = Array(a, b, c)
+	        convexPolies += triangle
+	        // Remove ear, update angles and convex list
+	        remove(ear)
+        }
+  
+		val polygon = new Array[Point](size)
+		
+		var p = head
+		for(i <- 0 until size) {
+		  polygon(i) = p
+          p = p.next
+		}
+        convexPolies += polygon
+	}
  
 	private def valid(p: Point) = (p != head && p != tail && convex(p))
 	  

@@ -69,6 +69,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawSegs = true
   var hiLighter = 0
   var drawEarClip = false
+  var hertelMehlhorn = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
@@ -114,11 +115,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    
    if(!debug && !drawEarClip) {
     var i = 0
-    for(t <- tesselator.triangles) {
-        val triangle = new Polygon
-        t.foreach(p => triangle.addPoint(p.x, p.y))
+    for(t <- tesselator.polygons) {
+        val poly = new Polygon
+        t.foreach(p => poly.addPoint(p.x, p.y))
         g.setColor(red)
-        g.draw(triangle)
+        g.draw(poly)
       }
    } else if (debug && drawMap && !drawEarClip){
     for(mp <- tesselator.monoPolies) {
@@ -158,14 +159,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     // UP
     if(key == 200) {
       hiLighter += 1
-      if (hiLighter == tesselator.triangles.size)
+      if (hiLighter == tesselator.polygons.size)
         hiLighter = 0
     }
     // DOWN
     if(key == 208) {
       hiLighter -= 1
       if (hiLighter == -1)
-        hiLighter = tesselator.triangles.size-1
+        hiLighter = tesselator.polygons.size-1
     }
     if(c == 'm') drawMap = !drawMap 
     if(c == '1') {currentModel = nazcaMonkey; selectModel}
@@ -175,6 +176,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '5') star
     if(c == 's') drawSegs = !drawSegs
     if(c == 'e') {drawEarClip = !drawEarClip; selectModel}
+    if(c == 'h') {hertelMehlhorn = !hertelMehlhorn; selectModel} 
   }
     
   def selectModel {
@@ -227,6 +229,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p6, p7)
     
     tesselator = new Triangulator(segments)
+    tesselator.buildTriangles = hertelMehlhorn
+    
     val t1 = System.nanoTime
     tesselator process
     val t2 = System.nanoTime
@@ -260,7 +264,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p8, p9)
     segments += new Segment(p9, p10)
     segments += new Segment(p10, p1)
+    
     tesselator = new Triangulator(segments)
+    tesselator.buildTriangles = hertelMehlhorn
     
     val t1 = System.nanoTime
     tesselator process
@@ -301,7 +307,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     segments += new Segment(p10, p11)
     segments += new Segment(p11, p12)
     segments += new Segment(p12, p1)
+    
     tesselator = new Triangulator(segments)
+    tesselator.buildTriangles = hertelMehlhorn
     
     val t1 = System.nanoTime
     tesselator process
@@ -355,12 +363,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       
 	    // Sediel triangulation
 	    tesselator = new Triangulator(segments)
+        tesselator.buildTriangles = hertelMehlhorn
+        
 	    val t1 = System.nanoTime
 	    tesselator.process
 	    val runTime = System.nanoTime - t1
 	
 	    println("Poly2Tri average (ms) =  " + runTime*1e-6)
-	    println("Number of triangles = " + tesselator.triangles.size)
+	    println("Number of triangles = " + tesselator.polygons.size)
      
     } else {
       

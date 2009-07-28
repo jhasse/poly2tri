@@ -38,7 +38,7 @@ import shapes.{Point, Segment, Trapezoid}
 
 class TrapezoidalMap {
 
-  // Trapezoid associated array
+  // Trapezoid container
   val map = HashSet.empty[Trapezoid]
   // AABB margin
   var margin = 50f

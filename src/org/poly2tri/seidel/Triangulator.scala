@@ -41,9 +41,11 @@ import shapes.{Point, Segment, Trapezoid}
 //           "Computational Geometry in C", 2nd edition, by Joseph O'Rourke
 class Triangulator(segments: ArrayBuffer[Segment]) {
   
-  // Triangle decomposition list
-  var triangles = new ArrayBuffer[Array[Point]]
-  
+  // Convex polygon list
+  var polygons = new ArrayBuffer[Array[Point]]
+  // Generate triangles vs non-convex polygons 
+  // On by default
+  var buildTriangles = true
   // Order and randomize the segments
   val segmentList = orderSegments
   
@@ -147,7 +149,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       
       if(s.mPoints.size > 0) {
         
-         val mountain = new MonotoneMountain
+         val mountain = new MonotoneMountain(buildTriangles)
          var k: List[Point] = null
     
          // Sorting is a perfromance hit. Literature says this can be accomplised in
@@ -169,13 +171,22 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
          }
          
          // Triangulate monotone mountain
-         mountain.triangulate
+         mountain process
          
-         // Extract the triangles into a single list
-         j = 0
-         while(j < mountain.triangles.size) {
-    	   triangles += mountain.triangles(j)
-           j += 1
+         if(buildTriangles) {
+	         // Extract the triangles into a single list
+	         j = 0
+	         while(j < mountain.triangles.size) {
+	    	   polygons += mountain.triangles(j)
+	           j += 1
+	         }
+         } else {
+        	 // Extract the convex polygons into a single list
+	         j = 0
+	         while(j < mountain.convexPolies.size) {
+	    	   polygons += mountain.convexPolies(j)
+	           j += 1
+	         }
          }
          
          xMonoPoly += mountain
