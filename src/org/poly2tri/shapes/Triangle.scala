@@ -30,8 +30,6 @@
  */
 package org.poly2tri.shapes
 
-import shapes.Point
-
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"

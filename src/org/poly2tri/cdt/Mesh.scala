@@ -32,7 +32,7 @@ package org.poly2tri.cdt
 
 import scala.collection.mutable.HashSet
 
-import shapes.Point
+import shapes.{Point, Triangle}
 
 class Mesh(initialTriangle: Triangle) {
 

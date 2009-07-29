@@ -40,69 +40,73 @@ import utils.Util
  * See: Domiter, V. and Žalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
  *      International Journal of Geographical Information Science,22:4,449 — 462
  */
-class CDT(segments: ArrayBuffer[Segment]) {
+object CDT {
+  
+  // Inital triangle factor
+  val ALPHA = 0.3f
+  
+  def init(points: ArrayBuffer[Point]): CDT = {
+    
+    var xmax, xmin = 0f
+    var ymax, ymin = 0f
+    
+    // Calculate bounds
+    for(i <- 0 until points.size) { 
+      points(i) = shearTransform(points(i))
+      val p = points(i)
+      if(p.x > xmax) xmax = p.x
+      if(p.x < xmin) xmin = p.x
+      if(p.y > ymax) ymax = p.x
+      if(p.y < ymin) ymin = p.x
+    }
+    
+    val deltaX = ALPHA * (xmax - xmin)
+    val deltaY = ALPHA * (ymax - ymin)
+    val p1 = Point(xmin - deltaX, ymin - deltaY)
+    val p2 = Point(xmax - deltaX, ymin - deltaY)
+    
+    val initialTriangle = new Triangle(Array(p2, points(0), p1), null)
+    val segments = initSegments(points)
+    val sortedPoints = pointSort(points)
+    new CDT(sortedPoints, segments, initialTriangle)
+  }
+  
+    // Create segments and connect end points
+  private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
+    var segments = List[Segment]()
+    for(i <- 0 until points.size-1)
+      segments = new Segment(points(i), points(i+1)) :: segments
+    segments = new Segment(points.first, points.last) :: segments
+    segments
+  }
+  
+  // Insertion sort is one of the fastest algorithms for sorting arrays containing 
+  // fewer than ten elements, or for lists that are already mostly sorted.
+  // Merge sort: O(n log n)
+  private def pointSort(pts: ArrayBuffer[Point]): List[Point] = {
+    if(pts.size < 10) 
+      Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
+    else
+      Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
+  }
+  
+  // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
+  // the degenerate case. See Mark de Berg et al, Chapter 6.3
+  //val SHEER = 0.0001f
+  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.0001f)
+  
+}
 
-  // The initial triangle
-  var initialTriangle: Triangle = null
-  // The point list
-  val points = init
+class CDT(val points: List[Point], val segments: List[Segment], initialTriangle: Triangle) {
+  
   // The triangle mesh
   val mesh = new Mesh(initialTriangle)
-  
-  // Used to compute inital triangle
-  private val ALPHA = 0.3f
-  
+ 
   // Sweep points; build mesh
   sweep
   // Finalize triangulation
   finalization
   
-  // Initialize and sort point list
-  private def init: List[Point] = {
-    
-    var xmax, xmin = segments(0).p.x
-    var ymax, ymin = segments(0).p.y
-    val pts = new ArrayBuffer[Point]
-    
-    for(i <- 0 until segments.size) { 
-      
-      val p = segments(i).p
-      val q = segments(i).q
-      
-      if(p.x > xmax) xmax = p.x
-      if(q.x > xmax) xmax = q.x
-      if(p.x < xmin) xmin = p.x
-      if(q.x < xmin) xmin = q.x
-      
-      if(p.y > ymax) ymax = p.x
-      if(q.y > ymax) ymax = q.x
-      if(p.y < ymin) ymin = p.x
-      if(q.y < ymin) ymin = q.x
-      
-      pts += shearTransform(p)
-      pts += shearTransform(q)
-    }
-    
-    var points: List[Point] = null
-    
-    if(pts.size < 10) 
-     // Insertion sort is one of the fastest algorithms for sorting arrays containing 
-     // fewer than ten elements, or for lists that are already mostly sorted.
-     points = Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
-    else
-     // Merge sort: O(n log n)
-     points = Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
-     
-    val deltaX = ALPHA * (xmax - xmin)
-    val deltaY = ALPHA * (ymax - ymin)
-    
-    val p1 = Point(xmin - deltaX, ymin - deltaY)
-    val p2 = Point(xmax - deltaX, ymin - deltaY)
-    
-    initialTriangle = new Triangle(Array(p2, points(0), p1), null)
-    points
-  }
- 
   // Implement sweep-line paradigm
   private def sweep {
   }  
@@ -110,8 +114,5 @@ class CDT(segments: ArrayBuffer[Segment]) {
   private def finalization {
   }
   
-  // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
-  // the degenerate case. See Mark de Berg et al, Chapter 6.3
-  //val SHEER = 0.0001f
-  def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.0001f)
+  def triangles = mesh.map
 }
