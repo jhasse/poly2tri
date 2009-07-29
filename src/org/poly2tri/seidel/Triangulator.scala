@@ -158,7 +158,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
          if(s.mPoints.size < 10) 
            // Insertion sort is one of the fastest algorithms for sorting arrays containing 
            // fewer than ten elements, or for lists that are already mostly sorted.
-           k = Util.insertSort(s.mPoints).toList
+           k = Util.insertSort((p1: Point, p2: Point) => p1 < p2)(s.mPoints).toList
          else 
            k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
          

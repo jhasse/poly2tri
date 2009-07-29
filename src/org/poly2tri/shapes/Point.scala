@@ -30,10 +30,18 @@
  */
 package org.poly2tri.shapes
 
+object Event extends Enumeration {
+  val point, edge = Value
+}
+
 case class Point(val x: Float, val y: Float) {
   
   // Pointers to next and previous points in Monontone Mountain
   var next, prev: Point = null
+  // The setment this point belongs to
+  var segment: Segment = null
+  // Point type for CDT
+  var eventType: Event.Value = _
   
   @inline def -(p: Point) = Point(x - p.x, y - p.y) 
   @inline def +(p: Point) = Point(x + p.x, y + p.y)
@@ -45,7 +53,10 @@ case class Point(val x: Float, val y: Float) {
   @inline def dot(p: Point) = x * p.x + y * p.y
   @inline def length = Math.sqrt(x * x + y * y).toFloat
   @inline def normalize = this / length  
-  @inline def <(p: Point) = (x < p.x)    
+  // Sort along x axis
+  @inline def <(p: Point) = (x < p.x)
+  // Sort along y axis
+  @inline def >(p: Point) = (y < p.y) 
   @inline def !(p: Point) = !(p.x == x && p.y == y)
   @inline override def clone = Point(x, y)
 }

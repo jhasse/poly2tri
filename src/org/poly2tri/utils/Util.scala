@@ -19,19 +19,19 @@ object Util {
       else merge(msort(less)(xs take n), msort(less)(xs drop n))
   }
   
-  def insertSort(list:ArrayBuffer[Point]) = {     
+  def insertSort[A](less: (A, A) => Boolean)(xs: ArrayBuffer[A]): ArrayBuffer[A] = {    
     var j = 1
-    while(j < list.size){   
-	   val key = list(j)
+    while(j < xs.size){   
+	   val key = xs(j)
 	   var i = j-1
-	   while(i>=0 && list(i).x > key.x){
-	     list(i+1) = list(i)
-	     i=i-1
+	   while(i >= 0 && less(key, xs(i)) ){
+	     xs(i+1) = xs(i)
+	     i -= 1
 	   }
-	   list(i+1)=key
-	   j=j+1
+	   xs(i+1)=key
+	   j += 1
 	 }
-	 list
+	 xs
   }
 }
 

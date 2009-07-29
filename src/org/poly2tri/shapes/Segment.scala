@@ -35,11 +35,13 @@ import scala.collection.mutable.{ArrayBuffer}
 // Represents a simple polygon's edge
 class Segment(var p: Point, var q: Point) {
 
+  p.segment = this
+  q.segment = this
+  
   // Pointers used for building trapezoidal map
   var above, below: Trapezoid = null
   // Montone mountain points
   val mPoints = new ArrayBuffer[Point]
-
   // Equation of a line: y = m*x + b
   // Slope of the line (m)
   val slope = (q.y - p.y)/(q.x - p.x)
@@ -50,5 +52,28 @@ class Segment(var p: Point, var q: Point) {
   def > (point: Point) = (Math.floor(point.y) < Math.floor(slope * point.x + b))
   // Determines if this segment lies below the given point
   def < (point: Point) = (Math.floor(point.y) > Math.floor(slope * point.x + b))
+  
+  // Assign point type for CDT
+  if(p.y > q.y) 
+    pEdge
+  else if (p.y < q.y) 
+    pPoint
+  else 
+    if(p.x < q.x) 
+      pPoint
+    else if (p.x > q.x)
+      pEdge
+    else
+      throw new Exception("Invalid segment")
+  
+  private def pPoint {
+    p.eventType = Event.point
+    q.eventType = Event.edge
+  }
+  
+  private def pEdge {
+    p.eventType = Event.edge
+    q.eventType = Event.point
+  }
 
 }

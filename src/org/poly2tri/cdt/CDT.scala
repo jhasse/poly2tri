@@ -28,14 +28,75 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.poly2tri.cdt
+
+import scala.collection.mutable.ArrayBuffer
+
+import shapes.{Segment, Point}
+import utils.Util
 
 /**
  * Sweep-line, Constrained Delauney Triangulation
  * See: Domiter, V. and Žalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
  *      International Journal of Geographical Information Science,22:4,449 — 462
  */
-package org.poly2tri.cdt
+class CDT(segments: ArrayBuffer[Segment]) {
 
-class CDT {
-
+  // The point list
+  val points = init
+  // The triangle mesh
+  val mesh = new Mesh
+  
+  // Sweep points; build mesh
+  sweep
+  // Finalize triangulation
+  finalization
+  
+  // Initialize and sort point list
+  private def init: List[Point] = {
+    
+    var xmax, xmin = 0f
+    var ymax, ymin = 0f
+    val pts = new ArrayBuffer[Point]
+    
+    for(i <- 0 until segments.size) { 
+      
+      val p = segments(i).p
+      val q = segments(i).q
+      
+      if(p.x > xmax) xmax = p.x
+      if(q.x > xmax) xmax = q.x
+      if(p.x < xmin) xmin = p.x
+      if(q.x < xmin) xmin = q.x
+      
+      if(p.y > ymax) ymax = p.x
+      if(q.y > ymax) ymax = q.x
+      if(p.y < ymin) ymin = p.x
+      if(q.y < ymin) ymin = q.x
+      
+      
+      pts += shearTransform(p)
+      pts += shearTransform(q)
+    }
+    
+    if(pts.size < 10) 
+     // Insertion sort is one of the fastest algorithms for sorting arrays containing 
+     // fewer than ten elements, or for lists that are already mostly sorted.
+     Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
+    else
+     // Merge sort: O(n log n)
+     Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
+  }
+ 
+  // Implement sweep-line paradigm
+  private def sweep {
+  }  
+  
+  private def finalization {
+  }
+  
+  // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
+  // the degenerate case. See Mark de Berg et al, Chapter 6.3
+  //val SHEER = 0.0001f
+  def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.0001f)
 }

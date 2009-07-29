@@ -31,7 +31,9 @@
 package org.poly2tri.cdt
 
 import scala.collection.mutable.HashSet
-                                 
+
+import shapes.Point
+
 class Mesh {
 
   val map = HashSet.empty[Triangle]
