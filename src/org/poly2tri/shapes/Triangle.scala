@@ -1,54 +1,43 @@
+/* Poly2Tri
+ * Copyright (c) 2009, Mason Green
+ * http://code.google.com/p/poly2tri/
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice,
+ *   this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ * * Neither the name of Poly2Tri nor the names of its contributors may be
+ *   used to endorse or promote products derived from this software without specific
+ *   prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.poly2tri.shapes
 
-class Triangle(var x1: Float, var y1: Float, var x2: Float, var y2: Float, var x3: Float, var y3: Float) {
-    
-	def this() = this(0,0,0,0,0,0)
- 
-    val x = new Array[Float](3)
-    val y = new Array[Float](3)
-    
-    // Automatically fixes orientation to ccw
+import shapes.Point
 
-	  val dx1 = x2-x1
-	  val dx2 = x3-x1
-	  val dy1 = y2-y1
-	  val dy2 = y3-y1
-	  val cross = dx1*dy2-dx2*dy1
-	  val ccw = (cross>0)
-	  if (ccw){
-	    x(0) = x1; x(1) = x2; x(2) = x3;
-	    y(0) = y1; y(1) = y2; y(2) = y3;
-	  } else{
-	    x(0) = x1; x(1) = x3; x(2) = x2;
-	    y(0) = y1; y(1) = y3; y(2) = y2;
-	  }
+// Triangle-based data structures are know to have better performance than quad-edge structures
+// See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
+//      "Triangulations in CGAL"
+class Triangle(points: Array[Point], neighbors: Array[Triangle]) {
 
-    def set(t: Triangle) {
-    	x(0) = t.x(0)
-    	x(1) = t.x(1)
-    	x(2) = t.x(2)
-    	y(0) = t.y(0)
-    	y(1) = t.y(1)
-    	y(2) = t.y(2)
-    }
-
-    
-    def containsPoint(_x: Float, _y: Float): Boolean = {
-      
-      val vx2 = _x-x(0); val vy2 = _y-y(0);
-      val vx1 = x(1)-x(0); val vy1 = y(1)-y(0);
-      val vx0 = x(2)-x(0); val vy0 = y(2)-y(0);
-      
-      val dot00 = vx0*vx0+vy0*vy0;
-      val dot01 = vx0*vx1+vy0*vy1;
-      val dot02 = vx0*vx2+vy0*vy2;
-      val dot11 = vx1*vx1+vy1*vy1;
-      val dot12 = vx1*vx2+vy1*vy2;
-      val invDenom = 1.0f / (dot00*dot11 - dot01*dot01);
-      val u = (dot11*dot02 - dot01*dot12)*invDenom;
-      val v = (dot00*dot12 - dot01*dot02)*invDenom;
-      
-      return ((u>=0)&&(v>=0)&&(u+v<=1));    
-    }
-    
- }
+  // Flags to determine if an edge is the final Delauney edge
+  val edges = new Array[Boolean](3)
+  
+}

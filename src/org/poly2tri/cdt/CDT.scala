@@ -32,7 +32,7 @@ package org.poly2tri.cdt
 
 import scala.collection.mutable.ArrayBuffer
 
-import shapes.{Segment, Point}
+import shapes.{Segment, Point, Triangle}
 import utils.Util
 
 /**
@@ -42,10 +42,15 @@ import utils.Util
  */
 class CDT(segments: ArrayBuffer[Segment]) {
 
+  // The initial triangle
+  var initialTriangle: Triangle = null
   // The point list
   val points = init
   // The triangle mesh
-  val mesh = new Mesh
+  val mesh = new Mesh(initialTriangle)
+  
+  // Used to compute inital triangle
+  private val ALPHA = 0.3f
   
   // Sweep points; build mesh
   sweep
@@ -55,8 +60,8 @@ class CDT(segments: ArrayBuffer[Segment]) {
   // Initialize and sort point list
   private def init: List[Point] = {
     
-    var xmax, xmin = 0f
-    var ymax, ymin = 0f
+    var xmax, xmin = segments(0).p.x
+    var ymax, ymin = segments(0).p.y
     val pts = new ArrayBuffer[Point]
     
     for(i <- 0 until segments.size) { 
@@ -74,18 +79,28 @@ class CDT(segments: ArrayBuffer[Segment]) {
       if(p.y < ymin) ymin = p.x
       if(q.y < ymin) ymin = q.x
       
-      
       pts += shearTransform(p)
       pts += shearTransform(q)
     }
     
+    var points: List[Point] = null
+    
     if(pts.size < 10) 
      // Insertion sort is one of the fastest algorithms for sorting arrays containing 
      // fewer than ten elements, or for lists that are already mostly sorted.
-     Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
+     points = Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
     else
      // Merge sort: O(n log n)
-     Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
+     points = Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
+     
+    val deltaX = ALPHA * (xmax - xmin)
+    val deltaY = ALPHA * (ymax - ymin)
+    
+    val p1 = Point(xmin - deltaX, ymin - deltaY)
+    val p2 = Point(xmax - deltaX, ymin - deltaY)
+    
+    initialTriangle = new Triangle(Array(p2, points(0), p1), null)
+    points
   }
  
   // Implement sweep-line paradigm

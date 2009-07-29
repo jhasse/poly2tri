@@ -58,7 +58,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var segments: ArrayBuffer[Segment] = null
   
   val earClip = new EarClip
-  var earClipResults: Array[Triangle] = null
+  var earClipResults: Array[poly2tri.earClip.Triangle] = null
   
   var polyX: ArrayBuffer[Float] = null
   var polyY: ArrayBuffer[Float] = null
@@ -376,9 +376,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       
     	// Earclip
 	    
-	    earClipResults = new Array[Triangle](maxTriangles)
+	    earClipResults = new Array[poly2tri.earClip.Triangle](maxTriangles)
      
-	    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+	    for(i <- 0 until earClipResults.size) earClipResults(i) = new poly2tri.earClip.Triangle
 	    val xVerts = polyX.toArray.reverse
 	    val yVerts = polyY.toArray.reverse
 	   
@@ -397,8 +397,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val polyX = Array(400f, 500f, 520f, 460f, 580f, 480f, 360f, 360f, 300f, 200f, 120f, 200f, 340f, 208f, 180f, 300f)
     val polyY = Array(472f, 392f, 272f, 232f, 212f, 152f, 172f, 52f, 112f, 32f, 92f, 72f, 272f, 212f, 352f, 312f)
     
-    val earClipResults = new Array[Triangle](14)
-    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val earClipResults = new Array[poly2tri.earClip.Triangle](14)
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new poly2tri.earClip.Triangle
     val t1 = System.nanoTime
     earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
     val t2 = System.nanoTime
@@ -410,8 +410,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val polyX = Array(200f, 300f, 400f, 500f, 600f, 600f, 500f, 400f, 300f, 200f, 110f, 110f)
     val polyY = Array(110f, 200f, 110f, 200f, 110f, 200f, 300f, 200f, 300f, 200f, 300f, 200f)
     
-    val earClipResults = new Array[Triangle](14)
-    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val earClipResults = new Array[poly2tri.earClip.Triangle](14)
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new poly2tri.earClip.Triangle
     val t1 = System.nanoTime
     earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
     val t2 = System.nanoTime
@@ -434,8 +434,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val polyX = Array(350f, 379f, 469f, 397f, 423f, 350f, 277f, 303f, 231f, 321f)
     val polyY = Array(75f, 161f, 161f, 215f, 301f, 250f, 301f,215f, 161f, 161f)
     
-    val earClipResults = new Array[Triangle](14)
-    for(i <- 0 until earClipResults.size) earClipResults(i) = new Triangle
+    val earClipResults = new Array[poly2tri.earClip.Triangle](14)
+    for(i <- 0 until earClipResults.size) earClipResults(i) = new poly2tri.earClip.Triangle
     val t1 = System.nanoTime
     earClip.triangulatePolygon(polyX, polyY, polyX.size, earClipResults)
     val t2 = System.nanoTime
