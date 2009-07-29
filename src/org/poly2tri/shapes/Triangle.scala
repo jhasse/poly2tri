@@ -33,7 +33,7 @@ package org.poly2tri.shapes
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"
-class Triangle(points: Array[Point], neighbors: Array[Triangle]) {
+class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)

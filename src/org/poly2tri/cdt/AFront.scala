@@ -30,7 +30,34 @@
  */
 package org.poly2tri.cdt
 
-// Advancing front
-class AFront {
+import shapes.{Point, Triangle}
 
+// Advancing front
+class AFront(iTriangle: Triangle) {
+
+  // Doubly linked list
+  var head = new Node(iTriangle.points(0), iTriangle)
+  var tail = new Node(iTriangle.points(2), iTriangle)
+  
+  head.next = new Node(iTriangle.points(1), iTriangle)
+  head.next.next = tail
+  tail.prev = head.next
+  
+  def locate(point: Point): Tuple2[List[Point], Triangle] = {
+    var node = head
+    while(node != tail) {
+      if(point.x > node.point.x && point.x < node.next.point.x)
+        return (List(node.point, node.next.point), node.triangle)
+      node = node.next
+    }
+    null
+  }
+  
+  
+}
+
+class Node(val point: Point, val triangle: Triangle) {
+
+  var next: Node = null
+  var prev: Node = null
 }

@@ -82,7 +82,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var currentModel = nazcaMonkey
   
   def init(container: GameContainer) {
-    selectModel
+    selectModel(currentModel)
   }
   
   def update(gc: GameContainer, delta: Int) {
@@ -109,10 +109,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	       polygon.addPoint(v.x, v.y)
 	     }
 	     if(!drawMap) {
-	       //val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
-	       //g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
-	       //val rCirc = new Circle(t.rightPoint.x+5, t.rightPoint.y, 4)
-	       //g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
+	       val lCirc = new Circle(t.leftPoint.x, t.leftPoint.y, 4)
+	       g.setColor(blue); g.draw(lCirc); g.fill(lCirc)
+	       val rCirc = new Circle(t.rightPoint.x+5, t.rightPoint.y, 4)
+	       g.setColor(yellow); g.draw(rCirc); g.fill(rCirc)
          }                          
 	     g.setColor(red)
 	     g.draw(polygon) 
@@ -175,19 +175,19 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         hiLighter = tesselator.polygons.size-1
     }
     if(c == 'm') drawMap = !drawMap 
-    if(c == '1') {currentModel = nazcaMonkey; selectModel}
-    if(c == '2') {currentModel = bird; selectModel}
-    if(c == '3') {currentModel = strange; selectModel}
-    if(c == '4') {currentModel = snake; selectModel}
-    if(c == '5') {currentModel = star; selectModel}
-    if(c == '6') {currentModel = i18; selectModel}
+    if(c == '1') selectModel(nazcaMonkey)
+    if(c == '2') selectModel(bird)
+    if(c == '3') selectModel(strange)
+    if(c == '4') selectModel(snake)
+    if(c == '5') selectModel(star)
+    if(c == '6') selectModel(i18)
     if(c == 's') drawSegs = !drawSegs
-    if(c == 'e') {drawEarClip = !drawEarClip; selectModel}
-    if(c == 'h') {hertelMehlhorn = !hertelMehlhorn; selectModel} 
+    if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
+    if(c == 'h') {hertelMehlhorn = !hertelMehlhorn; selectModel(currentModel)} 
   }
     
-  def selectModel {
-    currentModel match {
+  def selectModel(model: String) {
+    model match {
       case "data/nazca_monkey.dat" => 
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
       case "data/bird.dat" => 
@@ -199,10 +199,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       case "data/strange.dat" => 
         loadModel(strange, -1f, Point(0f, 0f), 15)
       case "data/i.18" => 
-        loadModel(i18, 15f, Point(500f, 400f), 20)
+        loadModel(i18, 20f, Point(600f, 500f), 20)
       case _ => 
         assert(false)
     }
+    currentModel = model
   }
    
   def loadModel(model: String, scale: Float, center: Point, maxTriangles: Int) {
@@ -228,15 +229,13 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         throw new Exception("Bad input file")
       }
     }
-    points.foreach(println)
+    
     segments = new ArrayBuffer[Segment]
     for(i <- 0 until polyX.size-1)
       segments += new Segment(points(i), points(i+1))
-    // Connect the end points
     segments += new Segment(points.first, points.last)
     
-    val cdt = CDT.init(points)
-    println(cdt.points.size + "," + cdt.segments.size)
+    //val cdt = CDT.init(points)
     
     println("Number of points = " + polyX.size)
     println

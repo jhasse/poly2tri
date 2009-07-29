@@ -45,10 +45,11 @@ object CDT {
   // Inital triangle factor
   val ALPHA = 0.3f
   
+  // Triangulate simple polygon
   def init(points: ArrayBuffer[Point]): CDT = {
     
-    var xmax, xmin = 0f
-    var ymax, ymin = 0f
+    var xmax, xmin = shearTransform(points.first).x
+    var ymax, ymin = shearTransform(points.first).y
     
     // Calculate bounds
     for(i <- 0 until points.size) { 
@@ -56,27 +57,32 @@ object CDT {
       val p = points(i)
       if(p.x > xmax) xmax = p.x
       if(p.x < xmin) xmin = p.x
-      if(p.y > ymax) ymax = p.x
-      if(p.y < ymin) ymin = p.x
+      if(p.y > ymax) ymax = p.y
+      if(p.y < ymin) ymin = p.y
     }
     
     val deltaX = ALPHA * (xmax - xmin)
     val deltaY = ALPHA * (ymax - ymin)
     val p1 = Point(xmin - deltaX, ymin - deltaY)
-    val p2 = Point(xmax - deltaX, ymin - deltaY)
+    val p2 = Point(xmax + deltaX, ymin - deltaY)
     
-    val initialTriangle = new Triangle(Array(p2, points(0), p1), null)
     val segments = initSegments(points)
     val sortedPoints = pointSort(points)
+    val initialTriangle = new Triangle(Array(p1, sortedPoints(0), p2), null)
     new CDT(sortedPoints, segments, initialTriangle)
   }
   
-    // Create segments and connect end points
+    // Create segments and connect end points; update edge event pointer
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
     var segments = List[Segment]()
-    for(i <- 0 until points.size-1)
-      segments = new Segment(points(i), points(i+1)) :: segments
-    segments = new Segment(points.first, points.last) :: segments
+    for(i <- 0 until points.size-1) {
+      val segment = new Segment(points(i), points(i+1))
+      points(i+1).eEvent = segment
+      segments = segment :: segments
+    }
+    val segment = new Segment(points.first, points.last)
+    points.first.eEvent = segment
+    segments =  segment :: segments
     segments
   }
   
@@ -101,7 +107,9 @@ class CDT(val points: List[Point], val segments: List[Segment], initialTriangle:
   
   // The triangle mesh
   val mesh = new Mesh(initialTriangle)
- 
+  // Advancing front
+  val aFront = new AFront(initialTriangle)
+  
   // Sweep points; build mesh
   sweep
   // Finalize triangulation
@@ -109,6 +117,14 @@ class CDT(val points: List[Point], val segments: List[Segment], initialTriangle:
   
   // Implement sweep-line paradigm
   private def sweep {
+    
+    for(i <- 1 until points.size) {
+      val point = points(i)
+      val triangle = aFront.locate(point)
+      val (nPoints, nTriangle) = triangle
+      println(nPoints)
+    }
+    
   }  
   
   private def finalization {
