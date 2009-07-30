@@ -68,7 +68,7 @@ object CDT {
     
     val segments = initSegments(points)
     val sortedPoints = pointSort(points)
-    val initialTriangle = new Triangle(Array(p1, sortedPoints(0), p2), null)
+    val initialTriangle = new Triangle(Array(sortedPoints(0), p1, p2), null)
     new CDT(sortedPoints, segments, initialTriangle)
   }
   
@@ -120,12 +120,44 @@ class CDT(val points: List[Point], val segments: List[Segment], initialTriangle:
     
     for(i <- 1 until points.size) {
       val point = points(i)
-      val triangle = aFront.locate(point)
-      val (nPoints, nTriangle) = triangle
-      println(nPoints)
+      pointEvent(point)
+      legalization
+      edgeEvent(point)
     }
-    
   }  
+  
+  // Point event
+  private def pointEvent(point: Point) {
+    
+    // Neightbor points (ccw & cw) and triangle(i)
+    val (nPts, nTri) = aFront.locate(point)
+    val pts = Array(point, nPts(0),  nPts(1))
+    val neighbors = Array(nTri, null, null)
+    val triangle = new Triangle(pts, neighbors)
+    mesh.map += triangle
+  
+    // Update neighbor's pointers
+    if(nPts(0) == nTri.points(1) && nPts(1) == nTri.points(2)) 
+      nTri.neighbors(2) = triangle 
+    else if(nPts(0) == nTri.points(2) && nPts(1) == nTri.points(1))
+      nTri.neighbors(1) = triangle
+    else 
+      throw new Exception("CDT Error!")
+    
+  }
+  
+  private def legalization {
+    
+  }
+  
+  private def legalizeEdge {
+    
+  }
+  
+  // EdgeEvent
+  private def edgeEvent(point: Point) {
+    
+  }
   
   private def finalization {
   }

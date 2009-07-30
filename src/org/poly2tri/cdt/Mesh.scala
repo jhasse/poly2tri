@@ -35,7 +35,8 @@ import scala.collection.mutable.HashSet
 import shapes.{Point, Triangle}
 
 class Mesh(initialTriangle: Triangle) {
-
+  
+  // Triangles that constitute the mesh
   val map = HashSet(initialTriangle)
   
 }

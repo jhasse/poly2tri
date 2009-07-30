@@ -91,7 +91,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    g.drawString("'1-5' to cycle models", 10, 540)
+    g.drawString("'1-6' to cycle models", 10, 540)
     g.drawString("'SPACE' to turn on debug info", 10, 552)
     g.drawString("'m' to show trapezoidal map (debug mode)", 10, 564)
     g.drawString("'e' to switch Seidel / EarClip", 10, 576)

@@ -36,10 +36,10 @@ import shapes.{Point, Triangle}
 class AFront(iTriangle: Triangle) {
 
   // Doubly linked list
-  var head = new Node(iTriangle.points(0), iTriangle)
+  var head = new Node(iTriangle.points(1), iTriangle)
   var tail = new Node(iTriangle.points(2), iTriangle)
   
-  head.next = new Node(iTriangle.points(1), iTriangle)
+  head.next = new Node(iTriangle.points(0), iTriangle)
   head.next.next = tail
   tail.prev = head.next
   
