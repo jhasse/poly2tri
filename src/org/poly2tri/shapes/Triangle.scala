@@ -38,4 +38,44 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)
   
+  def contains(point: Point) = {
+    if(point == points(0) || point == points(1) || point == points(2))
+      true
+    else 
+      false
+  }
+  
+  def legalize {
+    
+  }
+  
+  // Update neighbor pointers
+  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
+    if(ccwPoint == points(2) && cwPoint == points(1)) 
+      neighbors(0) = triangle 
+    else if(ccwPoint == points(0) && cwPoint == points(2))
+      neighbors(1) = triangle
+    else 
+      neighbors(2) = triangle
+  }
+  
+  // Fast point in triangle test
+  def pointIn(point: Point): Boolean = {
+    
+    val ab = points(1) - points(0)
+	val bc = points(2) - points(1)
+	val ca = points(0) - points(2)
+
+    val pab = (point - points(0)).cross(ab)
+    val pbc = (point - points(1)).cross(bc)
+	var sameSign = Math.signum(pab) == Math.signum(pbc)
+    if (!sameSign) return false
+
+	val pca = (point - points(2)).cross(ca)
+	sameSign = Math.signum(pab) == Math.signum(pca)
+    if (!sameSign) return false
+    
+    true
+}
+
 }

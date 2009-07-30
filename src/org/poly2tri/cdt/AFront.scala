@@ -36,28 +36,61 @@ import shapes.{Point, Triangle}
 class AFront(iTriangle: Triangle) {
 
   // Doubly linked list
+  // TODO: Replace with a Red-Black Tree for better performance
   var head = new Node(iTriangle.points(1), iTriangle)
-  var tail = new Node(iTriangle.points(2), iTriangle)
-  
   head.next = new Node(iTriangle.points(0), iTriangle)
+  var tail = new Node(iTriangle.points(2), null)
+  
   head.next.next = tail
   tail.prev = head.next
   
-  def locate(point: Point): Tuple2[List[Point], Triangle] = {
+  def locate(point: Point): Node = {
     var node = head
     while(node != tail) {
-      if(point.x > node.point.x && point.x < node.next.point.x)
-        return (List(node.point, node.next.point), node.triangle)
+      if(point.x >= node.point.x && point.x <= node.next.point.x)
+        return node
       node = node.next
     }
-    null
+    throw new Exception("Advancing front error")
   }
   
+  def +=(tuple: Tuple3[Point, Triangle, Node]) = {
+    val (point, triangle, nNode) = tuple
+    val node = new Node(point, triangle)
+    // Update pointer
+    nNode.triangle = triangle
+    // Insert new node into advancing front
+    nNode.next.prev = node
+    node.next = nNode.next
+    node.prev = nNode
+    nNode.next = node
+    node
+  }
+  
+  def -=(tuple: Tuple3[Node, Node, Triangle]) {
+    val (node, kNode, triangle) = tuple
+    kNode.next.prev = node
+    node.next = kNode.next
+    node.triangle = triangle
+  }
+  
+  def -==(tuple: Tuple3[Node, Node, Triangle]) {
+    val (node, kNode, triangle) = tuple
+    kNode.prev.next = node
+    node.prev = kNode.prev
+    node.prev.triangle = triangle
+  }
   
 }
 
-class Node(val point: Point, val triangle: Triangle) {
+class Node(val point: Point, var triangle: Triangle) {
 
   var next: Node = null
   var prev: Node = null
+  
+  def printDebug {
+    println("Point: " + point)
+    if(triangle != null)
+      println("Triangle points: " + triangle.points)
+  }
 }

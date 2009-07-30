@@ -55,11 +55,16 @@ object Poly2Tri {
 
 class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
-  var tesselator: Triangulator = null
+  // Sedidel Triangulator
+  var seidel: Triangulator = null
   var segments: ArrayBuffer[Segment] = null
   
+  // EarClip Triangulator
   val earClip = new EarClip
   var earClipResults: Array[poly2tri.earClip.Triangle] = null
+  
+  // Sweep Line Constraied Delauney Triangulator (CDT)
+  var slCDT: CDT = null
   
   var polyX: ArrayBuffer[Float] = null
   var polyY: ArrayBuffer[Float] = null
@@ -71,6 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   var hertelMehlhorn = false
+  var drawCDT = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
@@ -79,7 +85,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = nazcaMonkey
+  var currentModel = star
   
   def init(container: GameContainer) {
     selectModel(currentModel)
@@ -102,7 +108,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     val yellow = new Color(1f, 1f, 0f)
     
    if(debug) {
-	   val draw = if(drawMap) tesselator.trapezoidMap else tesselator.trapezoids
+	   val draw = if(drawMap) seidel.trapezoidMap else seidel.trapezoids
 	   for(t <- draw) {
 	     val polygon = new Polygon()
 	     for(v <- t.vertices) {
@@ -121,14 +127,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    
    if(!debug && !drawEarClip) {
     var i = 0
-    for(t <- tesselator.polygons) {
+    for(t <- seidel.polygons) {
         val poly = new Polygon
         t.foreach(p => poly.addPoint(p.x, p.y))
         g.setColor(red)
         g.draw(poly)
       }
    } else if (debug && drawMap && !drawEarClip){
-    for(mp <- tesselator.monoPolies) {
+    for(mp <- seidel.monoPolies) {
       val poly = new Polygon
       mp.foreach(p => poly.addPoint(p.x, p.y))
       g.setColor(yellow)
@@ -145,6 +151,17 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	      g.setColor(red)
 	      g.draw(triangle)
 	    })
+   
+   if(drawCDT) {
+	   slCDT.mesh.map.foreach( t => {
+	     val triangle = new Polygon
+		 triangle.addPoint(t.points(0).x, t.points(0).y)
+		 triangle.addPoint(t.points(1).x, t.points(1).y)
+		 triangle.addPoint(t.points(2).x, t.points(2).y)
+		 g.setColor(red)
+		 g.draw(triangle) 
+	   })
+   }
    
    if(drawSegs) {
      g.setColor(green)
@@ -165,16 +182,17 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     // UP
     if(key == 200) {
       hiLighter += 1
-      if (hiLighter == tesselator.polygons.size)
+      if (hiLighter == seidel.polygons.size)
         hiLighter = 0
     }
     // DOWN
     if(key == 208) {
       hiLighter -= 1
       if (hiLighter == -1)
-        hiLighter = tesselator.polygons.size-1
+        hiLighter = seidel.polygons.size-1
     }
     if(c == 'm') drawMap = !drawMap 
+    //if(c == 'c') drawCDT = !drawCDT
     if(c == '1') selectModel(nazcaMonkey)
     if(c == '2') selectModel(bird)
     if(c == '3') selectModel(strange)
@@ -235,7 +253,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       segments += new Segment(points(i), points(i+1))
     segments += new Segment(points.first, points.last)
     
-    //val cdt = CDT.init(points)
+    //slCDT = CDT.init(points)
     
     println("Number of points = " + polyX.size)
     println
@@ -243,15 +261,15 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(!drawEarClip) {  
       
 	    // Sediel triangulation
-	    tesselator = new Triangulator(segments)
-        tesselator.buildTriangles = hertelMehlhorn
+	    seidel = new Triangulator(segments)
+        seidel.buildTriangles = hertelMehlhorn
         
 	    val t1 = System.nanoTime
-	    tesselator.process
+	    seidel.process
 	    val runTime = System.nanoTime - t1
 	
 	    println("Poly2Tri average (ms) =  " + runTime*1e-6)
-	    println("Number of triangles = " + tesselator.polygons.size)
+	    println("Number of triangles = " + seidel.polygons.size)
      
     } else {
       

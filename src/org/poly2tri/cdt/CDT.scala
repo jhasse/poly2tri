@@ -68,8 +68,11 @@ object CDT {
     
     val segments = initSegments(points)
     val sortedPoints = pointSort(points)
-    val initialTriangle = new Triangle(Array(sortedPoints(0), p1, p2), null)
-    new CDT(sortedPoints, segments, initialTriangle)
+    
+    val noNeighbors = new Array[Triangle](3)
+    val tPoints = Array(sortedPoints(0), p1, p2)
+    val iTriangle = new Triangle(tPoints, noNeighbors)
+    new CDT(sortedPoints, segments, iTriangle)
   }
   
     // Create segments and connect end points; update edge event pointer
@@ -89,11 +92,11 @@ object CDT {
   // Insertion sort is one of the fastest algorithms for sorting arrays containing 
   // fewer than ten elements, or for lists that are already mostly sorted.
   // Merge sort: O(n log n)
-  private def pointSort(pts: ArrayBuffer[Point]): List[Point] = {
-    if(pts.size < 10) 
-      Util.insertSort((p1: Point, p2: Point) => p1 > p2)(pts).toList
+  private def pointSort(points: ArrayBuffer[Point]): List[Point] = {
+    if(points.size < 10) 
+      Util.insertSort((p1: Point, p2: Point) => p1 > p2)(points).toList
     else
-      Util.msort((p1: Point, p2: Point) => p1 > p2)(pts.toList)
+      Util.msort((p1: Point, p2: Point) => p1 > p2)(points.toList)
   }
   
   // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
@@ -103,60 +106,99 @@ object CDT {
   
 }
 
-class CDT(val points: List[Point], val segments: List[Segment], initialTriangle: Triangle) {
+class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Triangle) {
   
   // The triangle mesh
-  val mesh = new Mesh(initialTriangle)
+  val mesh = new Mesh(iTriangle)
   // Advancing front
-  val aFront = new AFront(initialTriangle)
+  val aFront = new AFront(iTriangle)
   
   // Sweep points; build mesh
   sweep
   // Finalize triangulation
   finalization
   
-  // Implement sweep-line paradigm
+  // Implement sweep-line 
   private def sweep {
     
     for(i <- 1 until points.size) {
       val point = points(i)
-      pointEvent(point)
-      legalization
-      edgeEvent(point)
+      val triangle = pointEvent(point)
+      edgeEvent(point, triangle)
     }
+    
   }  
   
   // Point event
-  private def pointEvent(point: Point) {
+  private def pointEvent(point: Point): Triangle = {
     
+    val node = aFront.locate(point)
     // Neightbor points (ccw & cw) and triangle(i)
-    val (nPts, nTri) = aFront.locate(point)
-    val pts = Array(point, nPts(0),  nPts(1))
+    val cwPoint = node.next.point
+    val ccwPoint = node.point
+    val nTri = node.triangle
+    
+    val pts = Array(point, ccwPoint,  cwPoint)
     val neighbors = Array(nTri, null, null)
     val triangle = new Triangle(pts, neighbors)
     mesh.map += triangle
-  
-    // Update neighbor's pointers
-    if(nPts(0) == nTri.points(1) && nPts(1) == nTri.points(2)) 
-      nTri.neighbors(2) = triangle 
-    else if(nPts(0) == nTri.points(2) && nPts(1) == nTri.points(1))
-      nTri.neighbors(1) = triangle
-    else 
-      throw new Exception("CDT Error!")
+    triangle.legalize
     
-  }
-  
-  private def legalization {
+    nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
     
-  }
-  
-  private def legalizeEdge {
-    
+    // Update advancing front
+    march(aFront += (point, triangle, node))
+    triangle
   }
   
   // EdgeEvent
-  private def edgeEvent(point: Point) {
+  private def edgeEvent(point: Point, triangle: Triangle) {
+    mesh.addEdge(point, triangle)
+  }
+  
+  def march(n: Node) {
     
+    var node = n
+    /*
+    // Update right
+    if(node.next != aFront.tail) {
+      var a = (node.point - node.next.point)
+      var b = (node.next.next.point - node.next.point)
+      var angle = Math.atan2(a cross b, a dot b)
+      while(node != aFront.tail && angle > -Math.Pi*0.5f) {
+	      if(angle >= -Math.Pi*0.5f) {
+	        val points = Array(node.next.point, node.next.next.point, node.point)
+	        val neighbors = Array(null, node.triangle, node.next.triangle)
+	        val triangle = new Triangle(points, neighbors)
+	        mesh.map += triangle
+	        aFront -= (node, node.next, triangle)
+	      }
+          node = node.next
+          a = (node.point - node.next.point)
+          b = (node.next.next.point - node.next.point)
+          angle = Math.atan2(a cross b, a dot b)
+      }
+    }
+    */
+    node = n
+    
+    // Update left
+    if(node.prev != aFront.head) {
+      var angle = 0.0
+      while(node != aFront.head.next && angle < Math.Pi*0.5f) {
+	      val a = (node.point - node.prev.point)
+		  val b = (node.prev.prev.point - node.prev.point)
+	      angle = Math.abs(Math.atan2(a cross b, a dot b))
+	      if(angle <= Math.Pi*0.5f) {
+	        val points = Array(node.prev.point, node.prev.prev.point, node.point)
+	        val neighbors = Array(null, node.triangle, node.prev.triangle)
+	        val triangle = new Triangle(points, neighbors)
+	        mesh.map += triangle
+	        aFront -== (node, node.prev, triangle)
+	      }
+          node = node.prev
+      }
+    }
   }
   
   private def finalization {

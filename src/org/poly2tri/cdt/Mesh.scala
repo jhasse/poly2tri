@@ -39,4 +39,11 @@ class Mesh(initialTriangle: Triangle) {
   // Triangles that constitute the mesh
   val map = HashSet(initialTriangle)
   
+  def addEdge(point:Point, triangle: Triangle) {
+    val p = point.eEvent.p
+    if(!triangle.contains(p)) {
+      
+    }
+    
+  }
 }
