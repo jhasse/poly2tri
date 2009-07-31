@@ -158,47 +158,40 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   def march(n: Node) {
     
-    var node = n
-    /*
+    var node = n.next
     // Update right
-    if(node.next != aFront.tail) {
-      var a = (node.point - node.next.point)
-      var b = (node.next.next.point - node.next.point)
-      var angle = Math.atan2(a cross b, a dot b)
-      while(node != aFront.tail && angle > -Math.Pi*0.5f) {
-	      if(angle >= -Math.Pi*0.5f) {
-	        val points = Array(node.next.point, node.next.next.point, node.point)
-	        val neighbors = Array(null, node.triangle, node.next.triangle)
-	        val triangle = new Triangle(points, neighbors)
-	        mesh.map += triangle
-	        aFront -= (node, node.next, triangle)
-	      }
-          node = node.next
-          a = (node.point - node.next.point)
-          b = (node.next.next.point - node.next.point)
-          angle = Math.atan2(a cross b, a dot b)
-      }
-    }
-    */
-    node = n
-    
-    // Update left
-    if(node.prev != aFront.head) {
+    if(node.next != null) {
       var angle = 0.0
-      while(node != aFront.head.next && angle < Math.Pi*0.5f) {
-	      val a = (node.point - node.prev.point)
-		  val b = (node.prev.prev.point - node.prev.point)
-	      angle = Math.abs(Math.atan2(a cross b, a dot b))
-	      if(angle <= Math.Pi*0.5f) {
-	        val points = Array(node.prev.point, node.prev.prev.point, node.point)
-	        val neighbors = Array(null, node.triangle, node.prev.triangle)
-	        val triangle = new Triangle(points, neighbors)
-	        mesh.map += triangle
-	        aFront -== (node, node.prev, triangle)
-	      }
-          node = node.prev
-      }
+      do {
+        angle = fill(node)
+        node = node.next
+      } while(angle <= Math.Pi*0.5 && node.next != null) 
     }
+    
+    node = n.prev
+    // Update left
+    if(node.prev != null) {
+      var angle = 0.0
+      do {
+	    angle = fill(node)
+        node = node.prev
+      } while(angle <= Math.Pi*0.5f && node.prev != null)
+    }
+  }
+  
+  def fill(node: Node) = {
+    
+	  val a = (node.prev.point - node.point)
+	  val b = (node.next.point - node.point)
+	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
+	  if(angle <= Math.Pi*0.5f) {
+	    val points = Array(node.point, node.next.point, node.prev.point)
+	    val neighbors = Array(null, node.prev.triangle, node.triangle)
+	    val triangle = new Triangle(points, neighbors)
+	    mesh.map += triangle
+	    aFront -= (node.prev, node, triangle)
+	  }
+      angle
   }
   
   private def finalization {

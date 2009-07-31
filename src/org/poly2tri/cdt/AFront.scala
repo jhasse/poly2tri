@@ -74,13 +74,6 @@ class AFront(iTriangle: Triangle) {
     node.triangle = triangle
   }
   
-  def -==(tuple: Tuple3[Node, Node, Triangle]) {
-    val (node, kNode, triangle) = tuple
-    kNode.prev.next = node
-    node.prev = kNode.prev
-    node.prev.triangle = triangle
-  }
-  
 }
 
 class Node(val point: Point, var triangle: Triangle) {

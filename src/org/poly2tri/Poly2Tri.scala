@@ -85,7 +85,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = star
+  var currentModel = nazcaMonkey
   
   def init(container: GameContainer) {
     selectModel(currentModel)
@@ -125,7 +125,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    }
    }
    
-   if(!debug && !drawEarClip) {
+   if(!debug && !drawEarClip && !drawCDT) {
     var i = 0
     for(t <- seidel.polygons) {
         val poly = new Polygon
