@@ -113,6 +113,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Advancing front
   val aFront = new AFront(iTriangle)
   
+  val PI_2 = Math.Pi/2
+  
   // Sweep points; build mesh
   sweep
   // Finalize triangulation
@@ -142,12 +144,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val neighbors = Array(nTri, null, null)
     val triangle = new Triangle(pts, neighbors)
     mesh.map += triangle
-    triangle.legalize
+    
+    val oPoint = nTri oppositePoint triangle
+    if(illegal(ccwPoint, oPoint, cwPoint, point)) {
+      swapEdges(triangle, nTri, oPoint)
+    }
     
     nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
     
     // Update advancing front
-    march(aFront += (point, triangle, node))
+    val newNode = aFront.insert(point, triangle, node)
+    // Fill in adjacent triangles if required
+    march(newNode)
     triangle
   }
   
@@ -156,6 +164,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     mesh.addEdge(point, triangle)
   }
   
+  // Scan left and right to fill holes in the mesh
   def march(n: Node) {
     
     var node = n.next
@@ -165,7 +174,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       do {
         angle = fill(node)
         node = node.next
-      } while(angle <= Math.Pi*0.5 && node.next != null) 
+      } while(angle <= PI_2 && node.next != null) 
     }
     
     node = n.prev
@@ -175,16 +184,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       do {
 	    angle = fill(node)
         node = node.prev
-      } while(angle <= Math.Pi*0.5f && node.prev != null)
+      } while(angle <= PI_2 && node.prev != null)
     }
   }
   
-  def fill(node: Node) = {
-    
+  def fill(node: Node): Double = {
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
-	  if(angle <= Math.Pi*0.5f) {
+	  if(angle <= PI_2) {
 	    val points = Array(node.point, node.next.point, node.prev.point)
 	    val neighbors = Array(null, node.prev.triangle, node.triangle)
 	    val triangle = new Triangle(points, neighbors)
@@ -194,6 +202,34 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       angle
   }
   
+  // Do edges need to be swapped?
+  private def illegal(p1: Point, p2: Point, p3: Point, p4:Point): Boolean = {
+	  val v1 = p3 - p2
+      val v2 = p1 - p2
+      val v3 = p1 - p4
+      val v4 = p3 - p4
+      if((v1 dot v2) < 0 && (v3 dot v4) < 0)
+        // swap the edge
+        true 
+      else 
+        false
+  }
+  
+  // Rotate everything clockwise
+  private def swapEdges(t1: Triangle, t2: Triangle, oPoint: Point) {
+    println("swap")
+    // Rotate points
+    val point = t1.points(0)
+    t1.points(1) = t1.points(0)
+    t1.points(0) = t1.points(2)
+    t1.points(2) = oPoint    
+    val tmp = t2.points(1)
+    t2.points(1) = point
+    t2.points(0) = t2.points(2)
+    t2.points(2) = tmp
+    // Rotate neighbors
+  }
+ 
   private def finalization {
   }
   
