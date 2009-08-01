@@ -33,6 +33,7 @@ package org.poly2tri.shapes
 import scala.collection.mutable.{ArrayBuffer}
 
 // Represents a simple polygon's edge
+// TODO: Rename this class to Edge?
 class Segment(var p: Point, var q: Point) {
  
   // Pointers used for building trapezoidal map

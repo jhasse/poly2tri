@@ -192,7 +192,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         hiLighter = seidel.polygons.size-1
     }
     if(c == 'm') drawMap = !drawMap 
-    if(c == 'c') drawCDT = !drawCDT
+    if(c == 'd') drawCDT = !drawCDT
     if(c == '1') selectModel(nazcaMonkey)
     if(c == '2') selectModel(bird)
     if(c == '3') selectModel(strange)

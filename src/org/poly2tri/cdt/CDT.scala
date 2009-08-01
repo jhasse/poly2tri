@@ -78,15 +78,17 @@ object CDT {
     // Create segments and connect end points; update edge event pointer
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
     var segments = List[Segment]()
-    for(i <- 0 until points.size-1) {
-      val segment = new Segment(points(i), points(i+1))
-      points(i+1).eEvent = segment
-      segments = segment :: segments
-    }
-    val segment = new Segment(points.first, points.last)
-    points.first.eEvent = segment
-    segments =  segment :: segments
+    for(i <- 0 until points.size-1) 
+      segments = segment(points(i), points(i+1)) :: segments
+    segments =  segment(points.first, points.last) :: segments
     segments
+  }
+  
+  // Create a new segment and updates edge pointer
+  private def segment(p1: Point, p2: Point): Segment = {
+    val seg = new Segment(p1, p2)
+    p1.updateEdges(p2, seg)
+    seg
   }
   
   // Insertion sort is one of the fastest algorithms for sorting arrays containing 
@@ -145,9 +147,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val triangle = new Triangle(pts, neighbors)
     mesh.map += triangle
     
+    // Check if edges need to be swapped to preserve CDT
+    // TODO: Make sure AFront pointers are updated correctly
     val oPoint = nTri oppositePoint triangle
     if(illegal(ccwPoint, oPoint, cwPoint, point)) {
-      swapEdges(triangle, nTri, oPoint)
+      legalization(triangle, nTri, oPoint)
     }
     
     nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
@@ -215,9 +219,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         false
   }
   
-  // Rotate everything clockwise
-  private def swapEdges(t1: Triangle, t2: Triangle, oPoint: Point) {
-    println("swap")
+  // Flip edges and rotate everything clockwise
+  private def legalization(t1: Triangle, t2: Triangle, oPoint: Point) {
     // Rotate points
     val point = t1.points(0)
     t1.points(1) = t1.points(0)

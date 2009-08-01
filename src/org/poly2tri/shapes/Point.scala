@@ -30,14 +30,16 @@
  */
 package org.poly2tri.shapes
 
+import scala.collection.mutable.ArrayBuffer
+
 case class Point(val x: Float, val y: Float) {
   
   // Pointers to next and previous points in Monontone Mountain
   var next, prev: Point = null
   // The setment this point belongs to
   var segment: Segment = null
-  // Edge event pointer for CDT
-  var eEvent: Segment = null
+  // List of edges this point constitutes an upper ending point (CDT)
+  var edges = new ArrayBuffer[Segment] 
   
   @inline def -(p: Point) = Point(x - p.x, y - p.y) 
   @inline def +(p: Point) = Point(x + p.x, y + p.y)
@@ -55,4 +57,12 @@ case class Point(val x: Float, val y: Float) {
   @inline def >(p: Point) = (y < p.y) 
   @inline def !(p: Point) = !(p.x == x && p.y == y)
   @inline override def clone = Point(x, y)
+  
+  def updateEdges(point: Point, segment: Segment) {
+    if(point.y > y)
+        point.edges += segment
+      else
+        edges += segment
+  }
+  
 }
