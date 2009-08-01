@@ -192,7 +192,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         hiLighter = seidel.polygons.size-1
     }
     if(c == 'm') drawMap = !drawMap 
-    //if(c == 'c') drawCDT = !drawCDT
+    if(c == 'c') drawCDT = !drawCDT
     if(c == '1') selectModel(nazcaMonkey)
     if(c == '2') selectModel(bird)
     if(c == '3') selectModel(strange)
@@ -253,7 +253,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       segments += new Segment(points(i), points(i+1))
     segments += new Segment(points.first, points.last)
     
-    //slCDT = CDT.init(points)
+    slCDT = CDT.init(points)
     
     println("Number of points = " + polyX.size)
     println
