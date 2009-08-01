@@ -59,6 +59,15 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
   }
   
+  def oppositePoint(t: Triangle) = {
+    if(points(0) == t.points(1)) 
+      points(1)
+    else if(points(0) == t.points(2))
+      points(2)
+    else
+      points(0)
+  }
+  
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
     

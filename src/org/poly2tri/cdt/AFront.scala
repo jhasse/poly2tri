@@ -54,7 +54,7 @@ class AFront(iTriangle: Triangle) {
     throw new Exception("Advancing front error")
   }
   
-  def +=(tuple: Tuple3[Point, Triangle, Node]) = {
+  def insert(tuple: Tuple3[Point, Triangle, Node]) = {
     val (point, triangle, nNode) = tuple
     val node = new Node(point, triangle)
     // Update pointer
