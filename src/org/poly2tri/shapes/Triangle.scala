@@ -35,19 +35,15 @@ package org.poly2tri.shapes
 //      "Triangulations in CGAL"
 class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
+  val ik = points(2) - points(0)
+  val ij = points(1) - points(0)
+  val jk = points(2) - points(1)
+  val ji = points(0) - points(1)
+  val kj = points(1) - points(2)
+  val ki = points(0) - points(2)
+      
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)
-  
-  def contains(point: Point) = {
-    if(point == points(0) || point == points(1) || point == points(2))
-      true
-    else 
-      false
-  }
-  
-  def legalize {
-    
-  }
   
   // Update neighbor pointers
   def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
@@ -68,23 +64,45 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       points(0)
   }
   
+  def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
+  def contains(e: Segment): Boolean = (contains(e.p) || contains(e.q))
+  
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
-    
-    val ab = points(1) - points(0)
-	val bc = points(2) - points(1)
-	val ca = points(0) - points(2)
 
-    val pab = (point - points(0)).cross(ab)
-    val pbc = (point - points(1)).cross(bc)
+    val pab = (point - points(0)).cross(ij)
+    val pbc = (point - points(1)).cross(jk)
 	var sameSign = Math.signum(pab) == Math.signum(pbc)
     if (!sameSign) return false
 
-	val pca = (point - points(2)).cross(ca)
+	val pca = (point - points(2)).cross(ki)
 	sameSign = Math.signum(pab) == Math.signum(pca)
     if (!sameSign) return false
     
     true
-}
+  }
 
+  def locateFirst(edge: Segment): Triangle = {
+    val p = edge.p
+    if(contains(p)) return this
+    val q = edge.q
+    val e = q - p
+    if(q == points(0)) {
+      val sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
+      if(!sameSign) return this
+      if(neighbors(2) == null) return null
+      return neighbors(2).locateFirst(edge)
+    } else if(q == points(1)) {
+      val sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
+      if(!sameSign) return this
+      if(neighbors(0) == null) return null
+      return neighbors(0).locateFirst(edge)
+    } else if(q == points(2)) {
+      val sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
+      if(!sameSign) return this
+      if(neighbors(1) == null) return null
+      return neighbors(1).locateFirst(edge)
+    }
+    throw new Exception("location error")
+  }
 }

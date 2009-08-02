@@ -30,7 +30,7 @@
  */
 package org.poly2tri.shapes
 
-import scala.collection.mutable.{ArrayBuffer}
+import scala.collection.mutable.ArrayBuffer
 
 // Represents a simple polygon's edge
 // TODO: Rename this class to Edge?
@@ -50,5 +50,16 @@ class Segment(var p: Point, var q: Point) {
   def > (point: Point) = (Math.floor(point.y) < Math.floor(slope * point.x + b))
   // Determines if this segment lies below the given point
   def < (point: Point) = (Math.floor(point.y) > Math.floor(slope * point.x + b))
+  
+  // Update point edge list for CDT
+  def updateEdge {
+	if(p.y > q.y) {
+	  // For CDT we want q to be the point with > y
+      val tmp = p
+      p = q
+      q = tmp
+     }
+	q.edges += this
+  }
   
 }

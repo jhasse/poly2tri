@@ -58,11 +58,4 @@ case class Point(val x: Float, val y: Float) {
   @inline def !(p: Point) = !(p.x == x && p.y == y)
   @inline override def clone = Point(x, y)
   
-  def updateEdges(point: Point, segment: Segment) {
-    if(point.y > y)
-        point.edges += segment
-      else
-        edges += segment
-  }
-  
 }

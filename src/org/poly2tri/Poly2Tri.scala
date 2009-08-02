@@ -85,7 +85,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = nazcaMonkey
+  var currentModel = i18
   
   def init(container: GameContainer) {
     selectModel(currentModel)
@@ -153,7 +153,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    })
    
    if(drawCDT) {
-	   slCDT.mesh.map.foreach( t => {
+	   slCDT.triangles.foreach( t => {
 	     val triangle = new Polygon
 		 triangle.addPoint(t.points(0).x, t.points(0).y)
 		 triangle.addPoint(t.points(1).x, t.points(1).y)

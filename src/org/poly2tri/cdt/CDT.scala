@@ -44,6 +44,7 @@ object CDT {
   
   // Inital triangle factor
   val ALPHA = 0.3f
+  val SHEER = 0.00001f
   
   // Triangulate simple polygon
   def init(points: ArrayBuffer[Point]): CDT = {
@@ -78,17 +79,13 @@ object CDT {
     // Create segments and connect end points; update edge event pointer
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
     var segments = List[Segment]()
-    for(i <- 0 until points.size-1) 
-      segments = segment(points(i), points(i+1)) :: segments
-    segments =  segment(points.first, points.last) :: segments
+    for(i <- 0 until points.size-1) {
+      segments = new Segment(points(i), points(i+1)) :: segments
+      segments.first.updateEdge
+    }
+    segments =  new Segment(points.first, points.last) :: segments
+    segments.first.updateEdge
     segments
-  }
-  
-  // Create a new segment and updates edge pointer
-  private def segment(p1: Point, p2: Point): Segment = {
-    val seg = new Segment(p1, p2)
-    p1.updateEdges(p2, seg)
-    seg
   }
   
   // Insertion sort is one of the fastest algorithms for sorting arrays containing 
@@ -103,19 +100,20 @@ object CDT {
   
   // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
   // the degenerate case. See Mark de Berg et al, Chapter 6.3
-  //val SHEER = 0.0001f
-  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.0001f)
+  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * SHEER)
   
 }
 
 class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Triangle) {
   
+  // Triangle list
+  def triangles = mesh.map
   // The triangle mesh
-  val mesh = new Mesh(iTriangle)
+  private val mesh = new Mesh(iTriangle)
   // Advancing front
-  val aFront = new AFront(iTriangle)
+  private val aFront = new AFront(iTriangle)
   
-  val PI_2 = Math.Pi/2
+  private val PI_2 = Math.Pi/2
   
   // Sweep points; build mesh
   sweep
@@ -124,13 +122,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 9 /*points.size*/) {
       val point = points(i)
+      println(point)
+      // Process Point event
       val triangle = pointEvent(point)
-      edgeEvent(point, triangle)
+      // Process edge events
+     point.edges.foreach(e => edgeEvent(e, triangle))
     }
-    
   }  
   
   // Point event
@@ -159,17 +158,23 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     // Update advancing front
     val newNode = aFront.insert(point, triangle, node)
     // Fill in adjacent triangles if required
-    march(newNode)
+    scan(newNode)
     triangle
   }
   
   // EdgeEvent
-  private def edgeEvent(point: Point, triangle: Triangle) {
-    mesh.addEdge(point, triangle)
+  private def edgeEvent(edge: Segment, triangle: Triangle) { 
+    // STEP 1: Locate the first intersected triangle
+    val first = triangle.locateFirst(edge)
+    println(first)
+    if(first != null && first != triangle && !first.contains(edge)) 
+      mesh.map -= first
+    // STEP 2: Remove intersected triangles
+    // STEP 3: Triangulate empty areas.
   }
   
-  // Scan left and right to fill holes in the mesh
-  def march(n: Node) {
+  // Scan left and right along AFront to fill holes
+  def scan(n: Node) {
     
     var node = n.next
     // Update right
@@ -192,14 +197,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     }
   }
   
+  // Fill empty space with a triangle
   def fill(node: Node): Double = {
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
 	  if(angle <= PI_2) {
-	    val points = Array(node.point, node.next.point, node.prev.point)
-	    val neighbors = Array(null, node.prev.triangle, node.triangle)
+	    val points = Array(node.prev.point, node.next.point, node.point)
+	    val neighbors = Array(node.prev.triangle, null, node.triangle)
 	    val triangle = new Triangle(points, neighbors)
+        // Update neighbor pointers
+        node.prev.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle)
+        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
@@ -231,10 +240,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     t2.points(0) = t2.points(2)
     t2.points(2) = tmp
     // Rotate neighbors
+    
   }
  
   private def finalization {
   }
   
-  def triangles = mesh.map
 }
