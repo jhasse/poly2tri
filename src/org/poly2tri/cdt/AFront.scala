@@ -47,11 +47,11 @@ class AFront(iTriangle: Triangle) {
   def locate(point: Point): Node = {
     var node = head
     while(node != tail) {
-      if(point.x >= node.point.x && point.x <= node.next.point.x)
+      if(point.x >= node.point.x && point.x < node.next.point.x)
         return node
       node = node.next
     }
-    throw new Exception("Advancing front error")
+    throw new Exception("Advancing front error: point not found")
   }
   
   def insert(tuple: Tuple3[Point, Triangle, Node]) = {

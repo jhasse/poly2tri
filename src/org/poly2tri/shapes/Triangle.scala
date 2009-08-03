@@ -37,15 +37,20 @@ import scala.collection.mutable.ArrayBuffer
 //      "Triangulations in CGAL"
 class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
-  val ik = points(2) - points(0)
-  val ij = points(1) - points(0)
-  val jk = points(2) - points(1)
-  val ji = points(0) - points(1)
-  val kj = points(1) - points(2)
-  val ki = points(0) - points(2)
-      
+  var ik, ij , jk, ji, kj, ki: Point = null
+  updatePoints
+  
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)
+  
+  def updatePoints {
+    ik = points(2) - points(0)
+    ij = points(1) - points(0)
+    jk = points(2) - points(1)
+    ji = points(0) - points(1)
+    kj = points(1) - points(2)
+    ki = points(0) - points(2)
+  }
   
   // Update neighbor pointers
   def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
@@ -105,7 +110,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       if(neighbors(1) == null) return null
       return neighbors(1).locateFirst(edge)
     }
-    throw new Exception("location error")
+    null
   }
   
   def findNeighbor(e: Point): Triangle = {
@@ -116,6 +121,11 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
     if(!sameSign) return neighbors(2)
     this
+  }
+  
+  def printDebug {
+    println("**************")
+    println(points(0) + "," + points(1) + "," + points(2))
   }
   
 }

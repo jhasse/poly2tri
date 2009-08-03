@@ -38,6 +38,7 @@ class Mesh(initialTriangle: Triangle) {
   
   // Triangles that constitute the mesh
   val map = HashSet(initialTriangle)
+  val debug = HashSet.empty[Triangle]
   
   def addEdge(point:Point, triangle: Triangle) {
     /*

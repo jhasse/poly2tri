@@ -160,6 +160,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 		 g.setColor(red)
 		 g.draw(triangle) 
 	   })
+	   slCDT.debugTriangles.foreach( t => {
+	     val triangle = new Polygon
+		 triangle.addPoint(t.points(0).x, t.points(0).y)
+		 triangle.addPoint(t.points(1).x, t.points(1).y)
+		 triangle.addPoint(t.points(2).x, t.points(2).y)
+		 g.setColor(blue)
+		 g.draw(triangle) 
+	   })
    }
    
    if(drawSegs) {
