@@ -53,13 +53,14 @@ class Segment(var p: Point, var q: Point) {
   
   // Update point edge list for CDT
   def updateEdge {
-	if(p.y > q.y) {
+	if(q.y > p.y) {
 	  // For CDT we want q to be the point with > y
-      val tmp = p
-      p = q
-      q = tmp
+     // val tmp = p
+      //p = q
+      //q = tmp
+      q.edges += this
      }
-	q.edges += this
+	
   }
   
 }

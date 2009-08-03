@@ -43,9 +43,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
   
   // Convex polygon list
   var polygons = new ArrayBuffer[Array[Point]]
-  // Generate triangles vs non-convex polygons 
-  // On by default
-  var buildTriangles = true
   // Order and randomize the segments
   val segmentList = orderSegments
   
@@ -149,7 +146,7 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
       
       if(s.mPoints.size > 0) {
         
-         val mountain = new MonotoneMountain(buildTriangles)
+         val mountain = new MonotoneMountain
          var k: List[Point] = null
     
          // Sorting is a perfromance hit. Literature says this can be accomplised in
@@ -173,20 +170,11 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
          // Triangulate monotone mountain
          mountain process
          
-         if(buildTriangles) {
-	         // Extract the triangles into a single list
-	         j = 0
-	         while(j < mountain.triangles.size) {
-	    	   polygons += mountain.triangles(j)
-	           j += 1
-	         }
-         } else {
-        	 // Extract the convex polygons into a single list
-	         j = 0
-	         while(j < mountain.convexPolies.size) {
-	    	   polygons += mountain.convexPolies(j)
-	           j += 1
-	         }
+         // Extract the triangles into a single list
+         j = 0
+         while(j < mountain.triangles.size) {
+    	   polygons += mountain.triangles(j)
+           j += 1
          }
          
          xMonoPoly += mountain

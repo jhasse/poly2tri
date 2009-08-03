@@ -122,13 +122,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until 9 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
-      println(point)
       // Process Point event
-      val triangle = pointEvent(point)
+      //val triangle = 
+      pointEvent(point)
       // Process edge events
-     point.edges.foreach(e => edgeEvent(e, triangle))
+      //point.edges.foreach(e => edgeEvent(e, triangle))
     }
   }  
   
@@ -164,12 +164,40 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // EdgeEvent
   private def edgeEvent(edge: Segment, triangle: Triangle) { 
+    
     // STEP 1: Locate the first intersected triangle
-    val first = triangle.locateFirst(edge)
-    println(first)
-    if(first != null && first != triangle && !first.contains(edge)) 
-      mesh.map -= first
+    val firstTriangle = triangle.locateFirst(edge)
     // STEP 2: Remove intersected triangles
+    if(firstTriangle != null && !firstTriangle.contains(edge)) {
+       // Collect intersected triangles
+       val triangles = new ArrayBuffer[Triangle]
+       triangles += firstTriangle
+       while(!triangles.last.contains(edge.p)) 
+         triangles += triangles.last.findNeighbor(edge.p - edge.q)
+       // Remove from the mesh
+       triangles.foreach(t => mesh.map -= t)
+    } else if(firstTriangle == null) {
+      
+      // Traverse the AFront, and build triangle list
+     
+      var node = aFront.locate(edge.q)
+      
+      if(edge.p.x > edge.q.x) {
+        // Search right
+        while(node.point != edge.p) {
+          // Collect points
+          node = node.next
+        }
+      } else {
+        // Search left
+        while(node.point != edge.p) {
+          // Collect points
+          node = node.prev
+        }
+      }
+      
+    }
+    
     // STEP 3: Triangulate empty areas.
   }
   

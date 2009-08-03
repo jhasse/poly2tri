@@ -75,7 +75,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawSegs = true
   var hiLighter = 0
   var drawEarClip = false
-  var hertelMehlhorn = false
   var drawCDT = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
@@ -201,7 +200,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '6') selectModel(i18)
     if(c == 's') drawSegs = !drawSegs
     if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
-    if(c == 'h') {hertelMehlhorn = !hertelMehlhorn; selectModel(currentModel)} 
   }
     
   def selectModel(model: String) {
@@ -262,7 +260,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       
 	    // Sediel triangulation
 	    seidel = new Triangulator(segments)
-        seidel.buildTriangles = hertelMehlhorn
         
 	    val t1 = System.nanoTime
 	    seidel.process

@@ -30,6 +30,8 @@
  */
 package org.poly2tri.shapes
 
+import scala.collection.mutable.ArrayBuffer
+
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"
@@ -65,7 +67,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
-  def contains(e: Segment): Boolean = (contains(e.p) || contains(e.q))
+  def contains(e: Segment): Boolean = (contains(e.p) && contains(e.q))
   
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
@@ -86,7 +88,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     val p = edge.p
     if(contains(p)) return this
     val q = edge.q
-    val e = q - p
+    val e = p - q
     if(q == points(0)) {
       val sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
       if(!sameSign) return this
@@ -105,4 +107,15 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     }
     throw new Exception("location error")
   }
+  
+  def findNeighbor(e: Point): Triangle = {
+    var sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
+    if(!sameSign) return neighbors(0)
+    sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
+    if(!sameSign) return neighbors(1)
+    sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
+    if(!sameSign) return neighbors(2)
+    this
+  }
+  
 }
