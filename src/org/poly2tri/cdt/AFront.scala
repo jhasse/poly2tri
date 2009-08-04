@@ -36,7 +36,6 @@ import shapes.{Point, Triangle}
 class AFront(iTriangle: Triangle) {
 
   // Doubly linked list
-  // TODO: Replace with a Red-Black Tree for better performance
   var head = new Node(iTriangle.points(1), iTriangle)
   head.next = new Node(iTriangle.points(0), iTriangle)
   var tail = new Node(iTriangle.points(2), null)
@@ -44,6 +43,7 @@ class AFront(iTriangle: Triangle) {
   head.next.next = tail
   tail.prev = head.next
   
+  // TODO: Usea Red-Black Tree or interval tree for better search performance!
   def locate(point: Point): Node = {
     var node = head
     while(node != tail) {
@@ -76,14 +76,8 @@ class AFront(iTriangle: Triangle) {
   
 }
 
+// Advancing front node
 class Node(val point: Point, var triangle: Triangle) {
-
   var next: Node = null
   var prev: Node = null
-  
-  def printDebug {
-    println("Point: " + point)
-    if(triangle != null)
-      println("Triangle points: " + triangle.points)
-  }
 }

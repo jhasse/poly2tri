@@ -232,7 +232,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
    
   def loadModel(model: String, scale: Float, center: Point, maxTriangles: Int) {
     
-    println("*** " + model + " ***")
+    println
+    println("************** " + model + " **************")
     
     polyX = new ArrayBuffer[Float]
     polyY = new ArrayBuffer[Float]
@@ -259,11 +260,16 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       segments += new Segment(points(i), points(i+1))
     segments += new Segment(points.first, points.last)
     
-    slCDT = CDT.init(points)
-    
     println("Number of points = " + polyX.size)
     println
-     
+    
+    val t1 = System.nanoTime
+    slCDT = CDT.init(points)
+    val runTime = System.nanoTime - t1
+    println("CDT average (ms) =  " + runTime*1e-6)
+	println("Number of triangles = " + slCDT.triangles.size)
+    println
+    
     if(!drawEarClip) {  
       
 	    // Sediel triangulation

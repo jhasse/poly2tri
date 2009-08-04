@@ -38,12 +38,14 @@ import scala.collection.mutable.ArrayBuffer
 class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
   var ik, ij , jk, ji, kj, ki: Point = null
-  updatePoints
+  updateEdges
   
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)
   
-  def updatePoints {
+  // Update the edges that consitite this triangle
+  // May change during legalization
+  def updateEdges {
     ik = points(2) - points(0)
     ij = points(1) - points(0)
     jk = points(2) - points(1)
@@ -89,9 +91,10 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     true
   }
 
+  // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
     val p = edge.p
-    if(contains(p) || contains(edge)) return this
+    if(contains(p)) return this
     val q = edge.q
     val e = p - q
     if(q == points(0)) {
@@ -113,6 +116,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     null
   }
   
+  // Locate next triangle crossed by constraied edge
   def findNeighbor(e: Point): Triangle = {
     var sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
     if(!sameSign) return neighbors(0)
@@ -121,6 +125,52 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
     if(!sameSign) return neighbors(2)
     this
+  }
+  
+  // The neighbor CW to given point
+  def neighborCW(point: Point): Triangle = {
+    if(point == points(0)) {
+      neighbors(2)
+    }else if(point == points(1)) {
+      neighbors(0)
+    } else 
+      neighbors(1)
+  }
+  
+  // The neighbor CW to given point
+  def neighborCCW(point: Point): Triangle = {
+    if(point == points(0)) {
+      neighbors(1)
+    }else if(point == points(1)) {
+      neighbors(2)
+    } else 
+      neighbors(0)
+  }
+  
+  // Legalized triangle by rotating clockwise around point(0)
+  def legalize(oPoint: Point) {
+	points(1) = points(0)
+	points(0) = points(2)
+	points(2) = oPoint
+    updateEdges
+  }
+  
+  // Legalize triagnle by rotating clockwise around oPoint
+  def legalize(oPoint: Point, nPoint: Point) {
+    if(oPoint == points(0)) {
+      points(1) = points(0)
+      points(0) = points(2)
+      points(2) = nPoint 
+    } else if (oPoint == points(1)) {
+      points(2) = points(1)
+      points(1) = points(0)
+      points(0) = nPoint
+    } else {
+      points(0) = points(2)
+      points(2) = points(1)
+      points(1) = nPoint
+    }
+    updateEdges
   }
   
   def printDebug {

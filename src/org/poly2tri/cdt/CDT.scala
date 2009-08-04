@@ -36,7 +36,7 @@ import shapes.{Segment, Point, Triangle}
 import utils.Util
 
 /**
- * Sweep-line, Constrained Delauney Triangulation
+ * Sweep-line, Constrained Delauney Triangulation (CDT)
  * See: Domiter, V. and Žalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
  *      International Journal of Geographical Information Science,22:4,449 — 462
  */
@@ -124,7 +124,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until 11 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
@@ -137,9 +137,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-    var newNode: Node = null
-    
-    if(point.x == node.point.x) {
+        
+    if(point.x == node.point.x && node != aFront.head) {
       
         // Projected point coincides with existing point; create two triangles
     	val rPts = Array(point, node.point, node.next.point)
@@ -163,11 +162,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         node.prev.triangle.updateNeighbors(node.point, node.prev.point, rTriangle)
         
         // Update advancing front
-        newNode = aFront.insert(point, rTriangle, node)
+        val newNode = aFront.insert(point, rTriangle, node)
         aFront -= (node.prev, node, rTriangle)
-        
+        // Fill in adjacent triangles if required
+	    scanAFront(newNode)
+     
+	    newNode.triangle
+     
     } else { 
-      
+     
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
 	    val ccwPoint = node.point
@@ -181,16 +184,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // Legalize
 	    legalization(triangle, nTri)
         // Update neighbor pointers
-	    nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
+	    nTri.updateNeighbors(triangle.points(1), triangle.points(2), triangle)
         // Update advancing front
-        newNode = aFront.insert(point, triangle, node)
-        
+        val newNode = aFront.insert(point, triangle, node)
+        // Fill in adjacent triangles if required
+	    scanAFront(newNode)
+     
+	    newNode.triangle
 	}
-    
-    // Fill in adjacent triangles if required
-    scan(newNode)
-    newNode.triangle
-    
   }
   
   // EdgeEvent
@@ -198,49 +199,58 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // STEP 1: Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
+    
     // STEP 2: Remove intersected triangles
+    // STEP 3: Triangulate empty areas.
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
+      
        // Collect intersected triangles
        val triangles = new ArrayBuffer[Triangle]
        triangles += firstTriangle
        val e = edge.p - edge.q
        while(!triangles.last.contains(edge.p)) 
          triangles += triangles.last.findNeighbor(e)
-       // Remove from the mesh
+       
+       // TODO: Implement this section
        //triangles.foreach(t => mesh.map -= t)
+      
     } else if(firstTriangle == null) {
       
-      // Traverse the AFront, and build triangles
-      var node = aFront.locate(edge.q)
-      node = node.next
-      val points = new ArrayBuffer[Point]
+      // No triangles are intersected by the edge; edge must lie outside the mesh
+      // Apply constraint; traverse the AFront, and build triangles
       
-      if(edge.p.x > edge.q.x) {
-        // Search right
-        while(node != null && node.point != edge.p) {
-          // Collect points
-          points += node.point
-          node = node.next
-        }
-      } else {
-        // Search left
-        while(node != null && node.point != edge.p) {
-          // Collect points
-          points += node.point
-          node = node.prev
-        }
-      }
+      val ahead = (edge.p.x > edge.q.x)
+      val point1 = if(ahead) edge.q else edge.p
+      val point2 = if(ahead) edge.p else edge.q
+      
+      val points = new ArrayBuffer[Point]
+      var node = aFront.locate(point1)
+      val node1 = node
+      
+      node = node.next
+      
+	  while(node.point != point2) {
+		points += node.point
+		node = node.next
+	  }
+      
+      val node2 = node
       
       val T = new ArrayBuffer[Triangle]
-      angladaTPD(points.toArray, List(edge.p, edge.q), T)
-      T.foreach(t => mesh.debug += t)
+      angladaTPD(points.toArray, List(point1, point2), T)
+      
+      node1.triangle = T.first
+      node1.next = node2
+      node2.prev = node1
+
+      T.foreach(t => mesh.map += t)
+                
     }
-    
-    // STEP 3: Triangulate empty areas.
     
   }
   
   // Marc Vigo Anglada's triangulatePseudopolygonDelaunay algo 
+  // TODO: Bugy fix - works for a single triangle 
   def angladaTPD(P: Array[Point], ab: List[Point], T: ArrayBuffer[Triangle]) {
     
     val a = ab.first
@@ -263,13 +273,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     if(!P.isEmpty) {
       c = P.first
       val points = Array(a, b, c)
+      // TODO: Correctly update neighbor pointers
       val neighbors = new Array[Triangle](3)
       T += new Triangle(points, neighbors)
     }
   }
 
   // Scan left and right along AFront to fill holes
-  def scan(n: Node) {
+  def scanAFront(n: Node) {
     
     var node = n.next
     // Update right
@@ -294,6 +305,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Fill empty space with a triangle
   def fill(node: Node): Double = {
+    
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
@@ -312,6 +324,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Do edges need to be swapped?
   private def illegal(p1: Point, p2: Point, p3: Point, p4:Point): Boolean = {
+    
 	  val v1 = p3 - p2
       val v2 = p1 - p2
       val v3 = p1 - p4
@@ -322,28 +335,42 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         false
   }
   
-  // Ensure new adjacent triangles are legal
+  // Ensure adjacent triangles are legal
+  // If illegal, flip edges and update triangle's pointers
   private def legalization(t1: Triangle, t2: Triangle) {
+    
     val oPoint = t2 oppositePoint t1
+    
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
+        
 	    // Flip edges and rotate everything clockwise
-	    val point = t1.points(0)
-	    t1.points(1) = t1.points(0)
-	    t1.points(0) = t1.points(2)
-	    t1.points(2) = oPoint    
-	    val tmp = t2.points(1)
-	    t2.points(1) = point
-	    t2.points(0) = t2.points(2)
-	    t2.points(2) = tmp
-	    
-	    t1.updatePoints
-	    t2.updatePoints
-	    // TODO: Rotate neighbors
-	    println("legalize")
+        val point = t1.points(0)
+	    t1.legalize(oPoint) 
+	    t2.legalize(oPoint, point)
+	   
+	    // TODO: Make sure this is correct
+        val cwNeighbor = t2.neighborCW(oPoint)
+        val ccwNeighbor = t2.neighborCCW(oPoint)
+        
+        t1.neighbors(0) = t2
+	    t1.neighbors(1) = cwNeighbor
+        t1.neighbors(2) = null
+        
+	    if(t2.points(0) == oPoint) {
+	      t2.neighbors(0) = null
+          t2.neighbors(1) = ccwNeighbor
+          t2.neighbors(2) = t1
+	    } else {
+	      t2.neighbors(0) = ccwNeighbor
+          t2.neighbors(1) = t1
+          t2.neighbors(2) = null
+	    }
     }
   }
  
+  // Final step in the sweep-line CDT algo
   private def finalization {
+    
   }
   
 }
