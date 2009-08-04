@@ -54,9 +54,9 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   // Update neighbor pointers
   def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
-    if(ccwPoint == points(2) && cwPoint == points(1)) 
+    if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
       neighbors(0) = triangle 
-    else if(ccwPoint == points(0) && cwPoint == points(2))
+    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(0) && cwPoint == points(2)))
       neighbors(1) = triangle
     else 
       neighbors(2) = triangle
@@ -91,7 +91,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
   def locateFirst(edge: Segment): Triangle = {
     val p = edge.p
-    if(contains(p)) return this
+    if(contains(p) || contains(edge)) return this
     val q = edge.q
     val e = p - q
     if(q == points(0)) {

@@ -124,12 +124,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until 10 /*points.size*/) {
+    for(i <- 1 until 11 /*points.size*/) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
       // Process edge events
-      point.edges.foreach(e => edgeEvent(e, triangle))
+      point.edges.foreach(e => if(!triangle.contains(e)) edgeEvent(e, triangle))
     }
   }  
   
@@ -137,31 +137,60 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
+    var newNode: Node = null
     
-    // Neightbor points (ccw & cw) and triangle(i)
-    val cwPoint = node.next.point
-    val ccwPoint = node.point
-    val nTri = node.triangle
+    if(point.x == node.point.x) {
+      
+        // Projected point coincides with existing point; create two triangles
+    	val rPts = Array(point, node.point, node.next.point)
+        val rNeighbors = Array(node.triangle, null, null)
+        val rTriangle = new Triangle(rPts, rNeighbors)
+        
+        val lPts = Array(node.prev.point, node.point, point)
+        val lNeighbors = Array(rTriangle, null, node.prev.triangle)
+        val lTriangle = new Triangle(lPts, lNeighbors)
+        
+        rTriangle.neighbors(2) = lTriangle
+        mesh.map += lTriangle
+        mesh.map += rTriangle
+        
+        // Legalize new triangles
+        legalization(rTriangle, rTriangle.neighbors(0))
+        legalization(lTriangle, lTriangle.neighbors(2))
+        
+        // Update neighbor pointers
+        node.triangle.updateNeighbors(node.point, node.next.point, lTriangle)
+        node.prev.triangle.updateNeighbors(node.point, node.prev.point, rTriangle)
+        
+        // Update advancing front
+        newNode = aFront.insert(point, rTriangle, node)
+        aFront -= (node.prev, node, rTriangle)
+        
+    } else { 
+      
+        // Projected point hits advancing front; create new triangle 
+	    val cwPoint = node.next.point
+	    val ccwPoint = node.point
+	    val nTri = node.triangle
+	    
+	    val pts = Array(point, ccwPoint,  cwPoint)
+	    val neighbors = Array(nTri, null, null)
+	    val triangle = new Triangle(pts, neighbors)
+	    mesh.map += triangle
+	    
+        // Legalize
+	    legalization(triangle, nTri)
+        // Update neighbor pointers
+	    nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
+        // Update advancing front
+        newNode = aFront.insert(point, triangle, node)
+        
+	}
     
-    val pts = Array(point, ccwPoint,  cwPoint)
-    val neighbors = Array(nTri, null, null)
-    val triangle = new Triangle(pts, neighbors)
-    mesh.map += triangle
-    
-    // Check if edges need to be swapped to preserve CDT
-    // TODO: Make sure AFront pointers are updated correctly
-    val oPoint = nTri oppositePoint triangle
-    if(illegal(ccwPoint, oPoint, cwPoint, point)) {
-      legalization(triangle, nTri, oPoint)
-    }
-    
-    nTri.updateNeighbors(ccwPoint, cwPoint, triangle)
-    
-    // Update advancing front
-    val newNode = aFront.insert(point, triangle, node)
     // Fill in adjacent triangles if required
     scan(newNode)
-    triangle
+    newNode.triangle
+    
   }
   
   // EdgeEvent
@@ -169,7 +198,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // STEP 1: Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
-    
     // STEP 2: Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
        // Collect intersected triangles
@@ -182,21 +210,21 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        //triangles.foreach(t => mesh.map -= t)
     } else if(firstTriangle == null) {
       
-      // Traverse the AFront, and build triangle list
+      // Traverse the AFront, and build triangles
       var node = aFront.locate(edge.q)
       node = node.next
       val points = new ArrayBuffer[Point]
       
       if(edge.p.x > edge.q.x) {
         // Search right
-        while(node.point != edge.p) {
+        while(node != null && node.point != edge.p) {
           // Collect points
           points += node.point
           node = node.next
         }
       } else {
         // Search left
-        while(node.point != edge.p) {
+        while(node != null && node.point != edge.p) {
           // Collect points
           points += node.point
           node = node.prev
@@ -209,6 +237,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     }
     
     // STEP 3: Triangulate empty areas.
+    
   }
   
   // Marc Vigo Anglada's triangulatePseudopolygonDelaunay algo 
@@ -293,22 +322,25 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         false
   }
   
-  // Flip edges and rotate everything clockwise
-  private def legalization(t1: Triangle, t2: Triangle, oPoint: Point) {
-    // Rotate points
-    val point = t1.points(0)
-    t1.points(1) = t1.points(0)
-    t1.points(0) = t1.points(2)
-    t1.points(2) = oPoint    
-    val tmp = t2.points(1)
-    t2.points(1) = point
-    t2.points(0) = t2.points(2)
-    t2.points(2) = tmp
-    
-    t1.updatePoints
-    t2.updatePoints
-    // TODO: Rotate neighbors
-    println("legalize")
+  // Ensure new adjacent triangles are legal
+  private def legalization(t1: Triangle, t2: Triangle) {
+    val oPoint = t2 oppositePoint t1
+    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
+	    // Flip edges and rotate everything clockwise
+	    val point = t1.points(0)
+	    t1.points(1) = t1.points(0)
+	    t1.points(0) = t1.points(2)
+	    t1.points(2) = oPoint    
+	    val tmp = t2.points(1)
+	    t2.points(1) = point
+	    t2.points(0) = t2.points(2)
+	    t2.points(2) = tmp
+	    
+	    t1.updatePoints
+	    t2.updatePoints
+	    // TODO: Rotate neighbors
+	    println("legalize")
+    }
   }
  
   private def finalization {
