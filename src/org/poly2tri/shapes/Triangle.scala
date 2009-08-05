@@ -37,22 +37,8 @@ import scala.collection.mutable.ArrayBuffer
 //      "Triangulations in CGAL"
 class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
-  var ik, ij , jk, ji, kj, ki: Point = null
-  updateEdges
-  
   // Flags to determine if an edge is the final Delauney edge
   val edges = new Array[Boolean](3)
-  
-  // Update the edges that consitite this triangle
-  // May change during legalization
-  def updateEdges {
-    ik = points(2) - points(0)
-    ij = points(1) - points(0)
-    jk = points(2) - points(1)
-    ji = points(0) - points(1)
-    kj = points(1) - points(2)
-    ki = points(0) - points(2)
-  }
   
   // Update neighbor pointers
   def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
@@ -116,13 +102,13 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     null
   }
   
-  // Locate next triangle crossed by constraied edge
+  // Locate next triangle crossed by edge
   def findNeighbor(e: Point): Triangle = {
-    if(orient(points(0), points(1), e) > 0)
+    if(orient(points(0), points(1), e) >= 0)
       return neighbors(2)
-    if(orient(points(1), points(2), e) > 0)
+    if(orient(points(1), points(2), e) >= 0)
       return neighbors(0)
-    if(orient(points(2), points(0), e) > 0)
+    if(orient(points(2), points(0), e) >= 0)
       return neighbors(1)
     else
       // Point must reside inside this triangle
@@ -132,6 +118,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   // Return: positive if point p is left of ab
   //         negative if point p is right of ab
   //         zero if points are colinear
+  // See: http://www-2.cs.cmu.edu/~quake/robust.html
   def orient(b: Point, a: Point, p: Point): Float = {
     val acx = a.x - p.x
     val bcx = b.x - p.x
@@ -189,6 +176,20 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   def printDebug {
     println("**************")
     println(points(0) + "," + points(1) + "," + points(2))
+  }
+  
+  private var ik, ij , jk, ji, kj, ki: Point = null
+  updateEdges
+  
+  // Update the edges that consitite this triangle
+  // May change during legalization
+  private def updateEdges {
+    ik = points(2) - points(0)
+    ij = points(1) - points(0)
+    jk = points(2) - points(1)
+    ji = points(0) - points(1)
+    kj = points(1) - points(2)
+    ki = points(0) - points(2)
   }
   
 }

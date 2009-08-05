@@ -138,9 +138,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val node = aFront.locate(point)
         
+    // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
       
-        // Projected point coincides with existing point; create two triangles
     	val rPts = Array(point, node.point, node.next.point)
         val rNeighbors = Array(node.triangle, null, null)
         val rTriangle = new Triangle(rPts, rNeighbors)
@@ -170,7 +170,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    newNode.triangle
      
     } else { 
-     
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
 	    val ccwPoint = node.point
@@ -201,19 +200,52 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val firstTriangle = triangle.locateFirst(edge)
     
     // STEP 2: Remove intersected triangles
-    // STEP 3: Triangulate empty areas.
-    if(firstTriangle != null && !firstTriangle.contains(edge) && firstTriangle != triangle) {
+    if(firstTriangle != null && !firstTriangle.contains(edge)) {
       
        // Collect intersected triangles
        val triangles = new ArrayBuffer[Triangle]
        triangles += firstTriangle
-       val e = edge.p - edge.q
        
        while(triangles.last != null && !triangles.last.contains(edge.p))
-         triangles += triangles.last.findNeighbor(e)
+         triangles += triangles.last.findNeighbor(edge.p - edge.q)
        
-       // TODO: Implement this section
-       //triangles.foreach(t => mesh.map -= t)
+       // TODO: triangles.last == null bug!
+       if(triangles.last == null)
+         triangles -= triangles.last
+       
+        // Remove old triangles
+        triangles.foreach(t => mesh.map -= t)
+      
+		val lPoints = new ArrayBuffer[Point]
+		val rPoints = new ArrayBuffer[Point]
+		  
+		val ahead = (edge.p.x > edge.q.x)
+		val point1 = if(ahead) edge.q else edge.p
+		val point2 = if(ahead) edge.p else edge.q
+		  
+        // Collect points left and right of edge
+		  triangles.foreach(t => {
+		    t.points.foreach(p => {
+		      if(p != edge.q && p != edge.p) {
+		        if(t.orient(point1, point2, p) >= 0 ) {
+                  if(!lPoints.contains(p)) {
+		            lPoints += p
+                  }
+		        } else { 
+                  if(!rPoints.contains(p))
+		            rPoints += p
+                }
+               }
+		    })
+		  })
+      
+      // STEP 3: Triangulate empty areas.
+      val T1 = new ArrayBuffer[Triangle]
+      triangulate(lPoints.toArray, List(point1, point2), T1)
+      val T2 = new ArrayBuffer[Triangle]
+      triangulate(rPoints.toArray, List(point1, point2), T2)
+      
+      // TODO: Update Delauney Edge Pointers
       
     } else if(firstTriangle == null) {
       
@@ -226,43 +258,37 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       val points = new ArrayBuffer[Point]
       var node = aFront.locate(point1)
-      val node1 = node
-      val foo = node
-      
-      node = node.next
       
 	  while(node.point != point2) {
 		points += node.point
 		node = node.next
 	  }
       
-      val node2 = node
+      // STEP 3: Triangulate empty areas.
+      triangulateEmpty(point1, point2, points)
       
-      val T = new ArrayBuffer[Triangle]
-      angladaTPD(points.toArray, List(point1, point2), T)
+      // TODO: Update Delauney Edge Pointers
       
-      node1.triangle = T.first
-      node1.next = node2
-      node2.prev = node1
-
-      T.first.neighbors(0) = foo.next.triangle
-      T.first.neighbors(2) = foo.triangle
-        
-      T.foreach(t => mesh.map += t)
-                
+    } else if(firstTriangle.contains(edge)) {
+      // TODO: Update Delauney Edge Pointers
     }
     
   }
   
-  // Marc Vigo Anglada's triangulatePseudopolygonDelaunay algo 
-  // TODO: Bugy fix - works for a single triangle 
-  def angladaTPD(P: Array[Point], ab: List[Point], T: ArrayBuffer[Triangle]) {
+  // Triangulate empty areas.
+  def triangulateEmpty(point1: Point, point2: Point, points: ArrayBuffer[Point]) {
+    val T = new ArrayBuffer[Triangle]
+    triangulate(points.toArray, List(point1, point2), T)
+  }
+  
+  // Marc Vigo Anglada's triangulate pseudo-polygon algo 
+  private def triangulate(P: Array[Point], ab: List[Point], T: ArrayBuffer[Triangle]) {
     
     val a = ab.first
     val b = ab.last
-    var c: Point = null
+    
     if(P.size > 1) {
-      c = P.first
+      var c = P.first
       var i = 0
       for(j <- 1 until P.size) {
         if(illegal(a, c, b, P(j))) {
@@ -272,15 +298,17 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       val PE = P.slice(0, i)
       val PD = P.slice(i, P.size-1)
-      angladaTPD(PE, List(a, c), T)
-      angladaTPD(PD, List(c, b), T)
-    }
+      triangulate(PE, List(a, c), T)
+      triangulate(PD, List(c, b), T)
+    } 
+    
     if(!P.isEmpty) {
-      c = P.first
-      val points = Array(a, b, c)
-      // TODO: Correctly update neighbor pointers
+      val points = Array(a, P.first, b)
+      // TODO: Correctly update neighbor pointers?
+      // Not updating seems to work with simple polygons...
       val neighbors = new Array[Triangle](3)
       T += new Triangle(points, neighbors)
+      mesh.map += T.last
     }
   }
 
@@ -327,7 +355,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       angle
   }
   
-  // Do edges need to be swapped?
+  // Do edges need to be swapped? Robust CircumCircle test
+  // See section 3.7 from "Triangulations and Applications" by O. Hjelle & M. Deahlen
   private def illegal(p1: Point, p2: Point, p3: Point, p4:Point): Boolean = {
     
 	  val v1 = p3 - p2
@@ -346,6 +375,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val sinA = v1 cross v2
       val sinB = v3 cross v4
       
+      // Some small number
       if(cosA*sinB + sinA*cosB < -0.01f)
         true
       else

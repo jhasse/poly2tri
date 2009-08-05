@@ -43,7 +43,7 @@ class AFront(iTriangle: Triangle) {
   head.next.next = tail
   tail.prev = head.next
   
-  // TODO: Usea Red-Black Tree or interval tree for better search performance!
+  // TODO: Use Red-Black Tree or Interval Tree for better search performance!
   def locate(point: Point): Node = {
     var node = head
     while(node != tail) {
