@@ -209,7 +209,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        while(triangles.last != null && !triangles.last.contains(edge.p))
          triangles += triangles.last.findNeighbor(edge.p - edge.q)
        
-       // TODO: triangles.last == null bug!
+       // TODO: fix triangles.last == null bug!
+       // This happens in the bird demo...
        if(triangles.last == null)
          triangles -= triangles.last
        
@@ -228,10 +229,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 		    t.points.foreach(p => {
 		      if(p != edge.q && p != edge.p) {
 		        if(t.orient(point1, point2, p) >= 0 ) {
+		          // Keep duplicate points out
                   if(!lPoints.contains(p)) {
 		            lPoints += p
                   }
 		        } else { 
+		          // Keep duplicate points out
                   if(!rPoints.contains(p))
 		            rPoints += p
                 }
@@ -266,6 +269,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       // STEP 3: Triangulate empty areas.
       triangulateEmpty(point1, point2, points)
+      
+      // TODO: Update AFront before pushing changes!!!!!
       
       // TODO: Update Delauney Edge Pointers
       
