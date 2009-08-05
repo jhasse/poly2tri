@@ -84,7 +84,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = i18
+  var currentModel = strange
   
   def init(container: GameContainer) {
     selectModel(currentModel)

@@ -124,7 +124,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 10 /*points.size*/) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
@@ -138,7 +138,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val node = aFront.locate(point)
         
-    if(point.x == node.point.x && node != aFront.head) {
+    if(point.x == node.point.x && node.prev != null) {
       
         // Projected point coincides with existing point; create two triangles
     	val rPts = Array(point, node.point, node.next.point)
@@ -202,13 +202,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // STEP 2: Remove intersected triangles
     // STEP 3: Triangulate empty areas.
-    if(firstTriangle != null && !firstTriangle.contains(edge)) {
+    if(firstTriangle != null && !firstTriangle.contains(edge) && firstTriangle != triangle) {
       
        // Collect intersected triangles
        val triangles = new ArrayBuffer[Triangle]
        triangles += firstTriangle
        val e = edge.p - edge.q
-       while(!triangles.last.contains(edge.p)) 
+       
+       while(!triangles.last.contains(edge.p))
          triangles += triangles.last.findNeighbor(e)
        
        // TODO: Implement this section
@@ -226,6 +227,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val points = new ArrayBuffer[Point]
       var node = aFront.locate(point1)
       val node1 = node
+      val foo = node
       
       node = node.next
       
@@ -243,6 +245,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       node1.next = node2
       node2.prev = node1
 
+      T.first.neighbors(0) = foo.next.triangle
+      T.first.neighbors(2) = foo.triangle
+        
       T.foreach(t => mesh.map += t)
                 
     }
