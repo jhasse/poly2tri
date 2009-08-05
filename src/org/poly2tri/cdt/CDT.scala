@@ -261,6 +261,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       val points = new ArrayBuffer[Point]
       var node = aFront.locate(point1)
+      val first = node
       
 	  while(node.point != point2) {
 		points += node.point
@@ -268,9 +269,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	  }
       
       // STEP 3: Triangulate empty areas.
-      triangulateEmpty(point1, point2, points)
+      val T = new ArrayBuffer[Triangle]
+      triangulate(points.toArray, List(point1, point2), T)
       
-      // TODO: Update AFront before pushing changes!!!!!
+      // Update advancing front 
+      first.triangle = T.first
+      first.next = node
+      node.prev = first
       
       // TODO: Update Delauney Edge Pointers
       
@@ -278,12 +283,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // TODO: Update Delauney Edge Pointers
     }
     
-  }
-  
-  // Triangulate empty areas.
-  def triangulateEmpty(point1: Point, point2: Point, points: ArrayBuffer[Point]) {
-    val T = new ArrayBuffer[Triangle]
-    triangulate(points.toArray, List(point1, point2), T)
   }
   
   // Marc Vigo Anglada's triangulate pseudo-polygon algo 
