@@ -209,7 +209,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        triangles += firstTriangle
        val e = edge.p - edge.q
        
-       while(!triangles.last.contains(edge.p))
+       while(triangles.last != null && !triangles.last.contains(edge.p))
          triangles += triangles.last.findNeighbor(e)
        
        // TODO: Implement this section
