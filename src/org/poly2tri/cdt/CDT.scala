@@ -124,7 +124,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until 10 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
@@ -334,9 +334,21 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val v2 = p1 - p2
       val v3 = p1 - p4
       val v4 = p3 - p4
-      if((v1 dot v2) < 0 && (v3 dot v4) < 0)
-        true 
-      else 
+      
+      val cosA = v1 dot v2
+      val cosB = v3 dot v4
+      
+      if(cosA < 0 && cosB < 0)
+        return true 
+      else if(cosA > 0 && cosB > 0)
+        return false
+      
+      val sinA = v1 cross v2
+      val sinB = v3 cross v4
+      
+      if(cosA*sinB + sinA*cosB < -0.01f)
+        true
+      else
         false
   }
   

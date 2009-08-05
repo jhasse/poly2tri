@@ -118,13 +118,26 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   // Locate next triangle crossed by constraied edge
   def findNeighbor(e: Point): Triangle = {
-    var sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
-    if(!sameSign) return neighbors(0)
-    sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
-    if(!sameSign) return neighbors(1)
-    sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
-    if(!sameSign) return neighbors(2)
-    this
+    if(orient(points(0), points(1), e) > 0)
+      return neighbors(2)
+    if(orient(points(1), points(2), e) > 0)
+      return neighbors(0)
+    if(orient(points(2), points(0), e) > 0)
+      return neighbors(1)
+    else
+      // Point must reside inside this triangle
+      this
+  }
+  
+  // Return: positive if point p is left of ab
+  //         negative if point p is right of ab
+  //         zero if points are colinear
+  def orient(b: Point, a: Point, p: Point): Float = {
+    val acx = a.x - p.x
+    val bcx = b.x - p.x
+    val acy = a.y - p.y
+    val bcy = b.y - p.y
+    acx * bcy - acy * bcx  
   }
   
   // The neighbor CW to given point
