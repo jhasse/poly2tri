@@ -37,11 +37,13 @@ class AFront(iTriangle: Triangle) {
 
   // Doubly linked list
   var head = new Node(iTriangle.points(1), iTriangle)
-  head.next = new Node(iTriangle.points(0), iTriangle)
+  val middle = new Node(iTriangle.points(0), iTriangle)
   var tail = new Node(iTriangle.points(2), null)
   
-  head.next.next = tail
-  tail.prev = head.next
+  head.next = middle
+  middle.next = tail
+  middle.prev = head
+  tail.prev = middle
   
   // TODO: Use Red-Black Tree or Interval Tree for better search performance!
   def locate(point: Point): Node = {

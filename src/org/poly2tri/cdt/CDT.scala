@@ -124,12 +124,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 7 /*points.size*/) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
       // Process edge events
-      point.edges.foreach(e => if(!triangle.contains(e)) edgeEvent(e, triangle))
+      point.edges.foreach(e => edgeEvent(e, triangle))
     }
   }  
   
@@ -140,7 +140,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
-      
+        
     	val rPts = Array(point, node.point, node.next.point)
         val rNeighbors = Array(node.triangle, null, null)
         val rTriangle = new Triangle(rPts, rNeighbors)
@@ -154,22 +154,39 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         mesh.map += rTriangle
         
         // Legalize new triangles
-        legalization(rTriangle, rTriangle.neighbors(0))
-        legalization(lTriangle, lTriangle.neighbors(2))
-        
-        // Update neighbor pointers
-        node.triangle.updateNeighbors(node.point, node.next.point, lTriangle)
-        node.prev.triangle.updateNeighbors(node.point, node.prev.point, rTriangle)
+        val rLegal = legalization(rTriangle, rTriangle.neighbors(0))
+        val lLegal = legalization(lTriangle, lTriangle.neighbors(2))
+        var scanNode: Node = null
         
         // Update advancing front
-        val newNode = aFront.insert(point, rTriangle, node)
-        aFront -= (node.prev, node, rTriangle)
+        if(rLegal) { 
+          println("rLegal")
+          // Update neighbors
+	      node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
+          scanNode = aFront.insert(point, rTriangle, node)
+        } else {
+          println("rIllegal")
+          scanNode = new Node(rTriangle.points(1), rTriangle)
+          scanNode.next = node.next
+          node.next = scanNode
+          scanNode.prev = node
+        }
+        
+        // Update neighbor pointers
+        if(lLegal) {
+          println("lLegal")
+          node.prev.triangle.updateNeighbors(lTriangle.points(0), lTriangle.points(1), lTriangle, mesh.debug)
+          aFront -= (scanNode, node, lTriangle)
+        } else {
+          println("lIllegal")
+        }       
+       
         // Fill in adjacent triangles if required
-	    scanAFront(newNode)
-     
-	    newNode.triangle
-     
+	    //scanAFront(scanNode)
+	    scanNode.triangle
+        
     } else { 
+       
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
 	    val ccwPoint = node.point
@@ -181,15 +198,24 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    mesh.map += triangle
 	    
         // Legalize
-	    legalization(triangle, nTri)
-        // Update neighbor pointers
-	    nTri.updateNeighbors(triangle.points(1), triangle.points(2), triangle)
+	    val legal = legalization(triangle, nTri)
+        var scanNode: Node = null
+        
         // Update advancing front
-        val newNode = aFront.insert(point, triangle, node)
+        if(legal) { 
+          // Update neighbors
+	      nTri.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
+          scanNode = aFront.insert(point, triangle, node)
+        } else {
+          scanNode = new Node(triangle.points(1), triangle)
+          scanNode.next = node.next
+          node.next = scanNode
+          scanNode.prev = node
+        }
+        
         // Fill in adjacent triangles if required
-	    scanAFront(newNode)
-     
-	    newNode.triangle
+	    //scanAFront(scanNode)
+	    scanNode.triangle
 	}
   }
   
@@ -210,7 +236,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
          triangles += triangles.last.findNeighbor(edge.p - edge.q)
        
        // TODO: fix triangles.last == null bug!
-       // This happens in the bird demo...
+       // This happens in the bird & nazca monkey demo...
        if(triangles.last == null)
          triangles -= triangles.last
        
@@ -342,7 +368,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Fill empty space with a triangle
   def fill(node: Node): Double = {
-    
+     
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
@@ -351,8 +377,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    val neighbors = Array(node.triangle, null, node.prev.triangle)
 	    val triangle = new Triangle(points, neighbors)
         // Update neighbor pointers
-        node.prev.triangle.updateNeighbors(triangle.points(0), triangle.points(1), triangle)
-        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle)
+        node.prev.triangle.updateNeighbors(triangle.points(0), triangle.points(1), triangle, mesh.debug)
+        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
@@ -388,12 +414,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Ensure adjacent triangles are legal
   // If illegal, flip edges and update triangle's pointers
-  private def legalization(t1: Triangle, t2: Triangle) {
+  private def legalization(t1: Triangle, t2: Triangle): Boolean = {
     
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
-        
+      println("illegal")
 	    // Flip edges and rotate everything clockwise
         val point = t1.points(0)
 	    t1.legalize(oPoint) 
@@ -416,6 +442,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
           t2.neighbors(1) = t1
           t2.neighbors(2) = null
 	    }
+	    false
+    } else {
+      true
     }
   }
  

@@ -30,6 +30,7 @@
  */
 package org.poly2tri.shapes
 
+import scala.collection.mutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 // Triangle-based data structures are know to have better performance than quad-edge structures
@@ -41,13 +42,17 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   val edges = new Array[Boolean](3)
   
   // Update neighbor pointers
-  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
+  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle, mesh: HashSet[Triangle]) {
     if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
       neighbors(0) = triangle 
-    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(0) && cwPoint == points(2)))
+    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
       neighbors(1) = triangle
-    else 
+    else if((ccwPoint == points(1) && cwPoint == points(0)) || (ccwPoint == points(0) && cwPoint == points(1)))
       neighbors(2) = triangle
+    else {
+      mesh += this
+      throw new Exception("neighbor error")
+    }
   }
   
   def oppositePoint(t: Triangle) = {
@@ -127,7 +132,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     acx * bcy - acy * bcx  
   }
   
-  // The neighbor CW to given point
+  // The neighbor clockwise to given point
   def neighborCW(point: Point): Triangle = {
     if(point == points(0)) {
       neighbors(2)
@@ -137,7 +142,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(1)
   }
   
-  // The neighbor CW to given point
+  // The neighbor counter-clockwise to given point
   def neighborCCW(point: Point): Triangle = {
     if(point == points(0)) {
       neighbors(1)
@@ -145,6 +150,32 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2)
     } else 
       neighbors(0)
+  }
+  
+  // The point counter-clockwise to given point
+  def pointCCW(point: Point): Point = {
+    if(point == points(0)) {
+      points(1)
+    } else if(point == points(1)) {
+      points(2)
+    } else if(point == points(2)){
+      points(0)
+    } else {
+      throw new Exception("point location error")
+    }
+  }
+  
+  // The point counter-clockwise to given point
+  def pointCW(point: Point): Point = {
+    if(point == points(0)) {
+      points(2)
+    } else if(point == points(1)) {
+      points(0)
+    } else if(point == points(2)){
+      points(1)
+    } else {
+      throw new Exception("point location error")
+    }
   }
   
   // Legalized triangle by rotating clockwise around point(0)
