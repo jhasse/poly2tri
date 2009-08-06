@@ -157,7 +157,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         mesh.map += lTriangle
         mesh.map += rTriangle
         
-        // No need for legalization here
+        // Skip legalization
         
         // Update neighbors
         node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
@@ -268,7 +268,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        val dEdge = new Segment(point1, point2)
        T1.first markEdge dEdge
        T2.first markEdge dEdge
-      
+       
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -412,10 +412,24 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
-	    // Flip edges and rotate everything clockwise
+      
+        // Flip edges and rotate everything clockwise
         val point = t1.points(0)
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
+
+	    // Update neighbor pointers
+        val ccwNeighbor = t2.neighborCCW(oPoint)
+        
+        if(ccwNeighbor != null) {
+          ccwNeighbor.updateNeighbors(t1.points(2), t1.points(0), t1, mesh.debug)
+          t1.neighbors(1) = ccwNeighbor
+        }
+        
+        t2.rotateNeighborsCW(oPoint, t1)        
+        t1.neighbors(0) = t2
+        t1.neighbors(2) = null
+	    
 	    false
     } else {
       true

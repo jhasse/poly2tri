@@ -88,7 +88,6 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
     val p = edge.p
-    if(contains(p)) return this
     val q = edge.q
     val e = p - q
     if(q == points(0)) {
@@ -107,16 +106,16 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       if(neighbors(1) == null) return null
       return neighbors(1).locateFirst(edge)
     }
-    null
+    throw new Exception("Point not found")
   }
   
   // Locate next triangle crossed by edge
   def findNeighbor(e: Point): Triangle = {
     if(orient(points(0), points(1), e) >= 0)
       return neighbors(2)
-    if(orient(points(1), points(2), e) >= 0)
+    else if(orient(points(1), points(2), e) >= 0)
       return neighbors(0)
-    if(orient(points(2), points(0), e) >= 0)
+    else if(orient(points(2), points(0), e) >= 0)
       return neighbors(1)
     else
       // Point must reside inside this triangle
@@ -153,6 +152,16 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2)
     } else 
       neighbors(0)
+  }
+  
+  // The neighbor clockwise to given point
+  def neighborAcross(point: Point): Triangle = {
+    if(point == points(0)) {
+      neighbors(0)
+    }else if(point == points(1)) {
+      neighbors(1)
+    } else 
+      neighbors(2)
   }
   
   // The point counter-clockwise to given point
@@ -205,6 +214,25 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       points(1) = nPoint
     }
     updateEdges
+  }
+  
+  // Rotate neighbors clockwise around give point. Share diagnal with triangle
+  def rotateNeighborsCW(oPoint: Point, triangle: Triangle) {
+    if(oPoint == points(0)) {
+      neighbors(2) = neighbors(1)
+      neighbors(1) = null
+      neighbors(0) = triangle
+    } else if (oPoint == points(1)) {
+      neighbors(0) = neighbors(2)
+      neighbors(2) = null
+      neighbors(1) = triangle
+    } else if (oPoint == points(2)) {
+      neighbors(1) = neighbors(0)
+      neighbors(0) = null
+      neighbors(2) = triangle
+    } else {
+      throw new Exception("pointer bug")
+    }
   }
   
   def printDebug = println(points(0) + "," + points(1) + "," + points(2))
