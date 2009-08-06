@@ -65,7 +65,7 @@ object CDT {
     val deltaX = ALPHA * (xmax - xmin)
     val deltaY = ALPHA * (ymax - ymin)
     val p1 = Point(xmin - deltaX, ymin - deltaY)
-    val p2 = Point(xmax + deltaX, ymin - deltaY)
+    val p2 = Point(xmax + deltaX, p1.y)
     
     val segments = initSegments(points)
     val sortedPoints = pointSort(points)
@@ -125,13 +125,16 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
+    //var cTri: Triangle = null
     for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
+      //if(i == 10) {cTri = triangle; mesh.debug += cTri}
     }
+    //mesh clean cTri
   }  
   
   // Point event
@@ -155,6 +158,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         mesh.map += rTriangle
         
         // No need for legalization here
+        
+        // Update neighbors
+        node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
+        node.prev.triangle.updateNeighbors(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
         
         // Update advancing front
 	    val newNode = aFront.insert(point, rTriangle, node)
@@ -185,6 +192,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // Update advancing front
         if(legal) { 
           newNode = aFront.insert(point, triangle, node)
+          // Update neighbors
+          nTri.updateNeighbors(cwPoint, ccwPoint, triangle, mesh.debug)
         } else {
           newNode = new Node(triangle.points(1), triangle)
           val rNode = node.next
@@ -210,19 +219,19 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
       
        // Collect intersected triangles
-       val triangles = new ArrayBuffer[Triangle]
-       triangles += firstTriangle
+       val tList = new ArrayBuffer[Triangle]
+       tList += firstTriangle
        
-       while(triangles.last != null && !triangles.last.contains(edge.p))
-         triangles += triangles.last.findNeighbor(edge.p - edge.q)
+       while(tList.last != null && !tList.last.contains(edge.p))
+         tList += tList.last.findNeighbor(edge.p - edge.q)
        
-       // TODO: fix triangles.last == null bug!
+       // TODO: fix tList.last == null bug!
        // Not sure why this happens in bird & nazca monkey demo...
-       if(triangles.last == null)
-         triangles -= triangles.last
+       if(tList.last == null)
+         tList -= tList.last
        
         // Remove old triangles
-        triangles.foreach(t => mesh.map -= t)
+        tList.foreach(t => mesh.map -= t)
       
 		val lPoints = new ArrayBuffer[Point]
 		val rPoints = new ArrayBuffer[Point]
@@ -232,7 +241,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 		val point2 = if(ahead) edge.p else edge.q
 		  
         // Collect points left and right of edge
-		  triangles.foreach(t => {
+		  tList.foreach(t => {
 		    t.points.foreach(p => {
 		      if(p != edge.q && p != edge.p) {
 		        if(t.orient(point1, point2, p) >= 0 ) {
@@ -255,7 +264,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val T2 = new ArrayBuffer[Triangle]
       triangulate(rPoints.toArray, List(point1, point2), T2)
       
-      // TODO: Update Delauney Edge Pointers
+       // Mark constrained edges
+       val dEdge = new Segment(point1, point2)
+       T1.first markEdge dEdge
+       T2.first markEdge dEdge
       
     } else if(firstTriangle == null) {
       
@@ -284,10 +296,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       first.next = node
       node.prev = first
       
-      // TODO: Update Delauney Edge Pointers
+      // Mark constrained edge
+      val dEdge = new Segment(point1, point2)
+      T.first markEdge dEdge
       
     } else if(firstTriangle.contains(edge)) {
-      // TODO: Update Delauney Edge Pointers
+      // Mark constrained edge
+      firstTriangle markEdge edge
     }
     
   }
@@ -354,6 +369,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    val points = Array(node.prev.point, node.point, node.next.point)
 	    val neighbors = Array(node.triangle, null, node.prev.triangle)
 	    val triangle = new Triangle(points, neighbors)
+        // Update neighbor pointers
+        node.prev.triangle.updateNeighbors(triangle.points(0), triangle.points(1), triangle, mesh.debug)
+        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }

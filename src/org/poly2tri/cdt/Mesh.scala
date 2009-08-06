@@ -30,7 +30,7 @@
  */
 package org.poly2tri.cdt
 
-import scala.collection.mutable.HashSet
+import scala.collection.mutable.{HashSet, ArrayBuffer}
 
 import shapes.{Point, Triangle}
 
@@ -40,5 +40,20 @@ class Mesh(initialTriangle: Triangle) {
   val map = HashSet(initialTriangle)
   // Debug triangles
   val debug = HashSet.empty[Triangle]
+  val triangles = new ArrayBuffer[Triangle]
+  
+  // Recursively collect triangles
+  def clean(triangle: Triangle) {
+    if(triangle != null && triangle.clean == false) {
+      triangle.clean = true
+      if(triangle.edges(0) == false) 
+        clean(triangle.neighbors(0))
+      if(triangle.edges(1) == false)
+        clean(triangle.neighbors(1))
+      if(triangle.edges(2) == false)
+        clean(triangle.neighbors(2))
+      triangles += triangle
+    }
+  }
   
 }

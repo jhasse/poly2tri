@@ -39,7 +39,10 @@ import scala.collection.mutable.ArrayBuffer
 class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
   // Flags to determine if an edge is the final Delauney edge
-  val edges = new Array[Boolean](3)
+  val edges = Array(false, false, false)
+  
+  // Finalization flag
+  var clean = false
   
   // Update neighbor pointers
   def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle, mesh: HashSet[Triangle]) {
@@ -47,14 +50,11 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(0) = triangle 
     else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
       neighbors(1) = triangle
-    else if((ccwPoint == points(1) && cwPoint == points(0)) || (ccwPoint == points(0) && cwPoint == points(1)))
+    else if((ccwPoint == points(0) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(0)))
       neighbors(2) = triangle
     else {
-      mesh += this
-      println("**********")
-      println(cwPoint + "," + ccwPoint)
-      printDebug
-      throw new Exception("neighbor error")
+      mesh += triangle
+      //throw new Exception("Neighbor update error")
     }
   }
   
@@ -221,6 +221,17 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     ji = points(0) - points(1)
     kj = points(1) - points(2)
     ki = points(0) - points(2)
+  }
+  
+  // Mark edge as constrained
+  def markEdge(e: Segment) {
+    if((e.q == points(0) && e.p == points(1)) || (e.q == points(1) && e.p == points(0))) {
+      edges(2) = true
+    } else if ((e.q == points(0) && e.p == points(2)) || (e.q == points(2) && e.p == points(0))) {
+      edges(1) = true
+    } else {
+      edges(0) = true
+    } 
   }
   
 }
