@@ -76,6 +76,17 @@ class AFront(iTriangle: Triangle) {
     node.triangle = triangle
   }
   
+  def basin(node: Node) {
+    if(node.next != tail) {
+      val p1 = node.point
+      val p2 = node.next.point
+      val slope = (p1.y - p2.y) / (p1.x - p2.x)
+      if(slope < Math.Pi*3/4)
+        println("basin slope = " + slope)
+    }
+    
+  }
+  
 }
 
 // Advancing front node

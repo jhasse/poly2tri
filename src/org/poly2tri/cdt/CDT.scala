@@ -116,6 +116,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private val aFront = new AFront(iTriangle)
   
   private val PI_2 = Math.Pi/2
+  private val PI_34 = Math.Pi*3/4
   
   // Sweep points; build mesh
   sweep
@@ -153,35 +154,17 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         mesh.map += lTriangle
         mesh.map += rTriangle
         
-        // Legalize new triangles
-        val rLegal = legalization(rTriangle, rTriangle.neighbors(0))
-        val lLegal = legalization(lTriangle, lTriangle.neighbors(0))
-        var scanNode: Node = null
+        // No need for legalization here
         
         // Update advancing front
-        if(rLegal) { 
-          // Update neighbors
-	      node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
-          scanNode = aFront.insert(point, rTriangle, node)
-        } else {
-          scanNode = new Node(rTriangle.points(1), rTriangle)
-          scanNode.next = node.next
-          node.next = scanNode
-          scanNode.prev = node
-        }
-        
-        // Update neighbor pointers
-        if(lLegal) {
-          lTriangle.neighbors(0).updateNeighbors(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
-          node.prev.next = scanNode
-          scanNode.prev = node.prev
-          node.prev.triangle = lTriangle
-        } else {
-        }       
+	    val newNode = aFront.insert(point, rTriangle, node)
+	    node.prev.next = newNode
+	    newNode.prev = node.prev
+	    node.prev.triangle = lTriangle
        
         // Fill in adjacent triangles if required
-	    scanAFront(scanNode)
-	    scanNode.triangle
+	    scanAFront(newNode)
+	    newNode.triangle
         
     } else {
        
@@ -197,25 +180,23 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    
         // Legalize
 	    val legal = legalization(triangle, nTri)
-        var scanNode: Node = null
+        var newNode: Node = null
         
         // Update advancing front
         if(legal) { 
-          // Update neighbors
-	      nTri.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
-          scanNode = aFront.insert(point, triangle, node)
+          newNode = aFront.insert(point, triangle, node)
         } else {
-          scanNode = new Node(triangle.points(1), triangle)
+          newNode = new Node(triangle.points(1), triangle)
           val rNode = node.next
-          rNode.prev = scanNode
-          scanNode.next = rNode
-          node.next = scanNode
-          scanNode.prev = node
+          rNode.prev = newNode
+          newNode.next = rNode
+          node.next = newNode
+          newNode.prev = node
         }
         
         // Fill in adjacent triangles if required
-	    scanAFront(scanNode)
-	    scanNode.triangle
+	    scanAFront(newNode)
+	    newNode.triangle
 	}
   }
   
@@ -236,7 +217,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
          triangles += triangles.last.findNeighbor(edge.p - edge.q)
        
        // TODO: fix triangles.last == null bug!
-       // This happens in the bird & nazca monkey demo...
+       // Not sure why this happens in bird & nazca monkey demo...
        if(triangles.last == null)
          triangles -= triangles.last
        
@@ -334,8 +315,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     if(!P.isEmpty) {
       val points = Array(a, P.first, b)
-      // TODO: Correctly update neighbor pointers?
-      // Not updating seems to work with simple polygons...
       val neighbors = new Array[Triangle](3)
       T += new Triangle(points, neighbors)
       mesh.map += T.last
@@ -368,7 +347,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Fill empty space with a triangle
   def fill(node: Node): Double = {
-     
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
@@ -376,9 +354,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    val points = Array(node.prev.point, node.point, node.next.point)
 	    val neighbors = Array(node.triangle, null, node.prev.triangle)
 	    val triangle = new Triangle(points, neighbors)
-        // Update neighbor pointers
-        node.prev.triangle.updateNeighbors(triangle.points(0), triangle.points(1), triangle, mesh.debug)
-        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
@@ -406,7 +381,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val sinB = v3 cross v4
       
       // Some small number
-      if(cosA*sinB + sinA*cosB < -0.01f)
+      if(cosA*sinB + sinA*cosB < -0.0001f)
         true
       else
         false
@@ -423,24 +398,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         val point = t1.points(0)
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
-	    
-	    // TODO: Make sure this is correct
-        val cwNeighbor = t2.neighborCW(oPoint)
-        val ccwNeighbor = t2.neighborCCW(oPoint)
-        
-        t1.neighbors(0) = t2
-	    t1.neighbors(1) = cwNeighbor
-        t1.neighbors(2) = null
-        
-	    if(t2.points(0) == oPoint) {
-	      t2.neighbors(0) = null
-          t2.neighbors(1) = ccwNeighbor
-          t2.neighbors(2) = t1
-	    } else {
-	      t2.neighbors(0) = ccwNeighbor
-          t2.neighbors(1) = t1
-          t2.neighbors(2) = null
-	    }
 	    false
     } else {
       true
