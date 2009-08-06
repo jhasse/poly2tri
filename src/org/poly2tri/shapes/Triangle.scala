@@ -51,6 +51,9 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       mesh += this
+      println("**********")
+      println(cwPoint + "," + ccwPoint)
+      printDebug
       throw new Exception("neighbor error")
     }
   }
@@ -204,10 +207,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     updateEdges
   }
   
-  def printDebug {
-    println("**************")
-    println(points(0) + "," + points(1) + "," + points(2))
-  }
+  def printDebug = println(points(0) + "," + points(1) + "," + points(2))
   
   private var ik, ij , jk, ji, kj, ki: Point = null
   updateEdges

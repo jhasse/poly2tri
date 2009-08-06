@@ -124,7 +124,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    for(i <- 1 until 7 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       val triangle = pointEvent(point)
@@ -137,7 +137,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-        
+  
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -145,8 +145,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         val rNeighbors = Array(node.triangle, null, null)
         val rTriangle = new Triangle(rPts, rNeighbors)
         
-        val lPts = Array(node.prev.point, node.point, point)
-        val lNeighbors = Array(rTriangle, null, node.prev.triangle)
+        val lPts = Array(point, node.prev.point, node.point)
+        val lNeighbors = Array(node.prev.triangle, rTriangle, null)
         val lTriangle = new Triangle(lPts, lNeighbors)
         
         rTriangle.neighbors(2) = lTriangle
@@ -155,17 +155,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         
         // Legalize new triangles
         val rLegal = legalization(rTriangle, rTriangle.neighbors(0))
-        val lLegal = legalization(lTriangle, lTriangle.neighbors(2))
+        val lLegal = legalization(lTriangle, lTriangle.neighbors(0))
         var scanNode: Node = null
         
         // Update advancing front
         if(rLegal) { 
-          println("rLegal")
           // Update neighbors
 	      node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
           scanNode = aFront.insert(point, rTriangle, node)
         } else {
-          println("rIllegal")
           scanNode = new Node(rTriangle.points(1), rTriangle)
           scanNode.next = node.next
           node.next = scanNode
@@ -174,18 +172,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         
         // Update neighbor pointers
         if(lLegal) {
-          println("lLegal")
-          node.prev.triangle.updateNeighbors(lTriangle.points(0), lTriangle.points(1), lTriangle, mesh.debug)
-          aFront -= (scanNode, node, lTriangle)
+          lTriangle.neighbors(0).updateNeighbors(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
+          node.prev.next = scanNode
+          scanNode.prev = node.prev
+          node.prev.triangle = lTriangle
         } else {
-          println("lIllegal")
         }       
        
         // Fill in adjacent triangles if required
-	    //scanAFront(scanNode)
+	    scanAFront(scanNode)
 	    scanNode.triangle
         
-    } else { 
+    } else {
        
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
@@ -208,13 +206,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
           scanNode = aFront.insert(point, triangle, node)
         } else {
           scanNode = new Node(triangle.points(1), triangle)
-          scanNode.next = node.next
+          val rNode = node.next
+          rNode.prev = scanNode
+          scanNode.next = rNode
           node.next = scanNode
           scanNode.prev = node
         }
         
         // Fill in adjacent triangles if required
-	    //scanAFront(scanNode)
+	    scanAFront(scanNode)
 	    scanNode.triangle
 	}
   }
@@ -419,12 +419,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
-      println("illegal")
 	    // Flip edges and rotate everything clockwise
         val point = t1.points(0)
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
-	   
+	    
 	    // TODO: Make sure this is correct
         val cwNeighbor = t2.neighborCW(oPoint)
         val ccwNeighbor = t2.neighborCCW(oPoint)
