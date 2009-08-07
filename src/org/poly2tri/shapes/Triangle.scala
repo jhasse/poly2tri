@@ -54,7 +54,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       debug += triangle
-      throw new Exception("Neighbor update error")
+      throw new Exception("Neighbor pointer error, please report!")
     }
   }
   

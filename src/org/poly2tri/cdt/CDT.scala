@@ -138,7 +138,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
           //System exit 0
       }
       // Process edge events
-      //point.edges.foreach(e => edgeEvent(e, triangle))
+      point.edges.foreach(e => edgeEvent(e, triangle))
       //if(i == 10) {cTri = triangle; mesh.debug += cTri}
     }
     //mesh clean cTri
