@@ -51,7 +51,7 @@ object Util {
     // Determinant
     val d = a11*(a22-a32) - a12*(a21-a31) + (a21*a32-a31*a22)
 
-    if(Math.abs(d) <= COLLINEAR_SLOP) 
+    if(d <= COLLINEAR_SLOP) 
       true
     else 
       false

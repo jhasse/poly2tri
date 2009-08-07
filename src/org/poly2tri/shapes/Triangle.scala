@@ -33,6 +33,8 @@ package org.poly2tri.shapes
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
+import utils.Util
+
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"
@@ -54,8 +56,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       debug += triangle
-      debug += this
-      throw new Exception("Neighbor pointer error, please report!")
+      //throw new Exception("Neighbor pointer error, please report!")
     }
   }
   
@@ -215,6 +216,20 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       points(1) = nPoint
     }
     updateEdges
+  }
+  
+  // Make legalized triangle will not be collinear
+  def collinear(oPoint: Point): Boolean = Util.collinear(points(0), points(1), oPoint)
+  
+  // Make sure legalized triangle will not be collinear
+  def collinear(oPoint: Point, nPoint: Point): Boolean = {
+    if(oPoint == points(0)) {
+      Util.collinear(points(0), points(2), nPoint)
+    } else if (oPoint == points(1)) {
+      Util.collinear(points(0), points(1), nPoint)
+    } else {
+      Util.collinear(points(2), points(1), nPoint)
+    }
   }
   
   // Rotate neighbors clockwise around give point. Share diagnal with triangle

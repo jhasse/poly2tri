@@ -276,7 +276,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        val dEdge = new Segment(point1, point2)
        T1.first markEdge dEdge
        T2.first markEdge dEdge
-       
+       println("cut")
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -308,7 +308,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val dEdge = new Segment(point1, point2)
       T.first markEdge dEdge
       
-    } else if(firstTriangle.contains(edge)) {
+    } else {
+      // Triangle must contain the edge
       // Mark constrained edge
       firstTriangle markEdge edge
     }
@@ -420,39 +421,38 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val oPoint = t2 oppositePoint t1
     
-    // Prevent creation of collinear traingles
-    val c1 = Util.collinear(t1.points(0), t1.points(1), oPoint)
-    val c2 = Util.collinear(t2.points(0), t2.points(1), oPoint)
-    val c3 = Util.collinear(t2.points(1), t2.points(2), oPoint)
-    val c4 = Util.collinear(t2.points(0), t2.points(2), oPoint)
-    val collinear = (c1 || c2 || c3 || c4)
-    
-    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
+    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
 
-       println("legalize")
-        // Update neighbor pointers
-        val ccwNeighbor = t2.neighborCCW(oPoint)
-       
-        if(ccwNeighbor != null) {
-          val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
-          ccwNeighbor.updateNeighbors(oPoint, point, t1, mesh.debug)
-          t1.neighbors(1) = ccwNeighbor
-        }
+       // Prevent creation of collinear traingles
+	   val c1 = t1.collinear(oPoint)
+	   val c2 = t2.collinear(oPoint, t1.points(0))	   
+    
+       if(!c1 && !c2) {   
         
-        t2.rotateNeighborsCW(oPoint, t1)
-         
-        t1.neighbors(0) = t2
-        t1.neighbors(2) = null
-        
-        // Flip edges and rotate everything clockwise
-        val point = t1.points(0)
-	    t1.legalize(oPoint) 
-	    t2.legalize(oPoint, point)
-        
-	    false
+	        // Update neighbor pointers
+	        val ccwNeighbor = t2.neighborCCW(oPoint)
+	       
+	        if(ccwNeighbor != null) {
+	          //val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
+	          ccwNeighbor.updateNeighbors(oPoint, t1.points(2), t1, mesh.debug)
+	          t1.neighbors(1) = ccwNeighbor
+	        }
+	        
+	        t2.rotateNeighborsCW(oPoint, t1)
+	         
+	        t1.neighbors(0) = t2
+	        t1.neighbors(2) = null
+	        
+	        // Flip edges and rotate everything clockwise
+	        val point = t1.points(0)
+		    t1.legalize(oPoint) 
+		    t2.legalize(oPoint, point)
+	        return false
+       } 
     } else {
       true
     }
+    true
   }
  
   // Final step in the sweep-line CDT algo
