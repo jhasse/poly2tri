@@ -47,11 +47,11 @@ class Mesh(initialTriangle: Triangle) {
     if(triangle != null && triangle.clean == false) {
       triangle.clean = true
       triangles += triangle
-      if(triangle.edges(0) == false) 
+      if(!triangle.edges(0)) 
         clean(triangle.neighbors(0))
-      if(triangle.edges(1) == false)
+      if(!triangle.edges(1))
         clean(triangle.neighbors(1))
-      if(triangle.edges(2) == false)
+      if(!triangle.edges(2))
         clean(triangle.neighbors(2))
     }
   }

@@ -56,7 +56,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       debug += triangle
-      //throw new Exception("Neighbor pointer error, please report!")
+      throw new Exception("Neighbor pointer error, please report!")
     }
   }
   
@@ -267,8 +267,15 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     ki = points(0) - points(2)
   }
   
+  def mark(e: Segment) {
+    markEdge(e)
+    markNeighbors(e)
+  }
+  
+  private def markNeighbors(e: Segment) = neighbors.foreach(n => if(n != null) n.markEdge(e))
+  
   // Mark edge as constrained
-  def markEdge(e: Segment) {
+  private def markEdge(e: Segment) {
     if((e.q == points(0) && e.p == points(1)) || (e.q == points(1) && e.p == points(0))) {
       edges(2) = true
     } else if ((e.q == points(0) && e.p == points(2)) || (e.q == points(2) && e.p == points(0))) {

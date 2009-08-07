@@ -136,20 +136,20 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       } catch {
         case e: Exception => 
           println("Offending triangle = " + i)
-          //System exit 0
       }
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
-      //if(i == 5) {cTri = triangle; mesh.debug += cTri}
+      //if(i == 7) {cTri = triangle; mesh.debug += cTri}
     }
     //mesh clean cTri
+    //mesh.map.foreach(m => m.edges.foreach(e => if(e) mesh.debug += m))
   }  
   
   // Point event
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-
+    
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -165,7 +165,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         mesh.map += lTriangle
         mesh.map += rTriangle
         
-        // Skip legalization
+        // TODO: check to see of legalization is necessary here
         
         // Update neighbors
         node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
@@ -223,8 +223,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     // STEP 1: Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
     
+    val contains = if(firstTriangle != null) firstTriangle.contains(edge) else false
+    
     // STEP 2: Remove intersected triangles
-    if(firstTriangle != null && !firstTriangle.contains(edge)) {
+    if(firstTriangle != null && !contains) {
       
        // Collect intersected triangles
        val tList = new ArrayBuffer[Triangle]
@@ -274,9 +276,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
        // Mark constrained edges
        val dEdge = new Segment(point1, point2)
-       T1.first markEdge dEdge
-       T2.first markEdge dEdge
-       println("cut")
+       T1.first mark dEdge
+       T2.first mark dEdge
+       
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -306,13 +308,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       // Mark constrained edge
       val dEdge = new Segment(point1, point2)
-      T.first markEdge dEdge
-      
-    } else {
-      // Triangle must contain the edge
-      // Mark constrained edge
-      firstTriangle markEdge edge
-    }
+      T.first mark dEdge
+    } 
+    
+    // Mark constrained edge
+    if(contains) 
+      firstTriangle mark edge
     
   }
   
@@ -433,7 +434,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	        val ccwNeighbor = t2.neighborCCW(oPoint)
 	       
 	        if(ccwNeighbor != null) {
-	          //val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
 	          ccwNeighbor.updateNeighbors(oPoint, t1.points(2), t1, mesh.debug)
 	          t1.neighbors(1) = ccwNeighbor
 	        }
