@@ -126,7 +126,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Implement sweep-line 
   private def sweep {
     //var cTri: Triangle = null
-    for(i <- 1 until 5 /*points.size*/ ) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       var triangle: Triangle = null
@@ -191,7 +191,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    mesh.map += triangle
 	    
         // Legalize
-	    val legal = true //legalization(triangle, nTri)
+	    val legal = legalization(triangle, nTri)
         var newNode: Node = null
         
         // Update advancing front
@@ -424,20 +424,20 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         val ccwNeighbor = t2.neighborCCW(oPoint)
        
         if(ccwNeighbor != null) {
-          val point = if(t1.points(0).x > oPoint.x) t1.points(2) else t1.points(1)
-          ccwNeighbor.updateNeighbors(oPoint, point, t1, mesh.debug)
+          //val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
+          ccwNeighbor.updateNeighbors(oPoint, t1.points(2), t1, mesh.debug)
           t1.neighbors(1) = ccwNeighbor
         }
         
         t2.rotateNeighborsCW(oPoint, t1)
          
+        t1.neighbors(0) = t2
+        t1.neighbors(2) = null
+        
         // Flip edges and rotate everything clockwise
         val point = t1.points(0)
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
-        
-        t1.neighbors(0) = t2
-        t1.neighbors(2) = null
         
 	    false
     } else {

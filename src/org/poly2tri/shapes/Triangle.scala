@@ -139,21 +139,21 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   // The neighbor clockwise to given point
   def neighborCW(point: Point): Triangle = {
     if(point == points(0)) {
-      neighbors(2)
-    }else if(point == points(1)) {
-      neighbors(0)
-    } else 
       neighbors(1)
+    }else if(point == points(1)) {
+      neighbors(2)
+    } else 
+      neighbors(0)
   }
   
   // The neighbor counter-clockwise to given point
   def neighborCCW(point: Point): Triangle = {
     if(point == points(0)) {
-      neighbors(1)
-    }else if(point == points(1)) {
       neighbors(2)
-    } else 
+    }else if(point == points(1)) {
       neighbors(0)
+    } else 
+      neighbors(1)
   }
   
   // The neighbor clockwise to given point
