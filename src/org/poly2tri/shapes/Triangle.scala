@@ -54,7 +54,9 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       mesh += triangle
-      //throw new Exception("Neighbor update error")
+      println(ccwPoint + "," + cwPoint)
+      printDebug
+      throw new Exception("Neighbor update error")
     }
   }
   

@@ -126,10 +126,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Implement sweep-line 
   private def sweep {
     //var cTri: Triangle = null
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 5 /*points.size*/) {
       val point = points(i)
       // Process Point event
-      val triangle = pointEvent(point)
+      var triangle: Triangle = null
+      try {
+        triangle = pointEvent(point)
+      } catch {
+        case e: Exception => println("Offending triangle = " + i)
+      }
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
       //if(i == 10) {cTri = triangle; mesh.debug += cTri}
@@ -419,6 +424,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    t2.legalize(oPoint, point)
 
 	    // Update neighbor pointers
+        
         val ccwNeighbor = t2.neighborCCW(oPoint)
         
         if(ccwNeighbor != null) {

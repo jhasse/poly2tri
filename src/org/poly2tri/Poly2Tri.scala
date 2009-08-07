@@ -86,7 +86,19 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   var currentModel = strange
   
+  var mouseButton = 0
+  var mousePressed = false
+  var mouseDrag = false
+  var mousePos = Point(0, 0)
+  var mousePosOld = Point(0, 0)
+  var deltaX = 0f
+  var deltaY = 0f
+  var scaleFactor = 1f
+  
+  var gameContainer: GameContainer = null
+  
   def init(container: GameContainer) {
+    gameContainer = container
     selectModel(currentModel)
   }
   
@@ -101,6 +113,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     g.drawString("'m' to show trapezoidal map (debug mode)", 10, 564)
     g.drawString("'e' to switch Seidel / EarClip", 10, 576)
     
+    g.scale(scaleFactor, scaleFactor)
+	g.translate(deltaX, deltaY)
+   
     val red = new Color(1f, 0f,0.0f)
     val blue = new Color(0f, 0f, 1f)
     val green = new Color(0f, 1f, 0f)
@@ -178,6 +193,48 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
      }
    }
    
+  }
+  
+  /**
+   * Handle mouseDown events.
+   * @param p The screen location that the mouse is down at.
+   */
+  override def mousePressed(b: Int, x: Int, y: Int) {
+    mouseButton = b
+    mousePressed = true
+    mousePosOld = mousePos
+    mousePos = Point(x, y)
+  }
+  
+  /**
+   * Handle mouseUp events.
+   */
+  override def mouseReleased(b: Int, x: Int, y: Int) {
+    mousePosOld = mousePos
+    mousePos = Point(x,y)
+    mousePressed = false
+  }
+  
+  /**
+   * Handle mouseMove events (TestbedMain also sends mouseDragged events here)
+   * @param p The new mouse location (screen coordinates)
+   */
+  override def mouseMoved(oldX: Int, oldY: Int, x: Int, y: Int) {
+    mousePosOld = mousePos
+    mousePos = Point(x,y)
+    if(mousePressed) {
+	  deltaX += mousePos.x - mousePosOld.x
+      deltaY += mousePos.y - mousePosOld.y
+    }
+  }
+  
+  override def mouseWheelMoved(notches: Int) {
+    if (notches < 0) {
+      scaleFactor = Math.min(300f, scaleFactor * 1.05f);
+    }
+    else if (notches > 0) {
+      scaleFactor = Math.max(.02f, scaleFactor / 1.05f);
+    }
   }
   
   override def keyPressed(key:Int, c:Char) {
