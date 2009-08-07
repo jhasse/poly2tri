@@ -84,7 +84,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = nazcaMonkey
+  var currentModel = star
   
   var mouseButton = 0
   var mousePressed = false

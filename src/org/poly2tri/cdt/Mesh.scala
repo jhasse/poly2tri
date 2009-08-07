@@ -46,13 +46,13 @@ class Mesh(initialTriangle: Triangle) {
   def clean(triangle: Triangle) {
     if(triangle != null && triangle.clean == false) {
       triangle.clean = true
+      triangles += triangle
       if(triangle.edges(0) == false) 
         clean(triangle.neighbors(0))
       if(triangle.edges(1) == false)
         clean(triangle.neighbors(1))
       if(triangle.edges(2) == false)
         clean(triangle.neighbors(2))
-      triangles += triangle
     }
   }
   

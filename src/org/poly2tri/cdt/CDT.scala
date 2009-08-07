@@ -108,6 +108,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Triangle list
   def triangles = mesh.map
+  def triangleMesh = mesh.map
   def debugTriangles = mesh.debug
   
   // The triangle mesh
@@ -139,7 +140,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
-      //if(i == 10) {cTri = triangle; mesh.debug += cTri}
+      //if(i == 5) {cTri = triangle; mesh.debug += cTri}
     }
     //mesh clean cTri
   }  
@@ -424,7 +425,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val c2 = Util.collinear(t2.points(0), t2.points(1), oPoint)
     val c3 = Util.collinear(t2.points(1), t2.points(2), oPoint)
     val c4 = Util.collinear(t2.points(0), t2.points(2), oPoint)
-    val collinear = !(c1 && c2 && c3 && c4)
+    val collinear = (c1 || c2 || c3 || c4)
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
 
@@ -433,8 +434,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         val ccwNeighbor = t2.neighborCCW(oPoint)
        
         if(ccwNeighbor != null) {
-          //val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
-          ccwNeighbor.updateNeighbors(oPoint, t1.points(2), t1, mesh.debug)
+          val point = if(t1.points(0).x > oPoint.x) t1.points(1) else t1.points(2)
+          ccwNeighbor.updateNeighbors(oPoint, point, t1, mesh.debug)
           t1.neighbors(1) = ccwNeighbor
         }
         
