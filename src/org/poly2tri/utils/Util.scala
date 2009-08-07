@@ -7,7 +7,8 @@ import shapes.Point
 
 object Util {
   
-  val COLLINEAR_SLOP = 10f
+  // Almost zero
+  val COLLINEAR_SLOP = 0.1f
   
   // From "Scala By Example," by Martin Odersky
   def msort[A](less: (A, A) => Boolean)(xs: List[A]): List[A] = {
@@ -39,23 +40,18 @@ object Util {
   // Tests if the given points are collinear
   def collinear(p1: Point, p2: Point, p3: Point): Boolean = {
     
-    // 3x3 matrix
+    // 3x2 matrix
     val a11 = p1.x
     val a12 = p1.y
-    val a13 = 1f
     val a21 = p2.x
     val a22 = p2.y
-    val a23 = 1f
     val a31 = p3.x
     val a32 = p3.y
-    val a33 = 1f
     
     // Determinant
-    val d = a11*(a22*a33 - a32*a23) - a12*(a21*a33-a31*a23) + a13*(a21*a32-a31*a22)
-    
-    println("Determinant = " + d)
-    
-    if(d <= COLLINEAR_SLOP) {
+    val d = a11*(a22-a32) - a12*(a21-a31) + (a21*a32-a31*a22)
+
+    if(Math.abs(d) <= COLLINEAR_SLOP) {
       true
     } else {
       false

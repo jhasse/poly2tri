@@ -45,7 +45,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   var clean = false
   
   // Update neighbor pointers
-  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle, mesh: HashSet[Triangle]) {
+  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle, debug: HashSet[Triangle]) {
     if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
       neighbors(0) = triangle 
     else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
@@ -53,9 +53,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     else if((ccwPoint == points(0) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(0)))
       neighbors(2) = triangle
     else {
-      mesh += triangle
-      println(ccwPoint + "," + cwPoint)
-      printDebug
+      debug += triangle
       throw new Exception("Neighbor update error")
     }
   }

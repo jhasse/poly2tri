@@ -126,7 +126,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Implement sweep-line 
   private def sweep {
     //var cTri: Triangle = null
-    for(i <- 1 until 15 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       var triangle: Triangle = null
@@ -149,9 +149,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val node = aFront.locate(point)
 
-    // Avoid triangles that are almost collinear
-    if(!Util.collinear(point, node.point, node.next.point)) {
-    
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -217,11 +214,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    scanAFront(newNode)
 	    newNode.triangle
 	}
-    
-    } else {
-      println("bad triangle")
-      null
-    }
   }
   
   // EdgeEvent
@@ -412,9 +404,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       val sinA = v1 cross v2
       val sinB = v3 cross v4
-      //println((cosA*sinB + sinA*cosB))
-      // Some small number
-      if((cosA*sinB + sinA*cosB) < -10f) 
+
+      // Small negative number to prevent swapping
+      // in nearly neutral cases
+      if((cosA*sinB + sinA*cosB) < -0.01f) 
         true
       else
         false
@@ -426,7 +419,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val oPoint = t2 oppositePoint t1
     
-    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
+    // Prevent creation of collinear traingles
+    val c1 = Util.collinear(t1.points(0), t1.points(1), oPoint)
+    val c2 = Util.collinear(t2.points(0), t2.points(1), oPoint)
+    val c3 = Util.collinear(t2.points(1), t2.points(2), oPoint)
+    val c4 = Util.collinear(t2.points(0), t2.points(2), oPoint)
+    val collinear = !(c1 && c2 && c3 && c4)
+    
+    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
+
        println("legalize")
         // Update neighbor pointers
         val ccwNeighbor = t2.neighborCCW(oPoint)
