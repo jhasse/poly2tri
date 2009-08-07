@@ -84,7 +84,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = strange
+  var currentModel = nazcaMonkey
   
   var mouseButton = 0
   var mousePressed = false
@@ -264,7 +264,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '5') selectModel(star)
     if(c == '6') selectModel(i18)
     if(c == 's') drawSegs = !drawSegs
-    if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
+    //if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
   }
     
   def selectModel(model: String) {

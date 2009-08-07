@@ -126,14 +126,16 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Implement sweep-line 
   private def sweep {
     //var cTri: Triangle = null
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 15 /*points.size*/) {
       val point = points(i)
       // Process Point event
       var triangle: Triangle = null
       try {
         triangle = pointEvent(point)
       } catch {
-        case e: Exception => println("Offending triangle = " + i)
+        case e: Exception => 
+          println("Offending triangle = " + i)
+          //System exit 0
       }
       // Process edge events
       //point.edges.foreach(e => edgeEvent(e, triangle))
@@ -147,6 +149,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val node = aFront.locate(point)
 
+    // Avoid triangles that are almost collinear
+    if(!Util.collinear(point, node.point, node.next.point)) {
+    
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -198,9 +203,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         if(legal) { 
           newNode = aFront.insert(point, triangle, node)
           // Update neighbors
-          println(1)
           nTri.updateNeighbors(cwPoint, ccwPoint, triangle, mesh.debug)
-          println(2)
         } else {
           newNode = new Node(triangle.points(1), triangle)
           val rNode = node.next
@@ -214,6 +217,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    scanAFront(newNode)
 	    newNode.triangle
 	}
+    
+    } else {
+      println("bad triangle")
+      null
+    }
   }
   
   // EdgeEvent
@@ -404,9 +412,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       val sinA = v1 cross v2
       val sinB = v3 cross v4
-      
+      //println((cosA*sinB + sinA*cosB))
       // Some small number
-      if((cosA*sinB + sinA*cosB) < -0.1) 
+      if((cosA*sinB + sinA*cosB) < -10f) 
         true
       else
         false
