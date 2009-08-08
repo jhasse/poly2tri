@@ -107,7 +107,7 @@ object CDT {
 class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Triangle) {
   
   // Triangle list
-  def triangles = mesh.map
+  def triangles = mesh.triangles
   def triangleMesh = mesh.map
   def debugTriangles = mesh.debug
   
@@ -119,6 +119,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private val PI_2 = Math.Pi/2
   private val PI_34 = Math.Pi*3/4
   
+  // Triangle used to clean interior
+  var cleanTri: Triangle = null
+  
   // Sweep points; build mesh
   sweep
   // Finalize triangulation
@@ -126,7 +129,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
-    //var cTri: Triangle = null
     for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
@@ -139,11 +141,17 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
-      //if(i == 7) {cTri = triangle; mesh.debug += cTri}
+      //if(i == 7) {cleanTri = triangle; mesh.debug += cleanTri}
     }
-    //mesh clean cTri
-    //mesh.map.foreach(m => m.edges.foreach(e => if(e) mesh.debug += m))
   }  
+  
+  // Final step in the sweep-line CDT algo
+  // Clean exterior triangles
+  private def finalization {
+    mesh.map.foreach(m => m.markEdges)
+    mesh clean cleanTri
+    //mesh.map.foreach(m => m.edges.foreach(e => if(e) mesh.debug += m))
+  }
   
   // Point event
   private def pointEvent(point: Point): Triangle = {
@@ -276,11 +284,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
        // Mark constrained edges
        val dEdge = new Segment(point1, point2)
-       T1.first mark dEdge
-       T2.first mark dEdge
+       T1.first mark(point1, point2)
+       T2.first mark(point1, point2)
+       
+       //TODO update neighbor pointers
        
     } else if(firstTriangle == null) {
       
+      // NOTE: So far this only works for single triangles
       // No triangles are intersected by the edge; edge must lie outside the mesh
       // Apply constraint; traverse the AFront, and build triangles
       
@@ -292,29 +303,45 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       var node = aFront.locate(point1)
       val first = node
       
+      node = node.next
+      
 	  while(node.point != point2) {
 		points += node.point
 		node = node.next
 	  }
       
+      //assert(points.size == 1, "not implemented yet, points = " + points.size)
+      
+      val endPoints = if(ahead) List(point2, point1) else List(point1, point2)
+   
       // STEP 3: Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
-      triangulate(points.toArray, List(point1, point2), T)
+      triangulate(points.toArray, endPoints, T)
       
       // Update advancing front 
-      first.triangle = T.first
-      first.next = node
-      node.prev = first
+      aFront -= (first, node.prev, T.first)
+     
+      // Update neigbor pointers
+      if(ahead) {
+         T.first.neighbors(2) = node.prev.triangle; 
+         T.first.neighbors(0) = first.triangle
+         node.prev.triangle.updateNeighbors(T.first.points(0), T.first.points(1), T.first, mesh.debug)  
+         first.triangle.updateNeighbors(T.first.points(1), T.first.points(2), T.first, mesh.debug)
+      } else {
+         T.first.neighbors(2) = first.triangle; 
+         T.first.neighbors(0) = node.prev.triangle
+         node.prev.triangle.updateNeighbors(T.first.points(1), T.first.points(2), T.first, mesh.debug)  
+         first.triangle.updateNeighbors(T.first.points(0), T.first.points(1), T.first, mesh.debug)
+      }
       
+       // Mark constrained edge
+      T.first mark(edge.p, edge.q)
+     
+      
+    } else { 
       // Mark constrained edge
-      val dEdge = new Segment(point1, point2)
-      T.first mark dEdge
-    } 
-    
-    // Mark constrained edge
-    if(contains) 
-      firstTriangle mark edge
-    
+      firstTriangle mark(edge.p, edge.q)
+    }
   }
   
   // Marc Vigo Anglada's triangulate pseudo-polygon algo 
@@ -347,7 +374,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   }
 
   // Scan left and right along AFront to fill holes
-  def scanAFront(n: Node) {
+  private def scanAFront(n: Node) {
     
     var node = n.next
     // Update right
@@ -371,7 +398,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   }
   
   // Fill empty space with a triangle
-  def fill(node: Node): Double = {
+  private def fill(node: Node): Double = {
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
@@ -423,7 +450,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
-
+       
        // Prevent creation of collinear traingles
 	   val c1 = t1.collinear(oPoint)
 	   val c2 = t2.collinear(oPoint, t1.points(0))	   
@@ -453,11 +480,5 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       true
     }
     true
-  }
- 
-  // Final step in the sweep-line CDT algo
-  private def finalization {
-    
-  }
-  
+  }  
 }

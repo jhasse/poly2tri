@@ -56,7 +56,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       debug += triangle
-      throw new Exception("Neighbor pointer error, please report!")
+      //throw new Exception("Neighbor pointer error, please report!")
     }
   }
   
@@ -267,22 +267,37 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     ki = points(0) - points(2)
   }
   
-  def mark(e: Segment) {
-    markEdge(e)
-    markNeighbors(e)
+  // Initial mark edges sweep
+  def mark(p: Point, q: Point) {
+    if(contains(p) && contains(q)) {
+      markEdge(p, q)
+      markNeighbors(p, q)
+    }
   }
   
-  private def markNeighbors(e: Segment) = neighbors.foreach(n => if(n != null) n.markEdge(e))
+  // Finalize edge marking
+  def markEdges {
+    for(i <- 0 to 2) 
+      if(edges(i)) 
+        i match {
+          case 0 => if(neighbors(0) != null) neighbors(0).markEdge(points(1), points(2))
+          case 1 => if(neighbors(1) != null) neighbors(1).markEdge(points(0), points(2))
+          case _ => if(neighbors(2) != null) neighbors(2).markEdge(points(0), points(1))
+        }
+  }
+  
+  // Mark neighbor's edge
+  private def markNeighbors(p: Point, q: Point) = neighbors.foreach(n => if(n != null) n.markEdge(p, q))
   
   // Mark edge as constrained
-  private def markEdge(e: Segment) {
-    if((e.q == points(0) && e.p == points(1)) || (e.q == points(1) && e.p == points(0))) {
+  private def markEdge(p: Point, q: Point) {
+    if((q == points(0) && p == points(1)) || (q == points(1) && p == points(0))) {
       edges(2) = true
-    } else if ((e.q == points(0) && e.p == points(2)) || (e.q == points(2) && e.p == points(0))) {
+    } else if ((q == points(0) && p == points(2)) || (q == points(2) && p == points(0))) {
       edges(1) = true
-    } else {
+    } else if ((q == points(1) && p == points(2)) || (q == points(2) && p == points(1))){
       edges(0) = true
-    } 
+    }
   }
   
 }

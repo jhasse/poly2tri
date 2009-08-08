@@ -44,7 +44,7 @@ class Mesh(initialTriangle: Triangle) {
   
   // Recursively collect triangles
   def clean(triangle: Triangle) {
-    if(triangle != null && triangle.clean == false) {
+    if(triangle != null && !triangle.clean) {
       triangle.clean = true
       triangles += triangle
       if(!triangle.edges(0)) 

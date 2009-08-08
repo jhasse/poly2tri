@@ -76,6 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   var drawCDT = true
+  var drawcdtMesh = true
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
@@ -84,7 +85,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = star
+  var currentModel = i18
   
   var mouseButton = 0
   var mousePressed = false
@@ -167,7 +168,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    })
    
    if(drawCDT) {
-	   slCDT.triangles.foreach( t => {
+       val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
+	   draw.foreach( t => {
 	     val triangle = new Polygon
 		 triangle.addPoint(t.points(0).x, t.points(0).y)
 		 triangle.addPoint(t.points(1).x, t.points(1).y)
@@ -264,6 +266,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '5') selectModel(star)
     if(c == '6') selectModel(i18)
     if(c == 's') drawSegs = !drawSegs
+    if(c == 'c') drawcdtMesh = !drawcdtMesh
     //if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
   }
     
