@@ -141,7 +141,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, triangle))
-      //if(i == 7) {cleanTri = triangle; mesh.debug += cleanTri}
+      if(i == 7) {cleanTri = triangle; mesh.debug += cleanTri}
     }
   }  
   
@@ -176,8 +176,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // TODO: check to see of legalization is necessary here
         
         // Update neighbors
-        node.triangle.updateNeighbors(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
-        node.prev.triangle.updateNeighbors(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
+        node.triangle.markNeighbor(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
+        node.prev.triangle.markNeighbor(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
         
         // Update advancing front
 	    val newNode = aFront.insert(point, rTriangle, node)
@@ -209,7 +209,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         if(legal) { 
           newNode = aFront.insert(point, triangle, node)
           // Update neighbors
-          nTri.updateNeighbors(cwPoint, ccwPoint, triangle, mesh.debug)
+          nTri.markNeighbor(cwPoint, ccwPoint, triangle, mesh.debug)
         } else {
           newNode = new Node(triangle.points(1), triangle)
           val rNode = node.next
@@ -300,18 +300,20 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point2 = if(ahead) edge.p else edge.q
       
       val points = new ArrayBuffer[Point]
+      val triangles = new ArrayBuffer[Triangle]
+      
       var node = aFront.locate(point1)
       val first = node
+      triangles += first.triangle
       
       node = node.next
       
 	  while(node.point != point2) {
 		points += node.point
+        triangles += node.triangle
 		node = node.next
 	  }
-      
-      //assert(points.size == 1, "not implemented yet, points = " + points.size)
-      
+                                  
       val endPoints = if(ahead) List(point2, point1) else List(point1, point2)
    
       // STEP 3: Triangulate empty areas.
@@ -322,21 +324,17 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       aFront -= (first, node.prev, T.first)
      
       // Update neigbor pointers
-      if(ahead) {
-         T.first.neighbors(2) = node.prev.triangle; 
-         T.first.neighbors(0) = first.triangle
-         node.prev.triangle.updateNeighbors(T.first.points(0), T.first.points(1), T.first, mesh.debug)  
-         first.triangle.updateNeighbors(T.first.points(1), T.first.points(2), T.first, mesh.debug)
-      } else {
-         T.first.neighbors(2) = first.triangle; 
-         T.first.neighbors(0) = node.prev.triangle
-         node.prev.triangle.updateNeighbors(T.first.points(1), T.first.points(2), T.first, mesh.debug)  
-         first.triangle.updateNeighbors(T.first.points(0), T.first.points(1), T.first, mesh.debug)
-      }
+      // Inneficient, but it works well...
+      for(i <- triangles) 
+        for(j <- T) 
+          i.markNeighbor(j)
       
+      for(i <- 0 until T.size)
+        for(j <- i+1 until T.size) 
+          T(i).markNeighbor(T(j))
+          
        // Mark constrained edge
       T.first mark(edge.p, edge.q)
-     
       
     } else { 
       // Mark constrained edge
@@ -407,8 +405,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    val neighbors = Array(node.triangle, null, node.prev.triangle)
 	    val triangle = new Triangle(points, neighbors)
         // Update neighbor pointers
-        node.prev.triangle.updateNeighbors(triangle.points(0), triangle.points(1), triangle, mesh.debug)
-        node.triangle.updateNeighbors(triangle.points(1), triangle.points(2), triangle, mesh.debug)
+        node.prev.triangle.markNeighbor(triangle.points(0), triangle.points(1), triangle, mesh.debug)
+        node.triangle.markNeighbor(triangle.points(1), triangle.points(2), triangle, mesh.debug)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
@@ -461,7 +459,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	        val ccwNeighbor = t2.neighborCCW(oPoint)
 	       
 	        if(ccwNeighbor != null) {
-	          ccwNeighbor.updateNeighbors(oPoint, t1.points(2), t1, mesh.debug)
+	          ccwNeighbor.markNeighbor(oPoint, t1.points(2), t1, mesh.debug)
 	          t1.neighbors(1) = ccwNeighbor
 	        }
 	        

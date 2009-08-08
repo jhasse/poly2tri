@@ -47,7 +47,8 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   var clean = false
   
   // Update neighbor pointers
-  def updateNeighbors(ccwPoint: Point, cwPoint: Point, triangle: Triangle, debug: HashSet[Triangle]) {
+  // Debug version
+  def markNeighbor(ccwPoint: Point, cwPoint: Point, triangle: Triangle, debug: HashSet[Triangle]) {
     if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
       neighbors(0) = triangle 
     else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
@@ -56,7 +57,33 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       neighbors(2) = triangle
     else {
       debug += triangle
-      //throw new Exception("Neighbor pointer error, please report!")
+    }
+  }
+  
+  // Update neighbor pointers
+  def markNeighbor(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
+    if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
+      neighbors(0) = triangle 
+    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
+      neighbors(1) = triangle
+    else if((ccwPoint == points(0) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(0)))
+      neighbors(2) = triangle
+    else {
+      throw new Exception("Neighbor pointer error, please report!")
+    }
+  }
+  
+  /* Exhaustive search to update neighbor pointers */
+  def markNeighbor(t: Triangle) {
+    if (t.contains(points(1), points(2))) {
+      neighbors(0) = t
+      t.markNeighbor(points(1), points(2), this)
+    } else if(t.contains(points(0), points(2))) {
+      neighbors(1) = t
+      t.markNeighbor(points(0), points(2), this)
+    } else if (t.contains(points(0), points(1))) {
+      neighbors(2) = t
+      t.markNeighbor(points(0), points(1), this)
     }
   }
   
@@ -71,6 +98,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
   def contains(e: Segment): Boolean = (contains(e.p) && contains(e.q))
+  def contains(p: Point, q: Point): Boolean = (contains(p) && contains(q))
   
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
