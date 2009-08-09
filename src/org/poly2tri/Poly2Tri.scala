@@ -76,7 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   var drawCDT = true
-  var drawcdtMesh = true
+  var drawcdtMesh = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
@@ -273,16 +273,22 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def selectModel(model: String) {
     model match {
       case "data/nazca_monkey.dat" => 
+        CDT.clearPoint = 50
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
       case "data/bird.dat" => 
+        CDT.clearPoint = 80
         loadModel(bird, 25f, Point(400, 300), 350)
       case "data/i.snake" => 
+        CDT.clearPoint = 6
         loadModel(snake, 10f, Point(600, 300), 10)
       case "data/star.dat" => 
+        CDT.clearPoint = 6
         loadModel(star, -1f, Point(0f, 0f), 10)
       case "data/strange.dat" => 
+        CDT.clearPoint = 13
         loadModel(strange, -1f, Point(0f, 0f), 15)
       case "data/i.18" => 
+        CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
       case _ => 
         assert(false)

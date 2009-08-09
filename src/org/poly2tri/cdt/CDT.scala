@@ -46,6 +46,8 @@ object CDT {
   val ALPHA = 0.3f
   val SHEER = 0.00001f
   
+  var clearPoint = 0
+  
   // Triangulate simple polygon
   def init(points: ArrayBuffer[Point]): CDT = {
     
@@ -135,8 +137,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       var triangle = pointEvent(point)
       // Process edge events
       point.edges.foreach(e => triangle = edgeEvent(e, triangle))
-      if(i == 7) {cleanTri = triangle; mesh.debug += cleanTri}
-      // strange = 13; star & i18 = 7
+      if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
     }
   }  
   
@@ -152,7 +153,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-  /*
+    /*
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -185,7 +186,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    newNode.triangle
         
     } else {
- */
+    */
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
 	    val ccwPoint = node.point
