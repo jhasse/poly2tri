@@ -53,7 +53,7 @@ class AFront(iTriangle: Triangle) {
         return node
       node = node.next
     }
-    throw new Exception("Advancing front error: point not found")
+    null
   }
   
   def insert(tuple: Tuple3[Point, Triangle, Node]) = {

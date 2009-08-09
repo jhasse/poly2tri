@@ -157,7 +157,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-    
+  /*
     // Projected point coincides with existing point; create two triangles
     if(point.x == node.point.x && node.prev != null) {
         
@@ -190,7 +190,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    newNode.triangle
         
     } else {
-      
+ */
         // Projected point hits advancing front; create new triangle 
 	    val cwPoint = node.next.point
 	    val ccwPoint = node.point
@@ -222,7 +222,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // Fill in adjacent triangles if required
 	    scanAFront(newNode)
 	    newNode.triangle
-	}
+	//}
   }
   
   // EdgeEvent
@@ -245,11 +245,17 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        
        // TODO: fix tList.last == null bug!
        // Not sure why this happens in bird & nazca monkey demo...
-       if(tList.last == null)
-         tList -= tList.last
+       if(tList.last == null) tList -= tList.last
        
-        // Remove old triangles
-        tList.foreach(t => mesh.map -= t)
+       // Neighbor triangles
+       val nTriangles = new ArrayBuffer[Triangle]
+       
+        // Remove old triangles; collect neighbor triangles
+        tList.foreach(t => {
+          t.neighbors.foreach(n => if(n != null) nTriangles += n)
+          mesh.map -= t
+          //mesh.debug += t
+        })
       
 		val lPoints = new ArrayBuffer[Point]
 		val rPoints = new ArrayBuffer[Point]
@@ -282,16 +288,60 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val T2 = new ArrayBuffer[Triangle]
       triangulate(rPoints.toArray, List(point1, point2), T2)
       
+      // Update advancing front
+  
+      val qNode = aFront.locate(edge.q)  
+      val pNode = aFront.locate(edge.p)
+      println(tList.size)
+      
+      for(t <- tList) {
+        
+        if(qNode.triangle == t) {
+          println("node")
+          val p1 = qNode.point
+          val p2 = qNode.next.point
+          T1.foreach(tri => if(tri.contains(p1, p2)) qNode.triangle = tri)
+          T2.foreach(tri => if(tri.contains(p1, p2)) qNode.triangle = tri)
+        } else if(qNode.prev.triangle == t) {
+          println("prev node")
+          val p1 = qNode.prev.point
+          val p2 = qNode.point
+          T1.foreach(tri => if(tri.contains(p1, p2)) qNode.prev.triangle = tri)
+          T2.foreach(tri => if(tri.contains(p1, p2)) qNode.prev.triangle = tri)
+        } else if(qNode.next.triangle == t) {
+          println("next node")
+        } else
+        
+        if(pNode.triangle == t) {
+          println("Pnode")
+          val p1 = pNode.point
+          val p2 = pNode.next.point
+          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
+          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
+        } else if(pNode.prev.triangle == t) {
+          println("prev Pnode")
+          val p1 = pNode.point
+          val p2 = pNode.prev.point
+          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
+          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
+        } else if(pNode.next.triangle == t) {
+          println("next Pnode")
+        }
+      }
+      
+      // Update neighbors
+      //updateNeighbors(nTriangles, T1)
+      updateNeighbors(nTriangles, T2)
+      //nTriangles.foreach(n => n.printDebug)
+      
        // Mark constrained edges
-       val dEdge = new Segment(point1, point2)
-       T1.first mark(point1, point2)
-       T2.first mark(point1, point2)
-       
+       T1.first.mark(point1, point2)
+       T2.first.mark(point1, point2)
+           
        //TODO update neighbor pointers
        
     } else if(firstTriangle == null) {
-      
-      // NOTE: So far this only works for single triangles
+     
       // No triangles are intersected by the edge; edge must lie outside the mesh
       // Apply constraint; traverse the AFront, and build triangles
       
@@ -300,17 +350,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point2 = if(ahead) edge.p else edge.q
       
       val points = new ArrayBuffer[Point]
-      val triangles = new ArrayBuffer[Triangle]
+      // Neighbor triangles
+      val nTriangles = new ArrayBuffer[Triangle]
       
       var node = aFront.locate(point1)
       val first = node
-      triangles += first.triangle
+      nTriangles += first.triangle
       
       node = node.next
       
 	  while(node.point != point2) {
 		points += node.point
-        triangles += node.triangle
+        nTriangles += node.triangle
 		node = node.next
 	  }
                                   
@@ -322,24 +373,31 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       // Update advancing front 
       aFront -= (first, node.prev, T.first)
-     
-      // Update neigbor pointers
-      // Inneficient, but it works well...
-      for(i <- triangles) 
-        for(j <- T) 
-          i.markNeighbor(j)
       
-      for(i <- 0 until T.size)
-        for(j <- i+1 until T.size) 
-          T(i).markNeighbor(T(j))
-          
+      // Update neighbors
+      updateNeighbors(nTriangles, T)
+      
        // Mark constrained edge
       T.first mark(edge.p, edge.q)
-      
+
     } else { 
       // Mark constrained edge
       firstTriangle mark(edge.p, edge.q)
     }
+  }
+  
+  // Update neigbor pointers for edge event
+  // Inneficient, but it works well...
+  def updateNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
+    
+    for(t1 <- nTriangles) 
+      for(t2 <- T) 
+        t1.markNeighbor(t2) 
+    
+    for(i <- 0 until T.size) 
+      for(j <- i+1 until T.size) 
+        T(i).markNeighbor(T(j))
+    
   }
   
   // Marc Vigo Anglada's triangulate pseudo-polygon algo 

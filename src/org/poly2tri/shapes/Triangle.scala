@@ -48,25 +48,26 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   // Update neighbor pointers
   // Debug version
-  def markNeighbor(ccwPoint: Point, cwPoint: Point, triangle: Triangle, debug: HashSet[Triangle]) {
-    if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
+  def markNeighbor(p1: Point, p2: Point, triangle: Triangle, debug: HashSet[Triangle]) {
+    if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
       neighbors(0) = triangle 
-    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
+    else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
       neighbors(1) = triangle
-    else if((ccwPoint == points(0) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(0)))
+    else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
       neighbors(2) = triangle
     else {
       debug += triangle
+      println("Neighbor pointer ERROR!")
     }
   }
   
   // Update neighbor pointers
-  def markNeighbor(ccwPoint: Point, cwPoint: Point, triangle: Triangle) {
-    if((ccwPoint == points(2) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(2))) 
+  def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {
+    if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
       neighbors(0) = triangle 
-    else if((ccwPoint == points(0) && cwPoint == points(2)) || (ccwPoint == points(2) && cwPoint == points(0)))
+    else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
       neighbors(1) = triangle
-    else if((ccwPoint == points(0) && cwPoint == points(1)) || (ccwPoint == points(1) && cwPoint == points(0)))
+    else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
       neighbors(2) = triangle
     else {
       throw new Exception("Neighbor pointer error, please report!")
