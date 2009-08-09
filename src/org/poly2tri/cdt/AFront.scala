@@ -56,6 +56,17 @@ class AFront(iTriangle: Triangle) {
     null
   }
   
+  // Locate node containing given point
+  def locatePoint(point: Point): Node = {
+    var node = head
+    while(node != tail) {
+      if(point == node.point)
+        return node
+      node = node.next
+    }
+    null
+  }
+  
   def insert(tuple: Tuple3[Point, Triangle, Node]) = {
     val (point, triangle, nNode) = tuple
     val node = new Node(point, triangle)

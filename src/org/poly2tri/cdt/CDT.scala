@@ -132,16 +132,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
-      var triangle: Triangle = null
-      try {
-        triangle = pointEvent(point)
-      } catch {
-        case e: Exception => 
-          println("Offending triangle = " + i)
-      }
+      var triangle = pointEvent(point)
       // Process edge events
-      point.edges.foreach(e => edgeEvent(e, triangle))
+      point.edges.foreach(e => triangle = edgeEvent(e, triangle))
       if(i == 7) {cleanTri = triangle; mesh.debug += cleanTri}
+      // strange = 13; star & i18 = 7
     }
   }  
   
@@ -226,16 +221,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   }
   
   // EdgeEvent
-  private def edgeEvent(edge: Segment, triangle: Triangle) { 
+  private def edgeEvent(edge: Segment, triangle: Triangle): Triangle = { 
     
     // STEP 1: Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
     
-    val contains = if(firstTriangle != null) firstTriangle.contains(edge) else false
-    
     // STEP 2: Remove intersected triangles
-    if(firstTriangle != null && !contains) {
-      
+    if(firstTriangle != null && !firstTriangle.contains(edge)) {
+
        // Collect intersected triangles
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
@@ -252,9 +245,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        
         // Remove old triangles; collect neighbor triangles
         tList.foreach(t => {
-          t.neighbors.foreach(n => if(n != null) nTriangles += n)
+          t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
           mesh.map -= t
-          //mesh.debug += t
         })
       
 		val lPoints = new ArrayBuffer[Point]
@@ -268,7 +260,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 		  tList.foreach(t => {
 		    t.points.foreach(p => {
 		      if(p != edge.q && p != edge.p) {
-		        if(t.orient(point1, point2, p) >= 0 ) {
+		        if(t.orient(point1, point2, p) > 0 ) {
 		          // Keep duplicate points out
                   if(!lPoints.contains(p)) {
 		            lPoints += p
@@ -290,56 +282,50 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       // Update advancing front
   
-      val qNode = aFront.locate(edge.q)  
-      val pNode = aFront.locate(edge.p)
-      println(tList.size)
+      val qNode = aFront.locatePoint(edge.q)  
+      val pNode = aFront.locatePoint(edge.p)
       
       for(t <- tList) {
         
         if(qNode.triangle == t) {
-          println("node")
           val p1 = qNode.point
           val p2 = qNode.next.point
           T1.foreach(tri => if(tri.contains(p1, p2)) qNode.triangle = tri)
           T2.foreach(tri => if(tri.contains(p1, p2)) qNode.triangle = tri)
         } else if(qNode.prev.triangle == t) {
-          println("prev node")
           val p1 = qNode.prev.point
           val p2 = qNode.point
           T1.foreach(tri => if(tri.contains(p1, p2)) qNode.prev.triangle = tri)
           T2.foreach(tri => if(tri.contains(p1, p2)) qNode.prev.triangle = tri)
-        } else if(qNode.next.triangle == t) {
-          println("next node")
-        } else
+        } 
         
-        if(pNode.triangle == t) {
-          println("Pnode")
-          val p1 = pNode.point
-          val p2 = pNode.next.point
-          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
-          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
-        } else if(pNode.prev.triangle == t) {
-          println("prev Pnode")
-          val p1 = pNode.point
-          val p2 = pNode.prev.point
-          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
-          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
-        } else if(pNode.next.triangle == t) {
-          println("next Pnode")
+        if(pNode != null) {
+	        if(pNode.triangle == t) {
+	          val p1 = pNode.point
+	          val p2 = pNode.next.point
+	          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
+	          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.triangle = tri)
+	        } else if(pNode.prev.triangle == t) {
+	          val p1 = pNode.point
+	          val p2 = pNode.prev.point
+	          T1.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
+	          T2.foreach(tri => if(tri.contains(p1, p2)) pNode.prev.triangle = tri)
+	        } 
         }
+        
       }
       
       // Update neighbors
-      //updateNeighbors(nTriangles, T1)
+      updateNeighbors(nTriangles, T1)
       updateNeighbors(nTriangles, T2)
-      //nTriangles.foreach(n => n.printDebug)
       
        // Mark constrained edges
        T1.first.mark(point1, point2)
        T2.first.mark(point1, point2)
-           
-       //TODO update neighbor pointers
        
+       // Double check returning T2.first vs T1.first      
+       T2.first
+
     } else if(firstTriangle == null) {
      
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -354,8 +340,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val nTriangles = new ArrayBuffer[Triangle]
       
       var node = aFront.locate(point1)
+      
       val first = node
-      nTriangles += first.triangle
+      nTriangles += node.triangle
       
       node = node.next
       
@@ -372,6 +359,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       triangulate(points.toArray, endPoints, T)
       
       // Update advancing front 
+      
       aFront -= (first, node.prev, T.first)
       
       // Update neighbors
@@ -379,11 +367,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
        // Mark constrained edge
       T.first mark(edge.p, edge.q)
-
+      
+      triangle
+      
     } else { 
       // Mark constrained edge
       firstTriangle mark(edge.p, edge.q)
+     triangle
     }
+    
   }
   
   // Update neigbor pointers for edge event

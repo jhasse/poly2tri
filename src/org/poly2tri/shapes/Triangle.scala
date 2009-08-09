@@ -62,7 +62,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   // Update neighbor pointers
-  def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {
+  def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {    
     if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
       neighbors(0) = triangle 
     else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
