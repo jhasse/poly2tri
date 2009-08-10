@@ -62,7 +62,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   // Update neighbor pointers
-  def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {    
+  private def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {    
     if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
       neighbors(0) = triangle 
     else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
@@ -70,6 +70,9 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
       neighbors(2) = triangle
     else {
+      println("**********************")
+      triangle.printDebug
+      printDebug
       throw new Exception("Neighbor pointer error, please report!")
     }
   }
@@ -88,6 +91,11 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     }
   }
   
+  def clearNeighbors {
+    for(i <- 0 until 3)
+      neighbors(i) = null
+  }
+  
   def oppositePoint(t: Triangle): Point = {
     if(points(0) == t.points(1)) 
       points(1)
@@ -101,6 +109,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       printDebug
       throw new Exception("point location error")
     }
+    
   }
   
   def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
@@ -110,11 +119,14 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
 
+    val ij = points(1) - points(0)
+    val jk = points(2) - points(1)
     val pab = (point - points(0)).cross(ij)
     val pbc = (point - points(1)).cross(jk)
 	var sameSign = Math.signum(pab) == Math.signum(pbc)
     if (!sameSign) return false
 
+    val ki = points(0) - points(2)
 	val pca = (point - points(2)).cross(ki)
 	sameSign = Math.signum(pab) == Math.signum(pca)
     if (!sameSign) return false
@@ -124,20 +136,27 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
 
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
+    
     val p = edge.p
     val q = edge.q
     val e = p - q
     if(q == points(0)) {
+      val ik = points(2) - points(0)
+      val ij = points(1) - points(0)
       val sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
       if(!sameSign) return this
       if(neighbors(2) == null) return null
       return neighbors(2).locateFirst(edge)
     } else if(q == points(1)) {
+      val jk = points(2) - points(1)
+      val ji = points(0) - points(1)
       val sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
       if(!sameSign) return this
       if(neighbors(0) == null) return null
       return neighbors(0).locateFirst(edge)
     } else if(q == points(2)) {
+      val kj = points(1) - points(2)
+      val ki = points(0) - points(2)
       val sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
       if(!sameSign) return this
       if(neighbors(1) == null) return null
@@ -229,10 +248,10 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   // Legalized triangle by rotating clockwise around point(0)
   def legalize(oPoint: Point) {
+    Util.collinear(points(0), points(2), oPoint)
 	points(1) = points(0)
 	points(0) = points(2)
 	points(2) = oPoint
-    updateEdges
   }
   
   // Legalize triagnle by rotating clockwise around oPoint
@@ -250,7 +269,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       points(2) = points(1)
       points(1) = nPoint
     }
-    updateEdges
+    Util.collinear(points(0), points(2), points(1))
   }
   
   // Make legalized triangle will not be collinear
@@ -288,25 +307,11 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   def printDebug = println(points(0) + "," + points(1) + "," + points(2))
   
-  private var ik, ij , jk, ji, kj, ki: Point = null
-  updateEdges
-  
-  // Update the edges that consitite this triangle
-  // May change during legalization
-  private def updateEdges {
-    ik = points(2) - points(0)
-    ij = points(1) - points(0)
-    jk = points(2) - points(1)
-    ji = points(0) - points(1)
-    kj = points(1) - points(2)
-    ki = points(0) - points(2)
-  }
-  
   // Initial mark edges sweep
   def mark(p: Point, q: Point) {
     if(contains(p) && contains(q)) {
       markEdge(p, q)
-      markNeighbors(p, q)
+      markNeighborEdge(p, q)
     }
   }
   
@@ -322,7 +327,8 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   // Mark neighbor's edge
-  private def markNeighbors(p: Point, q: Point) = neighbors.foreach(n => if(n != null) n.markEdge(p, q))
+  private def markNeighborEdge(p: Point, q: Point) = 
+    neighbors.foreach(n => if(n != null) n.markEdge(p, q))
   
   // Mark edge as constrained
   private def markEdge(p: Point, q: Point) {

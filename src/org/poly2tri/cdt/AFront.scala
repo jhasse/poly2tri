@@ -87,6 +87,9 @@ class AFront(iTriangle: Triangle) {
     node
   }
   
+  def constrainedEdge() {
+    
+  }
   
   def -=(tuple: Tuple3[Node, Node, Triangle]) {
     val (node, kNode, triangle) = tuple

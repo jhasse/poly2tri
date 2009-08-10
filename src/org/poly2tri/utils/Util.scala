@@ -41,8 +41,8 @@ object Util {
   def collinear(p1: Point, p2: Point, p3: Point): Boolean = {
 
     val d = (p2 - p1) cross (p1 - p3)
-   
-    if(Math.abs(d) <= COLLINEAR_SLOP) 
+    
+    if(d <= COLLINEAR_SLOP) 
       true
     else 
       false

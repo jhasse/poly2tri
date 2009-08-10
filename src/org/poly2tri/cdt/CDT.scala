@@ -137,7 +137,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Process Point event
       var triangle = pointEvent(point)
       // Process edge events
-      point.edges.foreach(e => triangle = edgeEvent(e, triangle))
+      //point.edges.foreach(e => triangle = edgeEvent(e, triangle))
       if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
     }
   }  
@@ -407,8 +407,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	    val neighbors = Array(node.triangle, null, node.prev.triangle)
 	    val triangle = new Triangle(points, neighbors)
         // Update neighbor pointers
-        node.prev.triangle.markNeighbor(triangle.points(0), triangle.points(1), triangle, mesh.debug)
-        node.triangle.markNeighbor(triangle.points(1), triangle.points(2), triangle, mesh.debug)
+        //node.prev.triangle.markNeighbor(triangle.points(0), triangle.points(1), triangle)
+        node.prev.triangle.markNeighbor(triangle)
+        //node.triangle.markNeighbor(triangle.points(1), triangle.points(2), triangle)
+        node.triangle.markNeighbor(triangle)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
@@ -451,12 +453,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
            
-        // Flip edges and rotate everything clockwise
+        // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
         
         // Update neighbor pointers
 	    val neighbors = List(t2.neighbors(0), t2.neighbors(1), t2.neighbors(2))
+        t2.clearNeighbors
 	    for(n <- neighbors) {
 	      if(n != null) {
 	        t2.markNeighbor(n)
@@ -464,7 +467,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	      }
 	    }
         t2.markNeighbor(t1)
-     
+        
         // Update advancing front
         aFront.insertLegalized(point, t1, node)
          
