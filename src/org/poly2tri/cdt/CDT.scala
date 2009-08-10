@@ -131,19 +131,21 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Implement sweep-line 
   private def sweep {
+    
     for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       var triangle = pointEvent(point)
       // Process edge events
       point.edges.foreach(e => triangle = edgeEvent(e, triangle))
-      if(i == CDT.clearPoint) {cleanTri = triangle; /*mesh.debug += cleanTri*/}
+      if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
     }
   }  
   
   // Final step in the sweep-line CDT algo
   // Clean exterior triangles
   private def finalization {
+    
     mesh.map.foreach(m => m.markEdges)
     mesh clean cleanTri
     //mesh.map.foreach(m => m.edges.foreach(e => if(e) mesh.debug += m))
@@ -172,10 +174,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // EdgeEvent
   private def edgeEvent(edge: Segment, triangle: Triangle): Triangle = { 
     
-    // STEP 1: Locate the first intersected triangle
+    // Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
     
-    // STEP 2: Remove intersected triangles
+    // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
 
        // Collect intersected triangles
@@ -206,24 +208,24 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 		val point2 = if(ahead) edge.p else edge.q
 		  
         // Collect points left and right of edge
-		  tList.foreach(t => {
-		    t.points.foreach(p => {
-		      if(p != edge.q && p != edge.p) {
-		        if(t.orient(point1, point2, p) > 0 ) {
-		          // Keep duplicate points out
-                  if(!lPoints.contains(p)) {
-		            lPoints += p
-                  }
-		        } else { 
-		          // Keep duplicate points out
-                  if(!rPoints.contains(p))
-		            rPoints += p
+		tList.foreach(t => {
+		  t.points.foreach(p => {
+		    if(p != edge.q && p != edge.p) {
+		      if(t.orient(point1, point2, p) > 0 ) {
+		        // Keep duplicate points out
+                if(!lPoints.contains(p)) {
+		          lPoints += p
                 }
-               }
-		    })
+		      } else { 
+		        // Keep duplicate points out
+                if(!rPoints.contains(p))
+		          rPoints += p
+              }
+             }
 		  })
+		})
       
-      // STEP 3: Triangulate empty areas.
+      // Triangulate empty areas.
       val T1 = new ArrayBuffer[Triangle]
       triangulate(lPoints.toArray, List(point1, point2), T1)
       val T2 = new ArrayBuffer[Triangle]
@@ -233,6 +235,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
       val qNode = aFront.locatePoint(edge.q)  
       val pNode = aFront.locatePoint(edge.p)
+      
+      // TODO: Make this more robust....
       
       for(t <- tList) {
         
@@ -265,8 +269,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       
       // Update neighbors
-      updateNeighbors(nTriangles, T1)
-      updateNeighbors(nTriangles, T2)
+      edgeNeighbors(nTriangles, T1)
+      edgeNeighbors(nTriangles, T2)
       
        // Mark constrained edges
        T1.first.mark(point1, point2)
@@ -303,16 +307,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
                                   
       val endPoints = if(ahead) List(point2, point1) else List(point1, point2)
    
-      // STEP 3: Triangulate empty areas.
+      // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
       triangulate(points.toArray, endPoints, T)
       
       // Update advancing front 
-      
       aFront -= (first, node.prev, T.first)
       
       // Update neighbors
-      updateNeighbors(nTriangles, T)
+      edgeNeighbors(nTriangles, T)
       
        // Mark constrained edge
       T.first mark(edge.p, edge.q)
@@ -322,14 +325,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } else { 
       // Mark constrained edge
       firstTriangle mark(edge.p, edge.q)
-     triangle
+      triangle
     }
     
   }
   
   // Update neigbor pointers for edge event
   // Inneficient, but it works well...
-  def updateNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
+  def edgeNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
     
     for(t1 <- nTriangles) 
       for(t2 <- T) 
@@ -443,13 +446,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def legalization(t1: Triangle, node: Node): Node = {
     
     val t2 = node.triangle
-    
+    val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
            
         // Flip edges and rotate everything clockwise
-        val point = t1.points(0)
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
         
@@ -469,9 +471,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } else {
       
       // Update neighbor
-      node.triangle.markNeighbor(t1)      
+      t2.markNeighbor(t1)      
       // Update advancing front
-      aFront.insert(t1.points(0), t1, node)
+      aFront.insert(point, t1, node)
 
     }
 

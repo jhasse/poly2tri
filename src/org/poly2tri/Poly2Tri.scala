@@ -76,7 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   var drawCDT = true
-  var drawcdtMesh = true
+  var drawcdtMesh = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
@@ -109,10 +109,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    g.drawString("'1-6' to cycle models", 10, 540)
-    g.drawString("'SPACE' to turn on debug info", 10, 552)
-    g.drawString("'m' to show trapezoidal map (debug mode)", 10, 564)
-    g.drawString("'e' to switch Seidel / EarClip", 10, 576)
+    g.drawString("'1-6' to cycle models", 10, 520)
+    g.drawString("'SPACE' to show Seidel debug info", 10, 532)
+    g.drawString("'m' to show trapezoidal map (Seidel debug mode)", 10, 544)
+    g.drawString("'e' to switch Seidel / EarClip", 10, 556)
+    g.drawString("'d' to switch CDT / Seidel", 10, 568)
+    g.drawString("'c' to how CDT mesh", 10, 580)
     
     g.scale(scaleFactor, scaleFactor)
 	g.translate(deltaX, deltaY)
@@ -267,7 +269,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '6') selectModel(i18)
     if(c == 's') drawSegs = !drawSegs
     if(c == 'c') drawcdtMesh = !drawcdtMesh
-    //if(c == 'e') {drawEarClip = !drawEarClip; selectModel(currentModel)}
+    if(c == 'e') {drawEarClip = !drawEarClip; drawCDT = false; selectModel(currentModel)}
   }
     
   def selectModel(model: String) {
