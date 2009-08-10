@@ -39,19 +39,10 @@ object Util {
   
   // Tests if the given points are collinear
   def collinear(p1: Point, p2: Point, p3: Point): Boolean = {
-    
-    // 3x2 matrix
-    val a11 = p1.x
-    val a12 = p1.y
-    val a21 = p2.x
-    val a22 = p2.y
-    val a31 = p3.x
-    val a32 = p3.y
-    
-    // Determinant
-    val d = a11*(a22-a32) - a12*(a21-a31) + (a21*a32-a31*a22)
 
-    if(d <= COLLINEAR_SLOP) 
+    val d = (p2 - p1) cross (p1 - p3)
+   
+    if(Math.abs(d) <= COLLINEAR_SLOP) 
       true
     else 
       false

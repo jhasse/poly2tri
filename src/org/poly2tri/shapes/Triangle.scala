@@ -88,13 +88,19 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     }
   }
   
-  def oppositePoint(t: Triangle) = {
+  def oppositePoint(t: Triangle): Point = {
     if(points(0) == t.points(1)) 
       points(1)
     else if(points(0) == t.points(2))
       points(2)
-    else
+    else if((points(2) == t.points(1) && points(1) == t.points(2)) || (points(1) == t.points(1) && points(2) == t.points(2)))
       points(0)
+    else {
+      println("**********************")
+      t.printDebug
+      printDebug
+      throw new Exception("point location error")
+    }
   }
   
   def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
@@ -176,10 +182,10 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   // The neighbor counter-clockwise to given point
-  def neighborCCW(point: Point): Triangle = {
-    if(point == points(0)) {
+  def neighborCCW(oPoint: Point): Triangle = {
+    if(oPoint == points(0)) {
       neighbors(2)
-    }else if(point == points(1)) {
+    }else if(oPoint == points(1)) {
       neighbors(0)
     } else 
       neighbors(1)

@@ -137,7 +137,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       var triangle = pointEvent(point)
       // Process edge events
       point.edges.foreach(e => triangle = edgeEvent(e, triangle))
-      if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
+      if(i == CDT.clearPoint) {cleanTri = triangle; /*mesh.debug += cleanTri*/}
     }
   }  
   
@@ -153,72 +153,20 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def pointEvent(point: Point): Triangle = {
     
     val node = aFront.locate(point)
-    /*
-    // Projected point coincides with existing point; create two triangles
-    if(point.x == node.point.x && node.prev != null) {
-        
-    	val rPts = Array(point, node.point, node.next.point)
-        val rNeighbors = Array(node.triangle, null, null)
-        val rTriangle = new Triangle(rPts, rNeighbors)
-        
-        val lPts = Array(point, node.prev.point, node.point)
-        val lNeighbors = Array(node.prev.triangle, rTriangle, null)
-        val lTriangle = new Triangle(lPts, lNeighbors)
-        
-        rTriangle.neighbors(2) = lTriangle
-        mesh.map += lTriangle
-        mesh.map += rTriangle
-        
-        // TODO: check to see of legalization is necessary here
-        
-        // Update neighbors
-        node.triangle.markNeighbor(rTriangle.points(1), rTriangle.points(2), rTriangle, mesh.debug)
-        node.prev.triangle.markNeighbor(lTriangle.points(1), lTriangle.points(2), lTriangle, mesh.debug)
-        
-        // Update advancing front
-	    val newNode = aFront.insert(point, rTriangle, node)
-	    node.prev.next = newNode
-	    newNode.prev = node.prev
-	    node.prev.triangle = lTriangle
-       
-        // Fill in adjacent triangles if required
-	    scanAFront(newNode)
-	    newNode.triangle
-        
-    } else {
-    */
-        // Projected point hits advancing front; create new triangle 
-	    val cwPoint = node.next.point
-	    val ccwPoint = node.point
-	    val nTri = node.triangle
-	    
-	    val pts = Array(point, ccwPoint,  cwPoint)
-	    val neighbors = Array(nTri, null, null)
-	    val triangle = new Triangle(pts, neighbors)
-	    mesh.map += triangle
-	    
-        // Legalize
-	    val legal = legalization(triangle, nTri)
-        var newNode: Node = null
-        
-        // Update advancing front
-        if(legal) { 
-          newNode = aFront.insert(point, triangle, node)
-          // Update neighbors
-          nTri.markNeighbor(cwPoint, ccwPoint, triangle, mesh.debug)
-        } else {
-          newNode = new Node(triangle.points(1), triangle)
-          val rNode = node.next
-          rNode.prev = newNode
-          newNode.next = rNode
-          node.next = newNode
-          newNode.prev = node
-        }
-        
-        // Fill in adjacent triangles if required
-	    scanAFront(newNode)
-	    newNode.triangle
-	//}
+    
+    // Projected point hits advancing front; create new triangle 
+    val pts = Array(point, node.point, node.next.point)
+    val neighbors = Array(node.triangle, null, null)
+    val triangle = new Triangle(pts, neighbors)
+    mesh.map += triangle
+    
+    // Legalize
+    val newNode = legalization(triangle, node)
+    
+    // Fill in adjacent triangles if required
+    scanAFront(newNode)
+    newNode.triangle
+
   }
   
   // EdgeEvent
@@ -478,15 +426,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       if(cosA < 0 && cosB < 0)
         return true 
-      else if(cosA > 0 && cosB > 0)
+      if(cosA > 0 && cosB > 0)
         return false
       
       val sinA = v1 cross v2
       val sinB = v3 cross v4
 
-      // Small negative number to prevent swapping
-      // in nearly neutral cases
-      if((cosA*sinB + sinA*cosB) < -0.01f) 
+      if((cosA*sinB + sinA*cosB) < 0f)  
         true
       else
         false
@@ -494,40 +440,41 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Ensure adjacent triangles are legal
   // If illegal, flip edges and update triangle's pointers
-  private def legalization(t1: Triangle, t2: Triangle): Boolean = {
+  private def legalization(t1: Triangle, node: Node): Node = {
+    
+    val t2 = node.triangle
     
     val oPoint = t2 oppositePoint t1
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
-       
-       // Prevent creation of collinear traingles
-	   val c1 = t1.collinear(oPoint)
-	   val c2 = t2.collinear(oPoint, t1.points(0))	   
-    
-       if(!c1 && !c2) {   
+           
+        // Flip edges and rotate everything clockwise
+        val point = t1.points(0)
+	    t1.legalize(oPoint) 
+	    t2.legalize(oPoint, point)
         
-	        // Update neighbor pointers
-	        val ccwNeighbor = t2.neighborCCW(oPoint)
-	       
-	        if(ccwNeighbor != null) {
-	          ccwNeighbor.markNeighbor(oPoint, t1.points(2), t1, mesh.debug)
-	          t1.neighbors(1) = ccwNeighbor
-	        }
-	        
-	        t2.rotateNeighborsCW(oPoint, t1)
-	         
-	        t1.neighbors(0) = t2
-	        t1.neighbors(2) = null
-	        
-	        // Flip edges and rotate everything clockwise
-	        val point = t1.points(0)
-		    t1.legalize(oPoint) 
-		    t2.legalize(oPoint, point)
-	        return false
-       } 
+        // Update neighbor pointers
+	    val neighbors = List(t2.neighbors(0), t2.neighbors(1), t2.neighbors(2))
+	    for(n <- neighbors) {
+	      if(n != null) {
+	        t2.markNeighbor(n)
+            t1.markNeighbor(n)
+	      }
+	    }
+        t2.markNeighbor(t1)
+     
+        // Update advancing front
+        aFront.insertLegalized(point, t1, node)
+         
     } else {
-      true
+      
+      // Update neighbor
+      node.triangle.markNeighbor(t1)      
+      // Update advancing front
+      aFront.insert(t1.points(0), t1, node)
+
     }
-    true
+
   }  
+  
 }

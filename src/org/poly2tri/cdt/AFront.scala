@@ -67,18 +67,26 @@ class AFront(iTriangle: Triangle) {
     null
   }
   
-  def insert(tuple: Tuple3[Point, Triangle, Node]) = {
-    val (point, triangle, nNode) = tuple
+  def insert(point: Point, triangle: Triangle, nNode: Node) = {
     val node = new Node(point, triangle)
-    // Update pointer
     nNode.triangle = triangle
-    // Insert new node into advancing front
     nNode.next.prev = node
     node.next = nNode.next
     node.prev = nNode
     nNode.next = node
     node
   }
+  
+  def insertLegalized(point: Point, triangle: Triangle, nNode: Node) = {
+    val node = new Node(triangle.points(1), triangle)
+    val rNode = nNode.next
+    rNode.prev = node
+    node.next = rNode
+    nNode.next = node
+    node.prev = nNode
+    node
+  }
+  
   
   def -=(tuple: Tuple3[Node, Node, Triangle]) {
     val (node, kNode, triangle) = tuple

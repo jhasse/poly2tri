@@ -76,7 +76,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var hiLighter = 0
   var drawEarClip = false
   var drawCDT = true
-  var drawcdtMesh = false
+  var drawcdtMesh = true
   
   val nazcaMonkey = "data/nazca_monkey.dat"
   val bird = "data/bird.dat"
