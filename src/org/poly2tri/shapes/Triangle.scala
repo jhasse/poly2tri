@@ -38,8 +38,10 @@ import utils.Util
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"
-class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
+class Triangle(val points: Array[Point]) {
 
+  // Neighbor pointers
+  var neighbors = new Array[Triangle](3)
   // Flags to determine if an edge is the final Delauney edge
   val edges = Array(false, false, false)
   
@@ -70,9 +72,6 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
       neighbors(2) = triangle
     else {
-      println("**********************")
-      triangle.printDebug
-      printDebug
       throw new Exception("Neighbor pointer error, please report!")
     }
   }
@@ -92,8 +91,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   }
   
   def clearNeighbors {
-    for(i <- 0 until 3)
-      neighbors(i) = null
+    neighbors = new Array[Triangle](3)
   }
   
   def oppositePoint(t: Triangle): Point = {
@@ -104,10 +102,7 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
     else if((points(2) == t.points(1) && points(1) == t.points(2)) || (points(1) == t.points(1) && points(2) == t.points(2)))
       points(0)
     else {
-      println("**********************")
-      t.printDebug
-      printDebug
-      throw new Exception("point location error")
+      throw new Exception("Point location error, please report")
     }
     
   }
@@ -248,7 +243,6 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
   
   // Legalized triangle by rotating clockwise around point(0)
   def legalize(oPoint: Point) {
-    Util.collinear(points(0), points(2), oPoint)
 	points(1) = points(0)
 	points(0) = points(2)
 	points(2) = oPoint
@@ -269,7 +263,6 @@ class Triangle(val points: Array[Point], val neighbors: Array[Triangle]) {
       points(2) = points(1)
       points(1) = nPoint
     }
-    Util.collinear(points(0), points(2), points(1))
   }
   
   // Make legalized triangle will not be collinear

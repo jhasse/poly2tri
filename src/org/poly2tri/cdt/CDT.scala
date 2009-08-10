@@ -72,9 +72,8 @@ object CDT {
     val segments = initSegments(points)
     val sortedPoints = pointSort(points)
     
-    val noNeighbors = new Array[Triangle](3)
     val tPoints = Array(sortedPoints(0), p1, p2)
-    val iTriangle = new Triangle(tPoints, noNeighbors)
+    val iTriangle = new Triangle(tPoints)
     new CDT(sortedPoints, segments, iTriangle)
   }
   
@@ -158,8 +157,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // Projected point hits advancing front; create new triangle 
     val pts = Array(point, node.point, node.next.point)
-    val neighbors = Array(node.triangle, null, null)
-    val triangle = new Triangle(pts, neighbors)
+    val triangle = new Triangle(pts)
     mesh.map += triangle
     
     // Legalize
@@ -367,8 +365,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     if(!P.isEmpty) {
       val points = Array(a, P.first, b)
-      val neighbors = new Array[Triangle](3)
-      T += new Triangle(points, neighbors)
+      T += new Triangle(points)
       mesh.map += T.last
     }
   }
@@ -404,12 +401,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
 	  if(angle <= PI_2) {
 	    val points = Array(node.prev.point, node.point, node.next.point)
-	    val neighbors = Array(node.triangle, null, node.prev.triangle)
-	    val triangle = new Triangle(points, neighbors)
+	    val triangle = new Triangle(points)
         // Update neighbor pointers
-        //node.prev.triangle.markNeighbor(triangle.points(0), triangle.points(1), triangle)
         node.prev.triangle.markNeighbor(triangle)
-        //node.triangle.markNeighbor(triangle.points(1), triangle.points(2), triangle)
         node.triangle.markNeighbor(triangle)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
@@ -456,10 +450,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
-        
-        // Update neighbor pointers
+                
+        // Copy old neighbors
 	    val neighbors = List(t2.neighbors(0), t2.neighbors(1), t2.neighbors(2))
+        // Clear old neighbors
         t2.clearNeighbors
+        // Update new neighbors
 	    for(n <- neighbors) {
 	      if(n != null) {
 	        t2.markNeighbor(n)
