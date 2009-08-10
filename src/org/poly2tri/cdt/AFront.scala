@@ -30,6 +30,8 @@
  */
 package org.poly2tri.cdt
 
+import scala.collection.mutable.ArrayBuffer
+
 import shapes.{Point, Triangle}
 
 // Advancing front
@@ -87,7 +89,94 @@ class AFront(iTriangle: Triangle) {
     node
   }
   
-  def constrainedEdge() {
+  // Update advancing front with constrained edge triangles
+  def constrainedEdge(sNode: Node, eNode: Node, T1: ArrayBuffer[Triangle], 
+                      T2: ArrayBuffer[Triangle]): Triangle = {
+    
+    var node = sNode
+    var t1r, t2r = false
+    
+    while(node != eNode) {
+      
+      T2.foreach(t => {
+        if(t.contains(node.point, node.next.point)) {
+          node.triangle = t
+          t2r = true
+        }
+      })
+      
+      if(!t2r)
+        T1.foreach(t => {
+          if(t.contains(node.point, node.next.point)) {
+            node.triangle = t
+            t1r = true
+          }
+        })
+      
+      node = node.next
+    }
+       
+    if(t1r && !t2r) 
+      T1.first 
+    else if(t2r && !t1r)
+      T2.first
+    else
+      throw new Exception("edge insertion error")
+    
+  }
+  
+  // Update advancing front with qNode
+  def constrainedEdge(qNode: Node, tList: ArrayBuffer[Triangle], T1: ArrayBuffer[Triangle], 
+                      T2: ArrayBuffer[Triangle]): Triangle = {
+    
+    var t1r, t2r = false
+    
+    for(t <- tList) {
+  
+	    if(qNode.triangle == t) {
+	      
+	      val p1 = qNode.point
+	      val p2 = qNode.next.point
+       
+          T2.foreach(tri => if(tri.contains(p1, p2)) {
+	        qNode.triangle = tri
+            t2r = true
+	      })
+          
+          if(!t2r)
+	        T1.foreach(tri => if(tri.contains(p1, p2)) {
+	          qNode.triangle = tri
+              t1r = true
+            }) 
+          
+	    } else if(qNode.prev.triangle == t) {
+	      
+	      val p1 = qNode.prev.point
+	      val p2 = qNode.point
+       
+          T2.foreach(tri => if(tri.contains(p1, p2)) {
+	        qNode.prev.triangle = tri
+            t2r = true
+	      })
+          
+          if(!t2r)
+	        T1.foreach(tri => if(tri.contains(p1, p2)) {
+	          qNode.prev.triangle = tri
+              t1r = true
+	        })
+          
+	    } else if(qNode.next.triangle == t) {
+          throw new Exception("unanticipated edge event!")
+        }
+     
+	}
+    
+    if(t1r && !t2r) 
+      T1.first 
+    else if(t2r && !t1r)
+      T2.first
+    else
+      throw new Exception("edge insertion error")
     
   }
   
@@ -96,6 +185,12 @@ class AFront(iTriangle: Triangle) {
     kNode.next.prev = node
     node.next = kNode.next
     node.triangle = triangle
+  }
+  
+  def link(node1: Node, node2: Node, t: Triangle) {
+    node1.next = node2
+    node2.prev = node1
+    node1.triangle = t
   }
   
   def basin(node: Node) {

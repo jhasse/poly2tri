@@ -49,6 +49,18 @@ object Util {
     
   }
   
+  // Return: positive if point p is left of ab
+  //         negative if point p is right of ab
+  //         zero if points are colinear
+  // See: http://www-2.cs.cmu.edu/~quake/robust.html
+  def orient(b: Point, a: Point, p: Point): Float = {
+    val acx = a.x - p.x
+    val bcx = b.x - p.x
+    val acy = a.y - p.y
+    val bcy = b.y - p.y
+    acx * bcy - acy * bcx  
+  }
+  
 }
 
 /** The object <code>Random</code> offers a default implementation

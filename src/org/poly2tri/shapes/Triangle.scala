@@ -49,28 +49,14 @@ class Triangle(val points: Array[Point]) {
   var clean = false
   
   // Update neighbor pointers
-  // Debug version
-  def markNeighbor(p1: Point, p2: Point, triangle: Triangle, debug: HashSet[Triangle]) {
+  private def markNeighbor(p1: Point, p2: Point, t: Triangle) {    
+    assert(t != this, "self-pointer error")
     if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
-      neighbors(0) = triangle 
+      neighbors(0) = t 
     else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
-      neighbors(1) = triangle
+      neighbors(1) = t
     else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
-      neighbors(2) = triangle
-    else {
-      debug += triangle
-      println("Neighbor pointer ERROR!")
-    }
-  }
-  
-  // Update neighbor pointers
-  private def markNeighbor(p1: Point, p2: Point, triangle: Triangle) {    
-    if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
-      neighbors(0) = triangle 
-    else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
-      neighbors(1) = triangle
-    else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
-      neighbors(2) = triangle
+      neighbors(2) = t
     else {
       throw new Exception("Neighbor pointer error, please report!")
     }
@@ -78,6 +64,7 @@ class Triangle(val points: Array[Point]) {
   
   /* Exhaustive search to update neighbor pointers */
   def markNeighbor(t: Triangle) {
+    assert(t != this, "self-pointer error")
     if (t.contains(points(1), points(2))) {
       neighbors(0) = t
       t.markNeighbor(points(1), points(2), this)
@@ -95,13 +82,16 @@ class Triangle(val points: Array[Point]) {
   }
   
   def oppositePoint(t: Triangle): Point = {
+    assert(t != this, "self-pointer error")
     if(points(0) == t.points(1)) 
       points(1)
     else if(points(0) == t.points(2))
       points(2)
-    else if((points(2) == t.points(1) && points(1) == t.points(2)) || (points(1) == t.points(1) && points(2) == t.points(2)))
+    else if(contains(t.points(1), t.points(2)))
       points(0)
     else {
+      t.printDebug
+      printDebug
       throw new Exception("Point location error, please report")
     }
     

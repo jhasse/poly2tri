@@ -170,7 +170,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    })
    
    if(drawCDT) {
-       val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
+       //val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
+       val draw = slCDT.testTri
 	   draw.foreach( t => {
 	     val triangle = new Polygon
 		 triangle.addPoint(t.points(0).x, t.points(0).y)
