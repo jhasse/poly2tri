@@ -48,9 +48,11 @@ class Triangle(val points: Array[Point]) {
   // Finalization flag
   var clean = false
   
+  var finalized = false
+  
   // Update neighbor pointers
   private def markNeighbor(p1: Point, p2: Point, t: Triangle) {    
-    assert(t != this, "self-pointer error")
+    
     if((p1 == points(2) && p2 == points(1)) || (p1 == points(1) && p2 == points(2))) 
       neighbors(0) = t 
     else if((p1 == points(0) && p2 == points(2)) || (p1 == points(2) && p2 == points(0)))
@@ -64,7 +66,7 @@ class Triangle(val points: Array[Point]) {
   
   /* Exhaustive search to update neighbor pointers */
   def markNeighbor(t: Triangle) {
-    assert(t != this, "self-pointer error")
+    
     if (t.contains(points(1), points(2))) {
       neighbors(0) = t
       t.markNeighbor(points(1), points(2), this)
@@ -93,7 +95,6 @@ class Triangle(val points: Array[Point]) {
       t.printDebug
       printDebug
       println(area + " | " + t.area)
-     
       throw new Exception("Point location error, please report")
     }
     
@@ -308,10 +309,13 @@ class Triangle(val points: Array[Point]) {
   // Mark edge as constrained
   private def markEdge(p: Point, q: Point) {
     if((q == points(0) && p == points(1)) || (q == points(1) && p == points(0))) {
+      finalized = true
       edges(2) = true
     } else if ((q == points(0) && p == points(2)) || (q == points(2) && p == points(0))) {
+      finalized = true
       edges(1) = true
     } else if ((q == points(1) && p == points(2)) || (q == points(2) && p == points(1))){
+      finalized = true
       edges(0) = true
     } 
   }

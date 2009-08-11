@@ -139,8 +139,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Process Point event
       var triangle = pointEvent(point)
       // Process edge events
-      if(triangle != null)
-        point.edges.foreach(e => triangle = edgeEvent(e, triangle))
+      point.edges.foreach(e => triangle = edgeEvent(e, triangle))
       if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
       
       } catch {
@@ -256,9 +255,29 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       edgeNeighbors(nTriangles, T1)
       edgeNeighbors(nTriangles, T2)
       
-       // Mark constrained edges
-       T1.first.mark(point1, point2)
-       T2.first.mark(point1, point2)
+      // Select edge triangle
+      var edgeTri1: Triangle = null
+      var i = 0
+      while(edgeTri1 == null)  {
+        if(T1(i).contains(point1, point2)) 
+          edgeTri1 = T1(i)
+        i += 1
+      }
+      
+      // Select edge triangle
+      var edgeTri2: Triangle = null
+      i = 0
+      while(edgeTri2 == null)  {
+        if(T2(i).contains(point1, point2)) 
+          edgeTri2 = T2(i)
+        i += 1
+      }
+      
+      edgeTri1.markNeighbor(edgeTri2)
+      
+      // Mark constrained edge
+      edgeTri1 mark(point1, point2)
+      edgeTri2 mark(point1, point2)
        
        // Double check returning T2.first vs T1.first      
        first
@@ -298,29 +317,30 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       // Select edge triangle
       var edgeTri: Triangle = null
-      T.foreach(t => 
-        if(t.contains(first.point, node.point))
-          edgeTri = t
-      )
-      assert(edgeTri != null)
+      var i = 0
+      while(edgeTri == null)  {
+        if(T(i).contains(first.point, node.point)) 
+          edgeTri = T(i)
+        i += 1
+      }
       
       aFront link (first, node, edgeTri)
-      
-      // Mark constrained edge
-      edgeTri mark(edge.p, edge.q)
       
       // Update neighbors
       edgeNeighbors(nTriangles, T)
       
+      // Mark constrained edge
+      edgeTri mark(edge.p, edge.q)
+      
       // Return original triangle
       triangle
       
-    } else { 
-      
+    } else if(firstTriangle.contains(edge.p, edge.q)) { 
       // Mark constrained edge
-      if(firstTriangle != null)
-        firstTriangle mark(edge.p, edge.q)
+      firstTriangle mark(edge.p, edge.q)
       triangle
+    } else {
+      throw new Exception("Triangulation error")
     }
     
   }
@@ -447,16 +467,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val t2 = node.triangle
     
     val point = t1.points(0)
-    
     val oPoint = t2 oppositePoint t1
     
-    // Try to avoid creating degenerate triangles
-    val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
-    
-    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
+    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !t2.finalized) {
       
         // Flip edge and rotate everything clockwise
-	    t1.legalize(oPoint) 
+	    t1.legalize(oPoint)
 	    t2.legalize(oPoint, point)
         
         // Copy old neighbors

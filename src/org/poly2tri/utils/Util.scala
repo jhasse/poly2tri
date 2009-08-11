@@ -125,7 +125,7 @@ object Util {
 	     return det
 	   } else {
 	     // Cheat a little bit.... we have a degenerate triangle
-	     val c = pc * 1.00001f
+	     val c = pc * 1.0001f
          return orient2d(pa, pb, c)
 	   }
 
