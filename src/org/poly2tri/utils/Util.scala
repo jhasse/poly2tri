@@ -42,7 +42,7 @@ object Util {
 
     val d = (p2 - p1) cross (p1 - p3)
     
-    if(d <= COLLINEAR_SLOP) 
+    if(Math.abs(d) <= COLLINEAR_SLOP) 
       true
     else 
       false

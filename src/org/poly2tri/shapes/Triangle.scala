@@ -58,7 +58,7 @@ class Triangle(val points: Array[Point]) {
     else if((p1 == points(0) && p2 == points(1)) || (p1 == points(1) && p2 == points(0)))
       neighbors(2) = t
     else {
-      throw new Exception("Neighbor pointer error, please report!")
+      throw new Exception("Neighbor error, please report!")
     }
   }
   
@@ -92,6 +92,8 @@ class Triangle(val points: Array[Point]) {
     else {
       t.printDebug
       printDebug
+      println(area + " | " + t.area)
+     
       throw new Exception("Point location error, please report")
     }
     
@@ -121,7 +123,6 @@ class Triangle(val points: Array[Point]) {
 
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
-    
     val p = edge.p
     val q = edge.q
     val e = p - q
@@ -248,11 +249,14 @@ class Triangle(val points: Array[Point]) {
       points(2) = points(1)
       points(1) = points(0)
       points(0) = nPoint
-    } else {
+    } else if (oPoint == points(2)) {
       points(0) = points(2)
       points(2) = points(1)
       points(1) = nPoint
+    } else {
+      throw new Exception("legalization error")
     }
+    
   }
   
   // Make legalized triangle will not be collinear
@@ -322,6 +326,12 @@ class Triangle(val points: Array[Point]) {
     } else if ((q == points(1) && p == points(2)) || (q == points(2) && p == points(1))){
       edges(0) = true
     }
+  }
+  
+  def area = {
+    val b = points(0).x - points(1).x
+    val h = points(2).y - points(1).y
+    (b*h*0.5f)
   }
   
 }
