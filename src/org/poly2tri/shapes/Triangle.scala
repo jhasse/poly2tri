@@ -126,23 +126,25 @@ class Triangle(val points: Array[Point]) {
     val p = edge.p
     val q = edge.q
     val e = p - q
+    
+    val ik = points(2) - points(0)
+    val ij = points(1) - points(0)
+    val jk = points(2) - points(1)
+    val ji = points(0) - points(1)
+    val kj = points(1) - points(2)
+    val ki = points(0) - points(2)
+    
     if(q == points(0)) {
-      val ik = points(2) - points(0)
-      val ij = points(1) - points(0)
       val sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
       if(!sameSign) return this
       if(neighbors(2) == null) return null
       return neighbors(2).locateFirst(edge)
     } else if(q == points(1)) {
-      val jk = points(2) - points(1)
-      val ji = points(0) - points(1)
       val sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
       if(!sameSign) return this
       if(neighbors(0) == null) return null
       return neighbors(0).locateFirst(edge)
     } else if(q == points(2)) {
-      val kj = points(1) - points(2)
-      val ki = points(0) - points(2)
       val sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
       if(!sameSign) return this
       if(neighbors(1) == null) return null
@@ -153,27 +155,15 @@ class Triangle(val points: Array[Point]) {
   
   // Locate next triangle crossed by edge
   def findNeighbor(e: Point): Triangle = {
-    if(orient(points(0), points(1), e) >= 0)
+    if(Util.orient2d(points(0), points(1), e) > 0)
       return neighbors(2)
-    else if(orient(points(1), points(2), e) >= 0)
+    else if(Util.orient2d(points(1), points(2), e) > 0)
       return neighbors(0)
-    else if(orient(points(2), points(0), e) >= 0)
+    else if(Util.orient2d(points(2), points(0), e) > 0)
       return neighbors(1)
     else
       // Point must reside inside this triangle
       this
-  }
-  
-  // Return: positive if point p is left of ab
-  //         negative if point p is right of ab
-  //         zero if points are colinear
-  // See: http://www-2.cs.cmu.edu/~quake/robust.html
-  def orient(b: Point, a: Point, p: Point): Float = {
-    val acx = a.x - p.x
-    val bcx = b.x - p.x
-    val acy = a.y - p.y
-    val bcy = b.y - p.y
-    acx * bcy - acy * bcx  
   }
   
   // The neighbor clockwise to given point
@@ -260,7 +250,7 @@ class Triangle(val points: Array[Point]) {
   }
   
   // Make legalized triangle will not be collinear
-  def collinear(oPoint: Point): Boolean = Util.collinear(points(0), points(1), oPoint)
+  def collinear(oPoint: Point): Boolean = Util.collinear(points(1), points(0), oPoint)
   
   // Make sure legalized triangle will not be collinear
   def collinear(oPoint: Point, nPoint: Point): Boolean = {

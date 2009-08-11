@@ -8,8 +8,11 @@ import shapes.Point
 object Util {
   
   // Almost zero
-  val COLLINEAR_SLOP = 0.1f
+  val COLLINEAR_SLOP = 0.25f
   
+  val epsilon = exactinit
+  val ccwerrboundA = (3.0 + 16.0 * epsilon) * epsilon
+
   // From "Scala By Example," by Martin Odersky
   def msort[A](less: (A, A) => Boolean)(xs: List[A]): List[A] = {
     def merge(xs1: List[A], xs2: List[A]): List[A] =
@@ -49,9 +52,37 @@ object Util {
     
   }
   
-  // Return: positive if point p is left of ab
-  //         negative if point p is right of ab
-  //         zero if points are colinear
+  /* From Jonathan Shewchuk's "Adaptive Precision Floating-Point Arithmetic 
+   * and Fast Robust Predicates for Computational Geometry"
+   * See: http://www.cs.cmu.edu/~quake/robust.html
+   */
+  def exactinit = {
+  
+	  var every_other = true
+	  var half = 0.5
+      var splitter = 1.0
+	  var epsilon = 1.0
+	  var check = 1.0
+	  var lastcheck = 0.0
+   
+	  do {
+	    lastcheck = check
+	    epsilon *= half
+	    if (every_other) {
+	      splitter *= 2.0
+	    }
+	    every_other = !every_other
+	    check = 1.0 + epsilon
+	  } while ((check != 1.0) && (check != lastcheck))
+
+	  epsilon
+  
+  }
+  
+  // Approximate 2D orientation test.  Nonrobust. 
+  // Return: positive if point  a, b, and c are counterclockwise
+  //         negative if point a, b, and c are clockwise
+  //         zero if points are collinear
   // See: http://www-2.cs.cmu.edu/~quake/robust.html
   def orient(b: Point, a: Point, p: Point): Float = {
     val acx = a.x - p.x
@@ -60,7 +91,50 @@ object Util {
     val bcy = b.y - p.y
     acx * bcy - acy * bcx  
   }
+   
+   // Adaptive exact 2D orientation test.  Robust. By Jonathan Shewchuk
+   // Return: positive if point  a, b, and c are counterclockwise
+   //         negative if point a, b, and c are clockwise
+   //         zero if points are collinear
+   // See: http://www-2.cs.cmu.edu/~quake/robust.html
+   def orient2d(pa: Point, pb: Point, pc: Point): Double = {
   
+	   val detleft: Double = (pa.x - pc.x) * (pb.y - pc.y)
+	   val detright: Double = (pa.y - pc.y) * (pb.x - pc.x)
+	   val det = detleft - detright
+	   var detsum = 0.0
+	  
+	   if (detleft > 0.0) {
+	     if (detright <= 0.0) {
+	       return det;
+	     } else {
+	       detsum = detleft + detright
+	     }
+	   } else if (detleft < 0.0) {
+	     if (detright >= 0.0) {
+	       return det
+	     } else {
+	       detsum = -detleft - detright
+	     }
+	   } else {
+	     return det
+	   }
+	
+	   val errbound = Util.ccwerrboundA * detsum
+	   if ((det >= errbound) || (-det >= errbound)) {
+	     return det
+	   } else {
+	     println(pa + "," + pb + "," + pc)
+	     println(detleft + "," + detright)
+	     println("Det = " + det + " , errbound = " + errbound)
+	     throw new Exception("Degenerate triangle")
+	   }
+	   
+	  // Not implemented; 
+	  // http://www.cs.cmu.edu/afs/cs/project/quake/public/code/predicates.c
+	  // return orient2dadapt(pa, pb, pc, detsum)
+ }
+ 
 }
 
 /** The object <code>Random</code> offers a default implementation

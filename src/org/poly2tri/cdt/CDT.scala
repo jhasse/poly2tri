@@ -133,6 +133,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def sweep {
     
     for(i <- 1 until points.size) {
+      
+      try {
       val point = points(i)
       // Process Point event
       var triangle = pointEvent(point)
@@ -140,8 +142,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       if(triangle != null)
         point.edges.foreach(e => triangle = edgeEvent(e, triangle))
       if(i == CDT.clearPoint) {cleanTri = triangle; mesh.debug += cleanTri}
+      
+      } catch {
+        case e: Exception =>
+          throw new Exception("Systect point = " + i)
+      }
+      
     }
-    
   }  
   
   // Final step in the sweep-line CDT algo
@@ -208,7 +215,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 		tList.foreach(t => {
 		  t.points.foreach(p => {
 		    if(p != edge.q && p != edge.p) {
-		      if(t.orient(edge.q, edge.p, p) > 0 ) {
+		      if(Util.orient2d(edge.q, edge.p, p) > 0 ) {
 		        // Keep duplicate points out
                 if(!lPoints.contains(p)) {
 		          lPoints += p
@@ -347,7 +354,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } 
     
     if(!P.isEmpty) {
-      val left = Util.orient(a, b, P(i)) < 0
+      val left = Util.orient2d(a, b, P(i)) > 0
       val pB = if(left) P(i) else b
       val pC = if(left) b else P(i)
       val points = Array(a, pB, pC)
@@ -434,6 +441,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
     
+    // Try to avoid creating degenerate triangles
     val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
