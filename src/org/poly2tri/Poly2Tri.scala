@@ -86,6 +86,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   
   var currentModel = strange
+  var doCDT = true
   
   var mouseButton = 0
   var mousePressed = false
@@ -278,21 +279,27 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def selectModel(model: String) {
     model match {
       case "data/nazca_monkey.dat" => 
-        CDT.clearPoint = 50
+        //CDT.clearPoint = 50
+        doCDT = false; drawCDT = false; drawcdtMesh = false
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
       case "data/bird.dat" => 
-        CDT.clearPoint = 80
+        doCDT = false; drawCDT = false; drawcdtMesh = false
+        //CDT.clearPoint = 80
         loadModel(bird, 25f, Point(400, 300), 350)
       case "data/i.snake" => 
+        doCDT = true; drawCDT = true
         CDT.clearPoint = 6
         loadModel(snake, 10f, Point(600, 300), 10)
       case "data/star.dat" => 
+        doCDT = true; drawCDT = true
         CDT.clearPoint = 6
         loadModel(star, -1f, Point(0f, 0f), 10)
       case "data/strange.dat" => 
+        doCDT = true; drawCDT = true
         CDT.clearPoint = 13
         loadModel(strange, -1f, Point(0f, 0f), 15)
       case "data/i.18" => 
+        doCDT = true; drawCDT = true
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
       case _ => 
@@ -334,12 +341,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     println("Number of points = " + polyX.size)
     println
     
-    val t1 = System.nanoTime
-    slCDT = CDT.init(points)
-    val runTime = System.nanoTime - t1
-    println("CDT average (ms) =  " + runTime*1e-6)
-	println("Number of triangles = " + slCDT.triangles.size)
-    println
+    if(doCDT) {
+	    val t1 = System.nanoTime
+	    slCDT = CDT.init(points)
+	    val runTime = System.nanoTime - t1
+	    println("CDT average (ms) =  " + runTime*1e-6)
+		println("Number of triangles = " + slCDT.triangles.size)
+	    println
+    }
     
     if(!drawEarClip) {  
       

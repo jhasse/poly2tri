@@ -180,7 +180,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
-       println("collect")
+       
        // Collect intersected triangles
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
@@ -257,7 +257,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        first
 
     } else if(firstTriangle == null) {
-      println("intersect")
+      
       // No triangles are intersected by the edge; edge must lie outside the mesh
       // Apply constraint; traverse the AFront, and build triangles
       
@@ -302,7 +302,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       triangle
       
     } else { 
-      println("contains")
+      
       // Mark constrained edge
       firstTriangle mark(edge.p, edge.q)
       triangle
@@ -434,9 +434,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
     
-    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0))) {
+    val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
+    
+    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !collinear) {
       
-        println("legalize")
         // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint) 
 	    t2.legalize(oPoint, point)
