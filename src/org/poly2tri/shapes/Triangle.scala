@@ -286,10 +286,8 @@ class Triangle(val points: Array[Point]) {
   
   // Initial mark edges sweep
   def mark(p: Point, q: Point) {
-    if(contains(p) && contains(q)) {
-      markEdge(p, q)
-      markNeighborEdge(p, q)
-    }
+     markEdge(p, q)
+     markNeighborEdge(p, q)
   }
   
   // Finalize edge marking
@@ -315,7 +313,7 @@ class Triangle(val points: Array[Point]) {
       edges(1) = true
     } else if ((q == points(1) && p == points(2)) || (q == points(2) && p == points(1))){
       edges(0) = true
-    }
+    } 
   }
   
   def area = {

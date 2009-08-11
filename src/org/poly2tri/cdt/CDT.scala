@@ -269,17 +269,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Apply constraint; traverse the AFront, and build triangles
       
       val ahead = (edge.p.x > edge.q.x)
-      
       val point1 = if(ahead) edge.q else edge.p
       val point2 = if(ahead) edge.p else edge.q
+      
+      var node = aFront.locate(point1)
+      val first = node
       
       val points = new ArrayBuffer[Point]
       // Neighbor triangles
       val nTriangles = new ArrayBuffer[Triangle]
-      
-      var node = aFront.locate(point1)
-      
-      val first = node
       nTriangles += node.triangle
       
       node = node.next
@@ -297,13 +295,22 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       triangulate(points.toArray, endPoints, T)
       
       // Update advancing front 
-      aFront link (first, node, T.first)
+      
+      // Select edge triangle
+      var edgeTri: Triangle = null
+      T.foreach(t => 
+        if(t.contains(first.point, node.point))
+          edgeTri = t
+      )
+      assert(edgeTri != null)
+      
+      aFront link (first, node, edgeTri)
+      
+      // Mark constrained edge
+      edgeTri mark(edge.p, edge.q)
       
       // Update neighbors
       edgeNeighbors(nTriangles, T)
-      
-       // Mark constrained edge
-      T.first mark(edge.p, edge.q)
       
       // Return original triangle
       triangle
@@ -311,7 +318,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } else { 
       
       // Mark constrained edge
-      firstTriangle mark(edge.p, edge.q)
+      if(firstTriangle != null)
+        firstTriangle mark(edge.p, edge.q)
       triangle
     }
     
@@ -439,7 +447,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val t2 = node.triangle
     
     val point = t1.points(0)
-    /*
+    
     val oPoint = t2 oppositePoint t1
     
     // Try to avoid creating degenerate triangles
@@ -468,13 +476,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         aFront.insertLegalized(t1.points(1), t1, node)
         
     } else {
-      */
+      
       // Update neighbor
       t2.markNeighbor(t1) 
       // Update advancing front
       aFront.insert(point, t1, node)
 
-    //}
+    }
 
   }  
   

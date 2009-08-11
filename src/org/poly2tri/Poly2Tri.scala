@@ -283,11 +283,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def selectModel(model: String) {
     model match {
       case "data/nazca_monkey.dat" => 
-        //CDT.clearPoint = 50
-        doCDT = false; drawCDT = false; drawcdtMesh = false
+        CDT.clearPoint = 50
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
       case "data/bird.dat" => 
-        doCDT = false; drawCDT = false; drawcdtMesh = false
         CDT.clearPoint = 80
         loadModel(bird, 25f, Point(400, 300), 350)
       case "data/i.snake" => 
@@ -307,8 +305,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
       case "data/nazca_heron.dat" => 
-        doCDT = false; drawCDT = false; drawcdtMesh = false
-        //CDT.clearPoint = 7
+        CDT.clearPoint = 7
         loadModel(nazcaHeron, 4.5f, Point(400f, 300f), 1500) 
       case "data/tank.dat" => 
         //doCDT = false; drawCDT = false; drawcdtMesh = false
