@@ -168,7 +168,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     // Projected point hits advancing front; create new triangle 
     val pts = Array(point, node.point, node.next.point)
     val triangle = new Triangle(pts)
-      
+    
+    println(Util.orient2d(point, node.point, node.next.point))
+    
     mesh.map += triangle
     
     // Legalize
@@ -354,9 +356,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } 
     
     if(!P.isEmpty) {
-      val left = Util.orient2d(a, b, P(i)) > 0
-      val pB = if(left) P(i) else b
-      val pC = if(left) b else P(i)
+      val ccw = Util.orient2d(a, b, P(i)) > 0
+      val pB = if(ccw) P(i) else b
+      val pC = if(ccw) b else P(i)
       val points = Array(a, pB, pC)
       T += new Triangle(points)
       mesh.map += T.last
