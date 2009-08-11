@@ -44,7 +44,7 @@ object CDT {
   
   // Inital triangle factor
   val ALPHA = 0.3f
-  val SHEER = 0.00001f
+  val SHEER = 0.001f
   
   var clearPoint = 0
   
@@ -439,6 +439,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val t2 = node.triangle
     
     val point = t1.points(0)
+    /*
     val oPoint = t2 oppositePoint t1
     
     // Try to avoid creating degenerate triangles
@@ -467,13 +468,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         aFront.insertLegalized(t1.points(1), t1, node)
         
     } else {
-      
+      */
       // Update neighbor
       t2.markNeighbor(t1) 
       // Update advancing front
       aFront.insert(point, t1, node)
 
-    }
+    //}
 
   }  
   

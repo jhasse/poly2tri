@@ -85,8 +85,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val star = "data/star.dat"
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
+  val tank = "data/tank.dat"
   
-  var currentModel = i18
+  var currentModel = tank
   var doCDT = true
   
   var mouseButton = 0
@@ -273,6 +274,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '5') selectModel(star)
     if(c == '6') selectModel(i18)
     if(c == '7') selectModel(nazcaHeron)
+    if(c == '8') selectModel(tank)
     if(c == 's') drawSegs = !drawSegs
     if(c == 'c') drawcdtMesh = !drawcdtMesh
     if(c == 'e') {drawEarClip = !drawEarClip; drawCDT = false; selectModel(currentModel)}
@@ -308,6 +310,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         doCDT = false; drawCDT = false; drawcdtMesh = false
         //CDT.clearPoint = 7
         loadModel(nazcaHeron, 4.5f, Point(400f, 300f), 1500) 
+      case "data/tank.dat" => 
+        //doCDT = false; drawCDT = false; drawcdtMesh = false
+        doCDT = true; drawCDT = true
+        CDT.clearPoint = 50
+        loadModel(tank, -1f, Point(0f, 0f), 10)
       case _ => 
         assert(false)
     }
