@@ -123,43 +123,43 @@ class Triangle(val points: Array[Point]) {
 
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
-    val p = edge.p
-    val q = edge.q
-    val e = p - q
+   
+    if(edge.q == points(0)) 
+      search(points(1), points(2), edge, neighbors(2))
+    else if(edge.q == points(1)) 
+      search(points(0), points(2), edge, neighbors(0))
+    else if(edge.q == points(2)) 
+      search(points(1), points(0), edge, neighbors(1))
+    else 
+      throw new Exception("Point not found")
+
+  }
+  
+  def search(p1: Point, p2: Point, edge: Segment, neighbor: Triangle): Triangle = {
     
-    val ik = points(2) - points(0)
-    val ij = points(1) - points(0)
-    val jk = points(2) - points(1)
-    val ji = points(0) - points(1)
-    val kj = points(1) - points(2)
-    val ki = points(0) - points(2)
-    
-    if(q == points(0)) {
-      val sameSign = Math.signum(ik cross e) == Math.signum(ij cross e)
-      if(!sameSign) return this
-      if(neighbors(2) == null) return null
-      return neighbors(2).locateFirst(edge)
-    } else if(q == points(1)) {
-      val sameSign = Math.signum(jk cross e) == Math.signum(ji cross e)
-      if(!sameSign) return this
-      if(neighbors(0) == null) return null
-      return neighbors(0).locateFirst(edge)
-    } else if(q == points(2)) {
-      val sameSign = Math.signum(kj cross e) == Math.signum(ki cross e)
-      if(!sameSign) return this
-      if(neighbors(1) == null) return null
-      return neighbors(1).locateFirst(edge)
-    }
-    throw new Exception("Point not found")
+      val o1 = Util.orient2d(edge.q, p1, edge.p)
+      val o2 = Util.orient2d(edge.q, p2, edge.p)
+      val sameSign = Math.signum(o1) == Math.signum(o2)
+      
+      // Edge crosses this triangle
+      if(!sameSign) 
+        return this
+      
+      // Look at neighbor
+      if(neighbor == null) 
+        null
+      else
+        neighbor.locateFirst(edge)
+      
   }
   
   // Locate next triangle crossed by edge
   def findNeighbor(e: Point): Triangle = {
-    if(Util.orient2d(points(0), points(1), e) > 0)
+    if(Util.orient2d(points(0), points(1), e) < 0)
       return neighbors(2)
-    else if(Util.orient2d(points(1), points(2), e) > 0)
+    else if(Util.orient2d(points(1), points(2), e) < 0)
       return neighbors(0)
-    else if(Util.orient2d(points(2), points(0), e) > 0)
+    else if(Util.orient2d(points(2), points(0), e) < 0)
       return neighbors(1)
     else
       // Point must reside inside this triangle
@@ -249,10 +249,10 @@ class Triangle(val points: Array[Point]) {
     
   }
   
-  // Make legalized triangle will not be collinear
+  // Check if legalized triangle will be collinear
   def collinear(oPoint: Point): Boolean = Util.collinear(points(1), points(0), oPoint)
   
-  // Make sure legalized triangle will not be collinear
+  // Check if legalized triangle will be collinear
   def collinear(oPoint: Point, nPoint: Point): Boolean = {
     if(oPoint == points(0)) {
       Util.collinear(points(0), points(2), nPoint)

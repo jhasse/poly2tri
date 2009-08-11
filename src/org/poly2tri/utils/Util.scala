@@ -43,7 +43,7 @@ object Util {
   // Tests if the given points are collinear
   def collinear(p1: Point, p2: Point, p3: Point): Boolean = {
 
-    val d = (p2 - p1) cross (p1 - p3)
+    val d = orient2d(p1, p2, p3)
     
     if(Math.abs(d) <= COLLINEAR_SLOP) 
       true
@@ -93,7 +93,7 @@ object Util {
   }
    
    // Adaptive exact 2D orientation test.  Robust. By Jonathan Shewchuk
-   // Return: positive if point  a, b, and c are counterclockwise
+   // Return: positive if point a, b, and c are counterclockwise
    //         negative if point a, b, and c are clockwise
    //         zero if points are collinear
    // See: http://www-2.cs.cmu.edu/~quake/robust.html
@@ -124,15 +124,13 @@ object Util {
 	   if ((det >= errbound) || (-det >= errbound)) {
 	     return det
 	   } else {
-	     println(pa + "," + pb + "," + pc)
-	     println(detleft + "," + detright)
-	     println("Det = " + det + " , errbound = " + errbound)
-	     throw new Exception("Degenerate triangle")
+	     
+	     // Cheat a little bit.... we have a degenerate triangle
+	     val c = pc * 1.00001f
+         return orient2d(pa, pb, c)
+
 	   }
-	   
-	  // Not implemented; 
-	  // http://www.cs.cmu.edu/afs/cs/project/quake/public/code/predicates.c
-	  // return orient2dadapt(pa, pb, pc, detsum)
+
  }
  
 }
