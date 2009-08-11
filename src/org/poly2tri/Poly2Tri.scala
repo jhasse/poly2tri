@@ -79,13 +79,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawcdtMesh = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
+  val nazcaHeron = "data/nazca_heron.dat"
   val bird = "data/bird.dat"
   val snake = "data/i.snake"
   val star = "data/star.dat"
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   
-  var currentModel = strange
+  var currentModel = i18
   var doCDT = true
   
   var mouseButton = 0
@@ -110,7 +111,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    g.drawString("'1-6' to cycle models", 10, 520)
+    g.drawString("'1-7' to cycle models, mouse to pan & zoom", 10, 520)
     g.drawString("'SPACE' to show Seidel debug info", 10, 532)
     g.drawString("'m' to show trapezoidal map (Seidel debug mode)", 10, 544)
     g.drawString("'e' to switch Seidel / EarClip", 10, 556)
@@ -271,6 +272,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '4') selectModel(snake)
     if(c == '5') selectModel(star)
     if(c == '6') selectModel(i18)
+    if(c == '7') selectModel(nazcaHeron)
     if(c == 's') drawSegs = !drawSegs
     if(c == 'c') drawcdtMesh = !drawcdtMesh
     if(c == 'e') {drawEarClip = !drawEarClip; drawCDT = false; selectModel(currentModel)}
@@ -279,11 +281,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def selectModel(model: String) {
     model match {
       case "data/nazca_monkey.dat" => 
-        CDT.clearPoint = 50
-        //doCDT = false; drawCDT = false; drawcdtMesh = false
+        //CDT.clearPoint = 50
+        doCDT = false; drawCDT = false; drawcdtMesh = false
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
       case "data/bird.dat" => 
-        //doCDT = false; drawCDT = false; drawcdtMesh = false
+        doCDT = false; drawCDT = false; drawcdtMesh = false
         CDT.clearPoint = 80
         loadModel(bird, 25f, Point(400, 300), 350)
       case "data/i.snake" => 
@@ -302,6 +304,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         doCDT = true; drawCDT = true
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
+      case "data/nazca_heron.dat" => 
+        doCDT = false; drawCDT = false; drawcdtMesh = false
+        //CDT.clearPoint = 7
+        loadModel(nazcaHeron, 4.5f, Point(400f, 300f), 1500) 
       case _ => 
         assert(false)
     }

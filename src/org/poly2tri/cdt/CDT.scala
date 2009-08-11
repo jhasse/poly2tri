@@ -169,8 +169,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val pts = Array(point, node.point, node.next.point)
     val triangle = new Triangle(pts)
     
-    println(Util.orient2d(point, node.point, node.next.point))
-    
     mesh.map += triangle
     
     // Legalize
