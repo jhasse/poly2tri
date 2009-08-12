@@ -294,7 +294,7 @@ class Triangle(val points: Array[Point]) {
         i match {
           case 0 => if(neighbors(0) != null) neighbors(0).markEdge(points(1), points(2))
           case 1 => if(neighbors(1) != null) neighbors(1).markEdge(points(0), points(2))
-          case _ => if(neighbors(2) != null) neighbors(2).markEdge(points(0), points(1))
+          case 2 => if(neighbors(2) != null) neighbors(2).markEdge(points(0), points(1))
         }
   }
   
@@ -304,7 +304,7 @@ class Triangle(val points: Array[Point]) {
         i match {
           case 0 => triangle.markEdge(points(1), points(2))
           case 1 => triangle.markEdge(points(0), points(2))
-          case _ => triangle.markEdge(points(0), points(1))
+          case 2 => triangle.markEdge(points(0), points(1))
         }
   }
   

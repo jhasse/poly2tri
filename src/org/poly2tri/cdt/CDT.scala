@@ -272,12 +272,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         nTriangles += node.triangle
 		node = node.next
 	  }
-                                  
-      val endPoints = if(ahead) List(point2, point1) else List(point1, point2)
-   
+                                    
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
-      triangulate(points.toArray, endPoints, T)
+      triangulate(points.toArray, List(edge.q, edge.p), T)
       
       // Update advancing front 
       
