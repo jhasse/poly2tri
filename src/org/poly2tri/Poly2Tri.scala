@@ -305,8 +305,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
       case "data/nazca_heron.dat" => 
-        doCDT = false; drawCDT = false; drawcdtMesh = false
-        CDT.clearPoint = 7
+        //doCDT = false; drawCDT = false; drawcdtMesh = false
+        CDT.clearPoint = 100
         loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500) 
       case "data/tank.dat" => 
         //doCDT = false; drawCDT = false; drawcdtMesh = false

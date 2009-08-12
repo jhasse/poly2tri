@@ -132,7 +132,7 @@ class Triangle(val points: Array[Point]) {
     else if(edge.q == points(1)) 
       search(points(0), points(2), edge, neighbors(0))
     else if(edge.q == points(2)) 
-      search(points(1), points(0), edge, neighbors(1))
+      search(points(0), points(1), edge, neighbors(1))
     else 
       throw new Exception("Point not found")
 

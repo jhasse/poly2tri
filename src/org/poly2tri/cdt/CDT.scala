@@ -240,13 +240,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val sNode = aFront.locate(point1)  
       val eNode = aFront.locate(point2)
       
-      val first = aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
-      
       // Update neighbors
       edgeNeighbors(nTriangles, T1)
       edgeNeighbors(nTriangles, T2)
 
-      first
+      aFront.constrainedEdge(sNode, eNode, T2, edge)
 
     } else if(firstTriangle == null) {
       
@@ -257,7 +255,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point1 = if(ahead) edge.q else edge.p
       val point2 = if(ahead) edge.p else edge.q
       
-      var node = aFront.locate(point1)
+      var node = aFront.locatePoint(point1)
       val first = node
       
       val points = new ArrayBuffer[Point]
@@ -277,8 +275,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val T = new ArrayBuffer[Triangle]
       triangulate(points.toArray, List(edge.q, edge.p), T)
       
-      // Update advancing front 
-      
       // Select edge triangle
       var edgeTri: Triangle = null
       var i = 0
@@ -288,6 +284,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         i += 1
       }
       
+      // Update advancing front 
       aFront link (first, node, edgeTri)
       
       // Update neighbors
@@ -299,9 +296,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Return original triangle
       triangle
       
-    } else if(firstTriangle.contains(edge.p, edge.q)) { 
+    } else if(firstTriangle.contains(edge.q, edge.p)) { 
       // Mark constrained edge
-      firstTriangle markEdge(edge.p, edge.q)
+      firstTriangle markEdge(edge.q, edge.p)
       triangle
     } else {
       throw new Exception("Triangulation error")
@@ -347,10 +344,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } 
     
     if(!P.isEmpty) {
-      val ccw = Util.orient2d(a, b, P(i)) > 0
-      val pB = if(ccw) P(i) else b
-      val pC = if(ccw) b else P(i)
-      val points = Array(a, pB, pC)
+      //val ccw = Util.orient2d(a, b, P(i)) > 0
+      //val pB = if(ccw) P(i) else b
+      //val pC = if(ccw) b else P(i)
+      val points = Array(a, P(i), b)
       T += new Triangle(points)
       mesh.map += T.last
     }
@@ -447,8 +444,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         // Update new neighbors
 	    for(n <- neighbors) {
 	      if(n != null) {
-	        t2.markNeighbor(n)
-            t1.markNeighbor(n)
+	        t1.markNeighbor(n)
+            t2.markNeighbor(n)
 	      }
 	    }
         t2.markNeighbor(t1)

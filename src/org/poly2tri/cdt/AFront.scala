@@ -61,7 +61,7 @@ class AFront(iTriangle: Triangle) {
   // Locate node containing given point
   def locatePoint(point: Point): Node = {
     var node = head
-    while(node != tail) {
+    while(node != null) {
       if(point == node.point)
         return node
       node = node.next
@@ -90,72 +90,33 @@ class AFront(iTriangle: Triangle) {
   }
   
   // Update advancing front with constrained edge triangles
-  def constrainedEdge(sNode: Node, eNode: Node, T1: ArrayBuffer[Triangle], 
-                      T2: ArrayBuffer[Triangle], edge: Segment): Triangle = {
+  def constrainedEdge(sNode: Node, eNode: Node, T2: ArrayBuffer[Triangle], edge: Segment): Triangle = {
     
     var node = sNode
-    var t1r, t2r = false
-    
-    // Scan the advancing front and update Node triangle pointers
-    // Either T1 OR T2
-    while(node != eNode) {
-      
-      T2.foreach(t => {
-        if(t.contains(node.point, node.next.point)) {
-          node.triangle = t
-          t2r = true
-        }
-      })
-      
-      if(!t2r)
-        T1.foreach(t => {
-          if(t.contains(node.point, node.next.point)) {
-            node.triangle = t
-            t1r = true
-          }
-        })
-      
-      node = node.next
-    }
     
     val point1 = edge.q
     val point2 = edge.p
     
-    // Select edge triangles
+    var edgeTri: Triangle = null
+    var marked = false
     
-    var edgeTri1: Triangle = null
-    var i = 0
-    while(edgeTri1 == null)  {
-      if(T1(i).contains(point1, point2)) 
-        edgeTri1 = T1(i)
-      i += 1
-    }
-    
-    // Mark constrained edge
-    edgeTri1 markEdge(point1, point2)
-    
-    var edgeTri2: Triangle = null
-    i = 0
-    while(edgeTri2 == null)  {
-      if(T2(i).contains(point1, point2)) 
-        edgeTri2 = T2(i)
-      i += 1
-    }
+    // Scan the advancing front and update Node triangle pointers
+    while(node != eNode) {
       
-    // Mark constrained edge
-    edgeTri2 markEdge(point1, point2)
-    
-    // Update neighbor pointer
-    edgeTri1.markNeighbor(edgeTri2)
-    
-    if(t1r && !t2r) 
-      edgeTri1
-    else if(t2r && !t1r) { 
-      edgeTri2
-    } else {
-      throw new Exception("edge insertion error")
+      T2.foreach(t => {
+        if(t.contains(node.point, node.next.point))
+          node.triangle = t
+        if(!marked && t.contains(point1, point2)) {
+          edgeTri = t
+          edgeTri markEdge(point1, point2)
+          marked = true
+        }
+      })
+
+      node = node.next
     }
     
+    edgeTri
   }
   
   def -=(tuple: Tuple3[Node, Node, Triangle]) {
