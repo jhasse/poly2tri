@@ -46,9 +46,11 @@ class Triangle(val points: Array[Point]) {
   val edges = Array(false, false, false)
   
   // Finalization flag
-  var clean = false
+  var interior = false
   
   var finalized = false
+  
+  var test = false
   
   // Update neighbor pointers
   private def markNeighbor(p1: Point, p2: Point, t: Triangle) {    
@@ -284,15 +286,9 @@ class Triangle(val points: Array[Point]) {
   }
   
   def printDebug = println(points(0) + "," + points(1) + "," + points(2))
-  
-  // Initial mark edges sweep
-  def mark(p: Point, q: Point) {
-     markEdge(p, q)
-     markNeighborEdge(p, q)
-  }
-  
+
   // Finalize edge marking
-  def markEdges {
+  def markNeighborEdges {
     for(i <- 0 to 2) 
       if(edges(i)) 
         i match {
@@ -302,18 +298,24 @@ class Triangle(val points: Array[Point]) {
         }
   }
   
-  // Mark neighbor's edge
-  private def markNeighborEdge(p: Point, q: Point) = 
-    neighbors.foreach(n => if(n != null) n.markEdge(p, q))
+  def markEdge(triangle: Triangle) {
+    for(i <- 0 to 2) 
+      if(edges(i)) 
+        i match {
+          case 0 => triangle.markEdge(points(1), points(2))
+          case 1 => triangle.markEdge(points(0), points(2))
+          case _ => triangle.markEdge(points(0), points(1))
+        }
+  }
   
   // Mark edge as constrained
-  private def markEdge(p: Point, q: Point) {
+  def markEdge(p: Point, q: Point) {
     if((q == points(0) && p == points(1)) || (q == points(1) && p == points(0))) {
       finalized = true
       edges(2) = true
     } else if ((q == points(0) && p == points(2)) || (q == points(2) && p == points(0))) {
-      finalized = true
       edges(1) = true
+      finalized = true
     } else if ((q == points(1) && p == points(2)) || (q == points(2) && p == points(1))){
       finalized = true
       edges(0) = true

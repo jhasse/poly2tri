@@ -42,17 +42,25 @@ class Mesh(initialTriangle: Triangle) {
   val debug = HashSet.empty[Triangle]
   val triangles = new ArrayBuffer[Triangle]
   
+  def test(triangle: Triangle) {
+    if(triangle != null && !triangle.test){
+      triangle.test = true
+      debug += triangle
+      for(i <- 0 until 3) {
+         test(triangle.neighbors(i))
+      }
+    }
+  }
+  
   // Recursively collect triangles
   def clean(triangle: Triangle) {
-    if(triangle != null && !triangle.clean) {
-      triangle.clean = true
+    if(triangle != null && !triangle.interior) {
+      triangle.interior = true
       triangles += triangle
-      if(!triangle.edges(0)) 
-        clean(triangle.neighbors(0))
-      if(!triangle.edges(1))
-        clean(triangle.neighbors(1))
-      if(!triangle.edges(2))
-        clean(triangle.neighbors(2))
+      for(i <- 0 until 3) {
+        if(!triangle.edges(i))
+          clean(triangle.neighbors(i))
+      }
     }
   }
   

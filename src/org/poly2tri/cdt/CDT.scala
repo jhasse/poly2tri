@@ -30,7 +30,7 @@
  */
 package org.poly2tri.cdt
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, Set}
 
 import shapes.{Segment, Point, Triangle}
 import utils.Util
@@ -44,7 +44,7 @@ object CDT {
   
   // Inital triangle factor
   val ALPHA = 0.3f
-  val SHEER = 0.001f
+  val SHEER = 0.0001
   
   var clearPoint = 0
   
@@ -101,7 +101,7 @@ object CDT {
   
   // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
   // the degenerate case. See Mark de Berg et al, Chapter 6.3
-  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * SHEER)
+  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.001f)
   
 }
 
@@ -144,7 +144,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       } catch {
         case e: Exception =>
-          throw new Exception("Systect point = " + i)
+          //throw new Exception("Suspect point = " + i)
       }
       
     }
@@ -154,9 +154,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Clean exterior triangles
   private def finalization {
     
-    mesh.map.foreach(m => m.markEdges)
+    mesh.map.foreach(m => m.markNeighborEdges)
     mesh clean cleanTri
-    
+      
   }
   
   // Point event
@@ -191,17 +191,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
        
-       while(tList.last != null && !tList.last.contains(edge.p))
+       while(!tList.last.contains(edge.p))
          tList += tList.last.findNeighbor(edge.p - edge.q)
-       
-       // TODO: fix tList.last == null bug!
-       // Not sure why this happens in bird & nazca monkey demo...
-       if(tList.last == null) tList -= tList.last
        
        // Neighbor triangles
        val nTriangles = new ArrayBuffer[Triangle]
        
         // Remove old triangles; collect neighbor triangles
+        // Keep duplicates out
         tList.foreach(t => {
           t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
           mesh.map -= t
@@ -240,47 +237,16 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	  val point1 = if(ahead) edge.q else edge.p 
 	  val point2 = if(ahead) edge.p else edge.q 
   
-      var first: Triangle = null
-      val sNode = aFront.locatePoint(point1)  
-      val eNode = aFront.locatePoint(point2)
+      val sNode = aFront.locate(point1)  
+      val eNode = aFront.locate(point2)
       
-      if(sNode != null && eNode != null) {
-        first = aFront.constrainedEdge(sNode, eNode, T1, T2)
-      } else {
-        val qNode = if(sNode == null) eNode else sNode
-        first = aFront.constrainedEdge(qNode, tList, T1, T2)
-      }
-     
+      val first = aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
+      
       // Update neighbors
       edgeNeighbors(nTriangles, T1)
       edgeNeighbors(nTriangles, T2)
-      
-      // Select edge triangle
-      var edgeTri1: Triangle = null
-      var i = 0
-      while(edgeTri1 == null)  {
-        if(T1(i).contains(point1, point2)) 
-          edgeTri1 = T1(i)
-        i += 1
-      }
-      
-      // Select edge triangle
-      var edgeTri2: Triangle = null
-      i = 0
-      while(edgeTri2 == null)  {
-        if(T2(i).contains(point1, point2)) 
-          edgeTri2 = T2(i)
-        i += 1
-      }
-      
-      edgeTri1.markNeighbor(edgeTri2)
-      
-      // Mark constrained edge
-      edgeTri1 mark(point1, point2)
-      edgeTri2 mark(point1, point2)
-       
-       // Double check returning T2.first vs T1.first      
-       first
+
+      first
 
     } else if(firstTriangle == null) {
       
@@ -330,17 +296,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       edgeNeighbors(nTriangles, T)
       
       // Mark constrained edge
-      edgeTri mark(edge.p, edge.q)
+      edgeTri markEdge(point1, point2)
       
       // Return original triangle
       triangle
       
     } else if(firstTriangle.contains(edge.p, edge.q)) { 
       // Mark constrained edge
-      firstTriangle mark(edge.p, edge.q)
+      firstTriangle markEdge(edge.p, edge.q)
       triangle
     } else {
       throw new Exception("Triangulation error")
+      //null
     }
     
   }

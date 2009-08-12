@@ -8,7 +8,7 @@ import shapes.Point
 object Util {
   
   // Almost zero
-  val COLLINEAR_SLOP = 0.01f
+  val COLLINEAR_SLOP = 0.1f
   
   val epsilon = exactinit
   val ccwerrboundA = (3.0 + 16.0 * epsilon) * epsilon

@@ -87,7 +87,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
   
-  var currentModel = tank
+  var currentModel = strange
   var doCDT = true
   
   var mouseButton = 0
@@ -112,7 +112,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    g.drawString("'1-7' to cycle models, mouse to pan & zoom", 10, 520)
+    g.drawString("'1-8' to cycle models, mouse to pan & zoom", 10, 520)
     g.drawString("'SPACE' to show Seidel debug info", 10, 532)
     g.drawString("'m' to show trapezoidal map (Seidel debug mode)", 10, 544)
     g.drawString("'e' to switch Seidel / EarClip", 10, 556)
@@ -305,13 +305,14 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
       case "data/nazca_heron.dat" => 
+        doCDT = false; drawCDT = false; drawcdtMesh = false
         CDT.clearPoint = 7
-        loadModel(nazcaHeron, 4.5f, Point(400f, 300f), 1500) 
+        loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500) 
       case "data/tank.dat" => 
         //doCDT = false; drawCDT = false; drawcdtMesh = false
         doCDT = true; drawCDT = true
-        CDT.clearPoint = 50
-        loadModel(tank, -1f, Point(0f, 0f), 10)
+        CDT.clearPoint = 38
+        loadModel(tank, -1f, Point(100f, 0f), 10)
       case _ => 
         assert(false)
     }
@@ -361,7 +362,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     }
     
     if(!drawEarClip) {  
-      
+        
 	    // Sediel triangulation
 	    seidel = new Triangulator(segments)
         

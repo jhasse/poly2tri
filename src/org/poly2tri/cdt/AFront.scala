@@ -32,7 +32,7 @@ package org.poly2tri.cdt
 
 import scala.collection.mutable.ArrayBuffer
 
-import shapes.{Point, Triangle}
+import shapes.{Point, Triangle, Segment}
 
 // Advancing front
 class AFront(iTriangle: Triangle) {
@@ -91,11 +91,13 @@ class AFront(iTriangle: Triangle) {
   
   // Update advancing front with constrained edge triangles
   def constrainedEdge(sNode: Node, eNode: Node, T1: ArrayBuffer[Triangle], 
-                      T2: ArrayBuffer[Triangle]): Triangle = {
+                      T2: ArrayBuffer[Triangle], edge: Segment): Triangle = {
     
     var node = sNode
     var t1r, t2r = false
     
+    // Scan the advancing front and update Node triangle pointers
+    // Either T1 OR T2
     while(node != eNode) {
       
       T2.foreach(t => {
@@ -115,68 +117,44 @@ class AFront(iTriangle: Triangle) {
       
       node = node.next
     }
-       
-    if(t1r && !t2r) 
-      T1.first 
-    else if(t2r && !t1r)
-      T2.first
-    else
-      throw new Exception("edge insertion error")
     
-  }
-  
-  // Update advancing front with qNode
-  def constrainedEdge(qNode: Node, tList: ArrayBuffer[Triangle], T1: ArrayBuffer[Triangle], 
-                      T2: ArrayBuffer[Triangle]): Triangle = {
+    val point1 = edge.q
+    val point2 = edge.p
     
-    var t1r, t2r = false
+    // Select edge triangles
     
-    for(t <- tList) {
-  
-	    if(qNode.triangle == t) {
-	      
-	      val p1 = qNode.point
-	      val p2 = qNode.next.point
-       
-          T2.foreach(tri => if(tri.contains(p1, p2)) {
-	        qNode.triangle = tri
-            t2r = true
-	      })
-          
-          if(!t2r)
-	        T1.foreach(tri => if(tri.contains(p1, p2)) {
-	          qNode.triangle = tri
-              t1r = true
-            }) 
-          
-	    } else if(qNode.prev.triangle == t) {
-	      
-	      val p1 = qNode.prev.point
-	      val p2 = qNode.point
-       
-          T2.foreach(tri => if(tri.contains(p1, p2)) {
-	        qNode.prev.triangle = tri
-            t2r = true
-	      })
-          
-          if(!t2r)
-	        T1.foreach(tri => if(tri.contains(p1, p2)) {
-	          qNode.prev.triangle = tri
-              t1r = true
-	        })
-          
-	    } else if(qNode.next.triangle == t) {
-          throw new Exception("unanticipated edge event!")
-        }
-     
-	}
+    var edgeTri1: Triangle = null
+    var i = 0
+    while(edgeTri1 == null)  {
+      if(T1(i).contains(point1, point2)) 
+        edgeTri1 = T1(i)
+      i += 1
+    }
+    
+    // Mark constrained edge
+    edgeTri1 markEdge(point1, point2)
+    
+    var edgeTri2: Triangle = null
+    i = 0
+    while(edgeTri2 == null)  {
+      if(T2(i).contains(point1, point2)) 
+        edgeTri2 = T2(i)
+      i += 1
+    }
+      
+    // Mark constrained edge
+    edgeTri2 markEdge(point1, point2)
+    
+    // Update neighbor pointer
+    edgeTri1.markNeighbor(edgeTri2)
     
     if(t1r && !t2r) 
-      T1.first 
-    else if(t2r && !t1r)
-      T2.first
-    else
+      edgeTri1
+    else if(t2r && !t1r) { 
+      edgeTri2
+    } else {
       throw new Exception("edge insertion error")
+    }
     
   }
   
@@ -193,6 +171,7 @@ class AFront(iTriangle: Triangle) {
     node1.triangle = t
   }
   
+  // NOT IMPLEMENTED
   def basin(node: Node) {
     if(node.next != tail) {
       val p1 = node.point
