@@ -44,19 +44,16 @@ object CDT {
   
   // Inital triangle factor
   val ALPHA = 0.3f
-  val SHEER = 0.0001
-  
   var clearPoint = 0
   
   // Triangulate simple polygon
   def init(points: ArrayBuffer[Point]): CDT = {
     
-    var xmax, xmin = shearTransform(points.first).x
-    var ymax, ymin = shearTransform(points.first).y
+    var xmax, xmin = points.first.x
+    var ymax, ymin = points.first.y
     
     // Calculate bounds
     for(i <- 0 until points.size) { 
-      points(i) = shearTransform(points(i))
       val p = points(i)
       if(p.x > xmax) xmax = p.x
       if(p.x < xmin) xmin = p.x
@@ -98,11 +95,7 @@ object CDT {
     else
       Util.msort((p1: Point, p2: Point) => p1 > p2)(points.toList)
   }
-  
-  // Prevents any two distinct endpoints from lying on a common horizontal line, and avoiding
-  // the degenerate case. See Mark de Berg et al, Chapter 6.3
-  private def shearTransform(point: Point) = Point(point.x, point.y + point.x * 0.001f)
-  
+ 
 }
 
 class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Triangle) {
@@ -351,9 +344,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     } 
     
     if(!P.isEmpty) {
-      //val ccw = Util.orient2d(a, b, P(i)) > 0
-      //val pB = if(ccw) P(i) else b
-      //val pC = if(ccw) b else P(i)
       val points = Array(a, P(i), b)
       T += new Triangle(points)
       T.last.finalized = true
@@ -438,6 +428,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
+    
+    val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
     
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !t2.finalized) {
       

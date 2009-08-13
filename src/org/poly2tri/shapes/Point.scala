@@ -53,8 +53,21 @@ case class Point(val x: Float, val y: Float) {
   @inline def normalize = this / length  
   // Sort along x axis
   @inline def <(p: Point) = (x < p.x)
+  
   // Sort along y axis
-  @inline def >(p: Point) = (y < p.y) 
+  @inline def >(p: Point) = {
+    if(y < p.y) 
+      true
+    else if(y > p.y)
+      false
+    else {
+      if(x < p.x)
+        true
+      else 
+        false
+    }
+   }
+  
   @inline def !(p: Point) = !(p.x == x && p.y == y)
   @inline override def clone = Point(x, y)
   
