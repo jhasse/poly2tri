@@ -180,7 +180,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // EdgeEvent
   private def edgeEvent(edge: Segment, triangle: Triangle): Triangle = { 
-    
+   
     // Locate the first intersected triangle
     val firstTriangle = triangle.locateFirst(edge)
     
@@ -231,21 +231,26 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val T2 = new ArrayBuffer[Triangle]
       triangulate(rPoints.toArray, List(edge.q, edge.p), T2)
       
+      // Update neighbors
+      edgeNeighbors(nTriangles, T1)
+      edgeNeighbors(nTriangles, T2)
+      
       // Update advancing front
   
       val ahead = (edge.p.x > edge.q.x)
 	  val point1 = if(ahead) edge.q else edge.p 
 	  val point2 = if(ahead) edge.p else edge.q 
-  
+      
       val sNode = aFront.locate(point1)  
       val eNode = aFront.locate(point2)
       
-      // Update neighbors
-      edgeNeighbors(nTriangles, T1)
-      edgeNeighbors(nTriangles, T2)
-
-      aFront.constrainedEdge(sNode, eNode, T2, edge)
-
+      val eTri = aFront.constrainedEdge(sNode, eNode, T2, edge)
+      
+      // Mark edge triangle neighbors
+      //T1.foreach(t => t.markNeighbor(eTri))
+      
+      eTri
+      
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -273,13 +278,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
                                     
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
-      triangulate(points.toArray, List(edge.q, edge.p), T)
+      triangulate(points.toArray, List(point1, point2), T)
+      
+      //T.foreach(t => mesh.debug += t)
       
       // Select edge triangle
       var edgeTri: Triangle = null
       var i = 0
       while(edgeTri == null)  {
-        if(T(i).contains(first.point, node.point)) 
+        if(T(i).contains(point1, point2)) 
           edgeTri = T(i)
         i += 1
       }
@@ -349,6 +356,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       //val pC = if(ccw) b else P(i)
       val points = Array(a, P(i), b)
       T += new Triangle(points)
+      T.last.finalized = true
       mesh.map += T.last
     }
     

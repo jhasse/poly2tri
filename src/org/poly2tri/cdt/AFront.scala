@@ -115,7 +115,7 @@ class AFront(iTriangle: Triangle) {
 
       node = node.next
     }
-    
+   
     edgeTri
   }
   
