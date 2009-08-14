@@ -134,7 +134,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       if(i == CDT.clearPoint) {cleanTri = node.triangle; mesh.debug += cleanTri}
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, node))
-      
       } catch {
         case e: Exception =>
           //throw new Exception("Suspect point = " + i)
@@ -184,8 +183,12 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
        
-       while(!tList.last.contains(edge.p))
+       // Not sure why tList.last is null sometimes....
+       while(tList.last != null && !tList.last.contains(edge.p))
          tList += tList.last.findNeighbor(edge.p - edge.q)
+       
+       if(tList.last == null)
+         tList -= tList.last
        
        // Neighbor triangles
        val nTriangles = new ArrayBuffer[Triangle]
@@ -238,9 +241,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val eNode = aFront.locate(point2)
       
       aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
-      
-      // Mark edge triangle neighbors
-      //T1.foreach(t => t.markNeighbor(eTri))
       
     } else if(firstTriangle == null) {
       
