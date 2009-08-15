@@ -126,7 +126,7 @@ class Triangle(val points: Array[Point]) {
 
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
-   
+    if(contains(edge)) this
     if(edge.q == points(0)) 
       search(points(1), points(2), edge, neighbors(2))
     else if(edge.q == points(1)) 

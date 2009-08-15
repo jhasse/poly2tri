@@ -251,22 +251,22 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point1 = if(ahead) edge.q else edge.p
       val point2 = if(ahead) edge.p else edge.q
       
-      var node = aFront.locatePoint(point1)
-      val first = node
+      var pNode = aFront.locatePoint(point1)
+      val first = pNode
       
       val points = new ArrayBuffer[Point]
       // Neighbor triangles
       val nTriangles = new ArrayBuffer[Triangle]
-      nTriangles += node.triangle
+      nTriangles += pNode.triangle
       
-      node = node.next
+      pNode = pNode.next
       
-	  while(node.point != point2) {
-		points += node.point
-        nTriangles += node.triangle
-		node = node.next
+	  while(pNode.point != point2) {
+		points += pNode.point
+        nTriangles += pNode.triangle
+		pNode = pNode.next
 	  }
-                                    
+                                                   
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
       triangulate(points.toArray, List(point1, point2), T)
@@ -283,17 +283,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       }
       
       // Update advancing front 
-      aFront link (first, node, edgeTri)
+      aFront link (first, pNode, edgeTri)
       
       // Update neighbors
       edgeNeighbors(nTriangles, T)
-      
+            
       // Mark constrained edge
       edgeTri markEdge(point1, point2)
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 
       // Mark constrained edge
       firstTriangle markEdge(edge.q, edge.p)
+      firstTriangle.finalized = true
     } else {
       throw new Exception("Triangulation error")
       //null
@@ -326,7 +327,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     if(P.size > 1) {
       var c = P.first
       for(j <- 1 until P.size) {
-        if(illegal(a, P(j), b, c)) {
+        if(illegal(a, c, b, P(j))) {
           c = P(j)
           i = j
         } 
@@ -425,9 +426,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     val oPoint = t2 oppositePoint t1
     
     val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
-    
+        
     if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !t2.finalized) {
-      
+
         // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint)
 	    t2.legalize(oPoint, point)
@@ -444,6 +445,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
 	      }
 	    }
         t2.markNeighbor(t1)
+        
+        // Don't legalize these triangles again
+        t2.finalized = true
+        t1.finalized = true
         
         // Update advancing front
         aFront.insertLegalized(t1.points(1), t1, node)
