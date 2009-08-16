@@ -87,7 +87,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
   
-  var currentModel = tank
+  var currentModel = nazcaHeron
   var doCDT = true
   
   var mouseButton = 0
@@ -378,12 +378,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(!drawEarClip) {  
         
 	    // Sediel triangulation
-	    seidel = new Triangulator(segments)
-        
-	    val t1 = System.nanoTime
-	    seidel.process
-	    val runTime = System.nanoTime - t1
-	
+        val t1 = System.nanoTime
+	    seidel = new Triangulator(points)
+        val runTime = System.nanoTime - t1
+	   
 	    println("Poly2Tri average (ms) =  " + runTime*1e-6)
 	    println("Number of triangles = " + seidel.polygons.size)
      

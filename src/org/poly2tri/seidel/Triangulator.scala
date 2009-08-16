@@ -39,15 +39,28 @@ import shapes.{Point, Segment, Trapezoid}
 // algorithm for computing trapezoidal decompositions and for triangulating polygons"
 // See also: "Computational Geometry", 3rd edition, by Mark de Berg et al, Chapter 6.2
 //           "Computational Geometry in C", 2nd edition, by Joseph O'Rourke
-class Triangulator(segments: ArrayBuffer[Segment]) {
+class Triangulator(points: ArrayBuffer[Point]) {
   
   // Convex polygon list
   var polygons = new ArrayBuffer[Array[Point]]
   // Order and randomize the segments
-  val segmentList = orderSegments
+  val segmentList = initSegments
+  
+  // The trapezoidal map 
+  def trapezoidMap = trapezoidalMap.map
+  // Trapezoid decomposition list
+  var trapezoids = new ArrayBuffer[Trapezoid]
+  
+  // Initialize trapezoidal map and query structure
+  private val trapezoidalMap = new TrapezoidalMap
+  private val boundingBox = trapezoidalMap.boundingBox(segmentList)
+  private val queryGraph = new QueryGraph(Sink.init(boundingBox))
+  private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
+  
+  process
   
   // Build the trapezoidal map and query graph
-  def process {
+  private def process {
 
     var i = 0
     while(i < segmentList.size) {
@@ -117,11 +130,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
     //println("# triangles = " + triangles.size)
   }
   
-  // The trapezoidal map 
-  def trapezoidMap = trapezoidalMap.map
-  // Trapezoid decomposition list
-  var trapezoids = new ArrayBuffer[Trapezoid]
-  
   // Monotone polygons - these are monotone mountains
   def monoPolies: ArrayBuffer[ArrayBuffer[Point]] = {
     val polies = new ArrayBuffer[ArrayBuffer[Point]]
@@ -129,12 +137,6 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
      polies += xMonoPoly(i).monoPoly
     return polies
   }
-  
-  // Initialize trapezoidal map and query structure
-  private val trapezoidalMap = new TrapezoidalMap
-  private val boundingBox = trapezoidalMap.boundingBox(segmentList)
-  private val queryGraph = new QueryGraph(Sink.init(boundingBox))
-  private val xMonoPoly = new ArrayBuffer[MonotoneMountain]
   
   // Build a list of x-monotone mountains
   private def createMountains {
@@ -190,7 +192,17 @@ class Triangulator(segments: ArrayBuffer[Segment]) {
 	  }
   }
   
-  private def orderSegments = {
+  // Create segments and connect end points; update edge event pointer
+  private def initSegments: ArrayBuffer[Segment] = {
+    var segments = List[Segment]()
+    for(i <- 0 until points.size-1) 
+      segments = new Segment(points(i), points(i+1)) :: segments
+    segments =  new Segment(points.first, points.last) :: segments
+    orderSegments(segments)
+  }
+  
+  private def orderSegments(segments: List[Segment]) = {
+    
     // Ignore vertical segments!
     val segs = new ArrayBuffer[Segment]
     for(s <- segments) {

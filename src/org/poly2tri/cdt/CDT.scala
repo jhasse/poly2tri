@@ -75,7 +75,7 @@ object CDT {
     new CDT(sortedPoints, segments, iTriangle)
   }
   
-    // Create segments and connect end points; update edge event pointer
+  // Create segments and connect end points; update edge event pointer
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
     var segments = List[Segment]()
     for(i <- 0 until points.size-1) {
@@ -127,20 +127,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   private def sweep {
     
     for(i <- 1 until points.size) {
-      
-      try {
       val point = points(i)
       // Process Point event
       val node = pointEvent(point)
       if(i == CDT.clearPoint) {cleanTri = node.triangle; mesh.debug += cleanTri}
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, node))
-      } catch {
-        case e: Exception =>
-          throw new Exception("Suspect point = " + i)
-      }
-      
     }
+    
   }  
   
   // Final step in the sweep-line CDT algo
@@ -176,7 +170,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // Locate the first intersected triangle
     val firstTriangle = node.triangle.locateFirst(edge)
-    
+    //if(firstTriangle != null)mesh.debug += firstTriangle
     // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
        
@@ -342,27 +336,28 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   }
 
   // Scan left and right along AFront to fill holes
-  private def scanAFront(n: Node) {
+  private def scanAFront(n: Node) = {
     
-    var node = n.next
+    var node1 = n.next
     // Update right
-    if(node.next != null) {
+    if(node1.next != null) {
       var angle = 0.0
       do {
-        angle = fill(node)
-        node = node.next
-      } while(angle <= PI_2 && node.next != null) 
+        angle = fill(node1)
+        node1 = node1.next
+      } while(angle <= PI_2 && node1.next != null) 
     }
     
-    node = n.prev
+    var node2 = n.prev
     // Update left
-    if(node.prev != null) {
+    if(node2.prev != null) {
       var angle = 0.0
       do {
-	    angle = fill(node)
-        node = node.prev
-      } while(angle <= PI_2 && node.prev != null)
+	    angle = fill(node2)
+        node2 = node2.prev
+      } while(angle <= PI_2 && node2.prev != null)
     }
+    
   }
   
   // Fill empty space with a triangle
