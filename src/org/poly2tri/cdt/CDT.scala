@@ -38,9 +38,13 @@ import seidel.MonotoneMountain
 
 /**
  * Sweep-line, Constrained Delauney Triangulation (CDT)
- * See: Domiter, V. and Žalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
- *      International Journal of Geographical Information Science,22:4,449 — 462
+ * See: Domiter, V. and Zalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
+ *      International Journal of Geographical Information Science
  */
+
+// NOTE: Still need to implement edge insertion which combines advancing front (AF) 
+// and triangle traversal respectively. See figure 14(a) from Domiter et al.
+
 object CDT {
   
   // Inital triangle factor
