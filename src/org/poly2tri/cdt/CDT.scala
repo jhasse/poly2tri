@@ -137,7 +137,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       point.edges.foreach(e => edgeEvent(e, node))
       } catch {
         case e: Exception =>
-          //throw new Exception("Suspect point = " + i)
+          throw new Exception("Suspect point = " + i)
       }
       
     }

@@ -58,7 +58,17 @@ class Segment(var p: Point, var q: Point) {
       val tmp = p
       p = q
       q = tmp
-     }
+	} else if(p.y == q.y) {
+	  // If y values are equal, make sure point with smaller x value
+	  // is the the left
+	  if(p.x > q.x) {
+	    val tmp = p
+        p = q
+        q = tmp
+	  } else if(p.x == q.x) {
+        throw new Exception("Duplicate point")
+      }
+	}
 	q.edges += this
   }
   

@@ -87,7 +87,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
   
-  var currentModel = strange
+  var currentModel = tank
   var doCDT = true
   
   var mouseButton = 0
@@ -173,15 +173,29 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 	    })
    
    if(drawCDT) {
+     
        val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
-       //val draw = slCDT.testTri
+       
 	   draw.foreach( t => {
+	     
+	     for(i <- 0 to 2) {
+	       val s = t.points(i)
+           val e = if(i == 2) t.points(0) else t.points(i + 1)
+           val j = if(i == 0) 2 else if(i == 1) 0 else 1
+           if(t.edges(j))
+             g.setColor(yellow)
+           else
+             g.setColor(red)
+	       g.drawLine(s.x,s.y,e.x,e.y)
+	     }
+         /*
 	     val triangle = new Polygon
 		 triangle.addPoint(t.points(0).x, t.points(0).y)
 		 triangle.addPoint(t.points(1).x, t.points(1).y)
 		 triangle.addPoint(t.points(2).x, t.points(2).y)
 		 g.setColor(red)
 		 g.draw(triangle) 
+         */
 	   })
        
 	   slCDT.debugTriangles.foreach( t => {
