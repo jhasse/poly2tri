@@ -26,6 +26,7 @@
 package org.poly2tri.earClip
 
 import shapes.Point
+import utils.Util
 
 class EarClip {
 
@@ -37,10 +38,20 @@ class EarClip {
  
 	var numTriangles = 0
  
-	def triangulatePolygon(xv: Array[Float], yv: Array[Float], vn: Int, results: Array[Triangle]): Int = {
+	def triangulatePolygon(x: Array[Float], y: Array[Float], vn: Int, results: Array[Triangle]): Int = {
 			
+	        val p1 = Point(x(0), y(0))
+            val p2 = Point(x(1), y(1))
+            val p3 = Point(x(2), y(2))
+            
+            val ccw = Util.orient2d(p1, p2, p3) > 0
+            
+            val xv = if(ccw) x else x.reverse.toArray
+            val yv = if(ccw) y else y.reverse.toArray
+            
 	        if (vn < 3) return 0
 	        var vNum = vn
+         
 			//Recurse and split on pinch points
 			val pA = new Poly
 			val pB = new Poly

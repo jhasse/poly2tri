@@ -395,11 +395,6 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
      
 	    var xVerts = polyX.toArray
 	    var yVerts = polyY.toArray
-       
-        if(currentModel != strange) {
-	      xVerts = xVerts.reverse
-          yVerts = yVerts.reverse
-        }
 	   
 	    val t1 = System.nanoTime
 	    earClip.triangulatePolygon(xVerts, yVerts, xVerts.size, earClipResults)

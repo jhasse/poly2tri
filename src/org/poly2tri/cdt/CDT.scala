@@ -229,6 +229,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Update neighbors
       edgeNeighbors(nTriangles, T1)
       edgeNeighbors(nTriangles, T2)
+      T1.last.markNeighbor(T2.last)
       
       // Update advancing front
   

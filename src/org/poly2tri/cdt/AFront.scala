@@ -117,9 +117,6 @@ class AFront(iTriangle: Triangle) {
 
       node = node.next
     }
-   
-    T1.last.markNeighbor(T2.last)
-    
   }
   
   def -=(tuple: Tuple3[Node, Node, Triangle]) {
