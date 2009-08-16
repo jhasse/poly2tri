@@ -404,8 +404,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
-        
-    if(illegal(t1.points(1), t1.points(0), t1.points(2), oPoint) && !t2.finalized) {
+    
+    // Pints are oriented ccw
+    val illegal = Util.incircle(t1.points(1), t1.points(2), t1.points(0), oPoint)    
+    
+    if(illegal && !t2.finalized) {
 
         // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint)

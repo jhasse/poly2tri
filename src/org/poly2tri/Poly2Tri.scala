@@ -87,7 +87,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
   
-  var currentModel = nazcaHeron
+  var currentModel = nazcaMonkey
   var doCDT = true
   
   var mouseButton = 0
@@ -97,7 +97,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var mousePosOld = Point(0, 0)
   var deltaX = 0f
   var deltaY = 0f
-  var scaleFactor = 1f
+  var scaleFactor = 0.85f
   
   var gameContainer: GameContainer = null
   
