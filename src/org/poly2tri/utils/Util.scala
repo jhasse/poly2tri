@@ -12,7 +12,8 @@ object Util {
   
   val epsilon = exactinit
   val ccwerrboundA = (3.0 + 16.0 * epsilon) * epsilon
-
+  val iccerrboundA = (10.0 + 96.0 * epsilon) * epsilon
+  
   // From "Scala By Example," by Martin Odersky
   def msort[A](less: (A, A) => Boolean)(xs: List[A]): List[A] = {
     def merge(xs1: List[A], xs2: List[A]): List[A] =
@@ -120,7 +121,7 @@ object Util {
 	     return det
 	   }
 	
-	   val errbound = Util.ccwerrboundA * detsum
+	   val errbound = ccwerrboundA * detsum
 	   if ((det >= errbound) || (-det >= errbound)) {
 	     return det
 	   } else {    
@@ -129,7 +130,136 @@ object Util {
          return orient2d(pa, pb, c)
 	   }
 
- }
+   }
+   
+   // Returns triangle circumcircle point and radius
+   def circumCircle(a: Point, b: Point, c: Point): Tuple2[Point, Float] = {
+     
+     val A = det(a, b, c)
+     val C = detC(a, b, c)
+     
+     val bx1 = Point(a.x*a.x + a.y*a.y, a.y)
+     val bx2 = Point(b.x*b.x + b.y*b.y, b.y)
+     val bx3 = Point(c.x*c.x + c.y*c.y, c.y)
+     val bx = det(bx1, bx2, bx3)
+     
+     val by1 = Point(a.x*a.x + a.y*a.y, a.x)
+     val by2 = Point(b.x*b.x + b.y*b.y, b.x)
+     val by3 = Point(c.x*c.x + c.y*c.y, c.x)
+     val by = det(by1, by2, by3)
+     
+     val x = bx / (2*A)
+     val y = by / (2*A)
+     
+     val center = Point(x, y)
+     val radius = Math.sqrt(bx*bx + by*by - 4*A*C).toFloat / (2*Math.abs(A))
+     
+     (center, radius)
+   }
+   
+   def det(p1: Point, p2: Point, p3: Point): Float = {
+     
+     val a11 = p1.x
+     val a12 = p1.y
+     val a13,a23,a33 = 1f
+     val a21 = p2.x
+     val a22 = p2.y
+     val a31 = p3.x
+     val a32 = p3.y
+     
+     a11*(a22*a33-a23*a32) - a12*(a21*a33 - a23*a31) + a13*(a21*a32-a22*a31)
+     
+   }
+   
+   def detC(p1: Point, p2: Point, p3: Point): Float = {
+     
+     val a11 = p1.x*p1.x + p1.y*p1.y
+     val a12 = p1.x
+     val a13 = p1.y
+     val a21 = p2.x*p2.x + p2.y*p2.y
+     val a22 = p2.x
+     val a23 = p2.y
+     val a31 = p3.x*p3.x + p3.y*p3.y
+     val a32 = p3.x
+     val a33 = p3.y
+     
+     a11*(a22*a33-a23*a32) - a12*(a21*a33 - a23*a31) + a13*(a21*a32-a22*a31)
+     
+   }
+   
+   /* Approximate 2D incircle test.  Nonrobust.  By Jonathan Shewchuk
+    * Return a positive value if the point pd lies inside the     
+    * circle passing through pa, pb, and pc; a negative value if  
+    * it lies outside; and zero if the four points are cocircular.
+    * The points pa, pb, and pc must be in counterclockwise       
+    * order, or the sign of the result will be reversed.   
+   */
+   def incirclefast(pa: Point, pb: Point, pc: Point, pd: Point): Boolean = {
+     
+    val adx = pa.x - pd.x
+    val ady = pa.y - pd.y
+    val bdx = pb.x - pd.x
+    val bdy = pb.y - pd.y
+    val cdx = pc.x - pd.x
+    val cdy = pc.y - pd.y
+
+    val abdet = adx * bdy - bdx * ady
+    val bcdet = bdx * cdy - cdx * bdy
+    val cadet = cdx * ady - adx * cdy
+    val alift = adx * adx + ady * ady
+    val blift = bdx * bdx + bdy * bdy
+    val clift = cdx * cdx + cdy * cdy
+
+    alift * bcdet + blift * cadet + clift * abdet >= 0
+    
+  }
+
+   /* Robust 2D incircle test, modified. Original By Jonathan Shewchuk
+    * Return a positive value if the point pd lies inside the     
+    * circle passing through pa, pb, and pc; a negative value if  
+    * it lies outside; and zero if the four points are cocircular.
+    * The points pa, pb, and pc must be in counterclockwise       
+    * order, or the sign of the result will be reversed.   
+   */
+   def incircle(pa: Point, pb: Point, pc: Point, pd: Point): Boolean = {
+  
+     val adx = pa.x - pd.x
+     val bdx = pb.x - pd.x
+     val cdx = pc.x - pd.x
+     val ady = pa.y - pd.y
+     val bdy = pb.y - pd.y
+     val cdy = pc.y - pd.y
+
+     val bdxcdy = bdx * cdy
+     val cdxbdy = cdx * bdy
+     val alift = adx * adx + ady * ady
+
+     val cdxady = cdx * ady
+     val adxcdy = adx * cdy
+     val blift = bdx * bdx + bdy * bdy
+
+     val adxbdy = adx * bdy
+     val bdxady = bdx * ady
+     val clift = cdx * cdx + cdy * cdy
+
+     val det = alift * (bdxcdy - cdxbdy) + 
+               blift * (cdxady - adxcdy) + 
+               clift * (adxbdy - bdxady)
+
+     val permanent = (Math.abs(bdxcdy) + Math.abs(cdxbdy)) * alift + 
+                     (Math.abs(cdxady) + Math.abs(adxcdy)) * blift + 
+                     (Math.abs(adxbdy) + Math.abs(bdxady)) * clift
+     
+     val errbound = iccerrboundA * permanent
+     
+     if ((det > errbound) || (-det > errbound)) {
+       return det >= 0
+     } else {
+       throw new Exception("Points nearly collinear")
+     }
+
+}
+
  
 }
 

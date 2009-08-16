@@ -34,6 +34,7 @@ import scala.collection.mutable.{ArrayBuffer, Set}
 
 import shapes.{Segment, Point, Triangle}
 import utils.Util
+import seidel.MonotoneMountain
 
 /**
  * Sweep-line, Constrained Delauney Triangulation (CDT)
@@ -242,6 +243,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       
       aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
       
+      // Mark constrained edge
+      T1.last markEdge(point1, point2)
+      T2.last markEdge(point1, point2)
+      
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -251,7 +256,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point1 = if(ahead) edge.q else edge.p
       val point2 = if(ahead) edge.p else edge.q
       
-      var pNode = aFront.locatePoint(point1)
+      var pNode = if(ahead) node else aFront.locatePoint(point1)
       val first = pNode
       
       val points = new ArrayBuffer[Point]
@@ -266,30 +271,19 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         nTriangles += pNode.triangle
 		pNode = pNode.next
 	  }
-                                                   
+
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
       triangulate(points.toArray, List(point1, point2), T)
-      
-      //T.foreach(t => mesh.debug += t)
-      
-      // Select edge triangle
-      var edgeTri: Triangle = null
-      var i = 0
-      while(edgeTri == null)  {
-        if(T(i).contains(point1, point2)) 
-          edgeTri = T(i)
-        i += 1
-      }
-      
-      // Update advancing front 
-      aFront link (first, pNode, edgeTri)
-      
+     
       // Update neighbors
       edgeNeighbors(nTriangles, T)
-            
+      
+      // Update advancing front 
+      aFront link (first, pNode, T.last)
+      
       // Mark constrained edge
-      edgeTri markEdge(point1, point2)
+      T.last markEdge(point1, point2)
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 
       // Mark constrained edge
@@ -297,7 +291,6 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       firstTriangle.finalized = true
     } else {
       throw new Exception("Triangulation error")
-      //null
     }
     
   }
@@ -316,18 +309,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
   }
   
-  
   // Marc Vigo Anglada's triangulate pseudo-polygon algo 
+  // See "An improved incremental algorithm for constructing restricted Delaunay triangulations"
   private def triangulate(P: Array[Point], ab: List[Point], T: ArrayBuffer[Triangle]) {
     
-    val a = ab.first
-    val b = ab.last
+    val a = ab(0)
+    val b = ab(1)
     var i = 0
     
     if(P.size > 1) {
-      var c = P.first
+      var c = P(0)
       for(j <- 1 until P.size) {
-        if(illegal(a, c, b, P(j))) {
+        if(illegal(a, b, c, P(j))) {
           c = P(j)
           i = j
         } 
@@ -389,31 +382,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       angle
   }
   
-  // Do edges need to be swapped? Robust CircumCircle test
-  // See section 3.7 from "Triangulations and Applications" by O. Hjelle & M. Deahlen
-  private def illegal(p1: Point, p2: Point, p3: Point, p4:Point): Boolean = {
+  // Circumcircle test. 
+  // Determines if point d lies inside triangle abc's circumcircle 
+  def illegal(a: Point, b: Point, c: Point, d: Point): Boolean = {
     
-	  val v1 = p3 - p2
-      val v2 = p1 - p2
-      val v3 = p1 - p4
-      val v4 = p3 - p4
-      
-      val cosA = v1 dot v2
-      val cosB = v3 dot v4
-      
-      if(cosA < 0 && cosB < 0) 
-        return true 
-      
-      if(cosA > 0 && cosB > 0)
-        return false
-      
-      val sinA = v1 cross v2
-      val sinB = v3 cross v4
-
-      if((cosA*sinB + sinA*cosB) < 0f) 
-        true
-      else
-        false
+    val ccw = Util.orient2d(a, b, c) > 0
+    
+    // Make sure abc is oriented counter-clockwise
+    if(ccw) 
+      Util.incircle(a, b, c, d) 
+    else 
+      Util.incircle(a, c, b, d)
+    
   }
   
   // Ensure adjacent triangles are legal
@@ -424,10 +404,8 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     val point = t1.points(0)
     val oPoint = t2 oppositePoint t1
-    
-    val collinear = t1.collinear(oPoint) || t2.collinear(oPoint, point)
         
-    if(illegal(t1.points(1), oPoint, t1.points(2), t1.points(0)) && !t2.finalized) {
+    if(illegal(t1.points(1), t1.points(0), t1.points(2), oPoint) && !t2.finalized) {
 
         // Flip edge and rotate everything clockwise
 	    t1.legalize(oPoint)

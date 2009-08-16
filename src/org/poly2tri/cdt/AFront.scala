@@ -98,8 +98,6 @@ class AFront(iTriangle: Triangle) {
     val point1 = edge.q
     val point2 = edge.p
     
-    var edgeTri1: Triangle = null
-    var edgeTri2: Triangle = null
     var marked = false
     
     // Scan the advancing front and update Node triangle pointers
@@ -108,29 +106,19 @@ class AFront(iTriangle: Triangle) {
       T2.foreach(t => {
         if(t.contains(node.point, node.next.point))
           node.triangle = t
-        if(!marked && t.contains(point1, point2)) {
-          edgeTri2 = t
-          edgeTri2 markEdge(point1, point2)
           marked = true
-        }
       })
       
-      marked = false
-      
-      T1.foreach(t => {
-        if(t.contains(node.point, node.next.point))
-          node.triangle = t
-        if(!marked && t.contains(point1, point2)) {
-          edgeTri1 = t
-          edgeTri1 markEdge(point1, point2)
-          marked = true
-        }
-      })
+      if(!marked)
+        T1.foreach(t => {
+          if(t.contains(node.point, node.next.point))
+            node.triangle = t
+        })
 
       node = node.next
     }
    
-    edgeTri1.markNeighbor(edgeTri2)
+    T1.last.markNeighbor(T2.last)
     
   }
   
