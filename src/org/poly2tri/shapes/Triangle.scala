@@ -44,13 +44,14 @@ class Triangle(val points: Array[Point]) {
   var neighbors = new Array[Triangle](3)
   // Flags to determine if an edge is the final Delauney edge
   val edges = Array(false, false, false)
-  
-  // Finalization flag
+  // Finalization flag. Set true if legalized or edge constrained
+  var finalized = false
+  // Has this triangle been marked as an interoir triangle?
   var interior = false
   
-  var finalized = false
-  
-  var test = false
+  def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
+  def contains(e: Segment): Boolean = (contains(e.p) && contains(e.q))
+  def contains(p: Point, q: Point): Boolean = (contains(p) && contains(q))
   
   // Update neighbor pointers
   private def markNeighbor(p1: Point, p2: Point, t: Triangle) {    
@@ -101,10 +102,6 @@ class Triangle(val points: Array[Point]) {
     }
     
   }
-  
-  def contains(p: Point): Boolean = (p == points(0) || p == points(1) || p == points(2))
-  def contains(e: Segment): Boolean = (contains(e.p) && contains(e.q))
-  def contains(p: Point, q: Point): Boolean = (contains(p) && contains(q))
   
   // Fast point in triangle test
   def pointIn(point: Point): Boolean = {
@@ -306,6 +303,18 @@ class Triangle(val points: Array[Point]) {
           case 1 => triangle.markEdge(points(0), points(2))
           case 2 => triangle.markEdge(points(0), points(1))
         }
+  }
+  
+  def markEdge(T: ArrayBuffer[Triangle]) {
+    for(t <- T) {
+	    for(i <- 0 to 2) 
+	      if(t.edges(i)) 
+	        i match {
+	          case 0 => markEdge(t.points(1), t.points(2))
+	          case 1 => markEdge(t.points(0), t.points(2))
+	          case 2 => markEdge(t.points(0), t.points(1))
+	        }
+     }
   }
   
   // Mark edge as constrained

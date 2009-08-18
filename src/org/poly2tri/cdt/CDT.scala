@@ -42,9 +42,9 @@ import seidel.MonotoneMountain
  *      International Journal of Geographical Information Science
  */
 
-// NOTE: Still need to implement edge insertion which combines advancing front (AF) 
+// NOTE: May need to implement edge insertion which combines advancing front (AF) 
 // and triangle traversal respectively. See figure 14(a) from Domiter et al.
-
+// Although it may not be necessary for simple polygons....
 object CDT {
   
   // Inital triangle factor
@@ -83,12 +83,11 @@ object CDT {
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
     
     var segments = List[Segment]()
+    
     for(i <- 0 until points.size-1) {
-      
       val endPoints = validatePoints(points(i), points(i+1))
       segments =  new Segment(endPoints(0), endPoints(1)) :: segments
       endPoints(1).edges += segments.first
-      
     }
     
     val endPoints = validatePoints(points.first, points.last) 
@@ -199,7 +198,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // Locate the first intersected triangle
     val firstTriangle = node.triangle.locateFirst(edge)
-    //if(firstTriangle != null)mesh.debug += firstTriangle
+    
     // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
        
@@ -270,6 +269,9 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Mark constrained edge
       T1.last markEdge(point1, point2)
       T2.last markEdge(point1, point2)
+      // Copy constraied edges from old triangles
+      T1.foreach(t => t.markEdge(tList))
+      T2.foreach(t => t.markEdge(tList))
       
     } else if(firstTriangle == null) {
       
@@ -280,7 +282,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val point1 = if(ahead) edge.q else edge.p
       val point2 = if(ahead) edge.p else edge.q
       
-      var pNode = if(ahead) node else aFront.locatePoint(point1)
+      var pNode = if(ahead) node else aFront.locate(point1)
       val first = pNode
       
       val points = new ArrayBuffer[Point]
@@ -288,15 +290,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       // Neighbor triangles
       val nTriangles = new ArrayBuffer[Triangle]
       nTriangles += pNode.triangle
-      
       pNode = pNode.next
       
-	  while(pNode.point != point2) {
+	  while(pNode.point != point2 && edge > pNode.point) {
 		points += pNode.point
         nTriangles += pNode.triangle
 		pNode = pNode.next
 	  }
-
+      
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
       triangulate(points.toArray, List(point1, point2), T)
@@ -437,9 +438,13 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     if(illegal && !t2.finalized) {
 
         // Flip edge and rotate everything clockwise
+     
+        // Legalize points
 	    t1.legalize(oPoint)
 	    t2.legalize(oPoint, point)
         
+        // Update neighbors
+     
         // Copy old neighbors
 	    val neighbors = List(t2.neighbors(0), t2.neighbors(1), t2.neighbors(2))
         // Clear old neighbors

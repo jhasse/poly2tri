@@ -79,7 +79,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawcdtMesh = false
   
   val nazcaMonkey = "data/nazca_monkey.dat"
-  val nazcaHeron = "data/nazca_heron.dat"
+  val nazcaHeron = "data/nazca_heron_old.dat"
   val bird = "data/bird.dat"
   val snake = "data/i.snake"
   val star = "data/star.dat"
@@ -87,7 +87,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
   
-  var currentModel = nazcaMonkey
+  var currentModel = nazcaHeron
   var doCDT = true
   
   var mouseButton = 0
@@ -318,7 +318,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         doCDT = true; drawCDT = true
         CDT.clearPoint = 7
         loadModel(i18, 20f, Point(600f, 500f), 20)
-      case "data/nazca_heron.dat" => 
+      case "data/nazca_heron_old.dat" => 
         //doCDT = false; drawCDT = false; drawcdtMesh = false
         CDT.clearPoint = 100
         loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500) 
