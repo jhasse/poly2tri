@@ -81,14 +81,39 @@ object CDT {
   
   // Create segments and connect end points; update edge event pointer
   private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
+    
     var segments = List[Segment]()
     for(i <- 0 until points.size-1) {
-      segments = new Segment(points(i), points(i+1)) :: segments
-      segments.first.updateEdge
+      
+      val endPoints = validatePoints(points(i), points(i+1))
+      segments =  new Segment(endPoints(0), endPoints(1)) :: segments
+      endPoints(1).edges += segments.first
+      
     }
-    segments =  new Segment(points.first, points.last) :: segments
-    segments.first.updateEdge
+    
+    val endPoints = validatePoints(points.first, points.last) 
+    segments =  new Segment(endPoints(0), endPoints(1)) :: segments
+    endPoints(1).edges += segments.first
+    
     segments
+  }
+  
+  def validatePoints(p1: Point, p2: Point): List[Point] = {
+    
+    if(p1.y > p2.y) {
+	    // For CDT we want q to be the point with > y
+        return List(p2, p1)
+	 } else if(p1.y == p2.y) {
+	    // If y values are equal, make sure point with smaller x value
+	    // is the the left
+	    if(p1.x > p2.x) {
+	      return List(p2, p1)
+	    } else if(p1.x == p2.x) {
+          throw new Exception("Duplicate point")
+        }
+	  }
+    
+    List(p1, p2)
   }
   
   // Insertion sort is one of the fastest algorithms for sorting arrays containing 
@@ -259,6 +284,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       val first = pNode
       
       val points = new ArrayBuffer[Point]
+      
       // Neighbor triangles
       val nTriangles = new ArrayBuffer[Triangle]
       nTriangles += pNode.triangle

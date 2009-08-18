@@ -50,26 +50,5 @@ class Segment(var p: Point, var q: Point) {
   def > (point: Point) = (Math.floor(point.y) < Math.floor(slope * point.x + b))
   // Determines if this segment lies below the given point
   def < (point: Point) = (Math.floor(point.y) > Math.floor(slope * point.x + b))
-  
-  // Update point edge list for CDT
-  def updateEdge {
-	if(p.y > q.y) {
-	  // For CDT we want q to be the point with > y
-      val tmp = p
-      p = q
-      q = tmp
-	} else if(p.y == q.y) {
-	  // If y values are equal, make sure point with smaller x value
-	  // is the the left
-	  if(p.x > q.x) {
-	    val tmp = p
-        p = q
-        q = tmp
-	  } else if(p.x == q.x) {
-        throw new Exception("Duplicate point")
-      }
-	}
-	q.edges += this
-  }
-  
+    
 }
