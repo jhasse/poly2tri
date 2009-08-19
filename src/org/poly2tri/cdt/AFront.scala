@@ -93,30 +93,24 @@ class AFront(iTriangle: Triangle) {
   def constrainedEdge(sNode: Node, eNode: Node, T1: ArrayBuffer[Triangle], 
                       T2: ArrayBuffer[Triangle], edge: Segment) {
     
-    var node = sNode
+    var node = sNode.prev
     
     val point1 = edge.q
     val point2 = edge.p
     
-    var marked = false
-    
     // Scan the advancing front and update Node triangle pointers
-    while(node != null && node != eNode) {
-      
+    while(node != null && node != eNode.next) {
       T2.foreach(t => {
         if(t.contains(node.point, node.next.point))
           node.triangle = t
-          marked = true
       })
-      
-      if(!marked)
-        T1.foreach(t => {
-          if(t.contains(node.point, node.next.point))
-            node.triangle = t
-        })
-
+      T1.foreach(t => {
+        if(t.contains(node.point, node.next.point))
+          node.triangle = t
+      })
       node = node.next
     }
+    
   }
   
   def -=(tuple: Tuple3[Node, Node, Triangle]) {

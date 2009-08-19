@@ -139,7 +139,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   // Implement sweep-line 
   private def sweep {
     
-    for(i <- 1 until 36 /*points.size*/) {
+    for(i <- 1 until points.size) {
       val point = points(i)
       // Process Point event
       val node = pointEvent(point)
@@ -208,9 +208,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
         tList.foreach(t => {
           t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
           mesh.map -= t
-          //mesh.debug += t
         })
-        //nTriangles.foreach(n => mesh.debug += n)
         
 		val lPoints = new ArrayBuffer[Point]
 		val rPoints = new ArrayBuffer[Point]
@@ -250,11 +248,8 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
 	  val point1 = if(ahead) edge.q else edge.p 
 	  val point2 = if(ahead) edge.p else edge.q 
     
-      val sNode = if(ahead) node else aFront.locate(point1).prev  
-      val eNode = aFront.locate(point2).next
-      
-      //mesh.debug += sNode.triangle
-      //mesh.debug += eNode.triangle
+      val sNode = if(ahead) node else aFront.locate(point1)
+      val eNode = aFront.locate(point2)
       
       aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
       
@@ -262,15 +257,9 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       T1.last markEdge(point1, point2)
       T2.last markEdge(point1, point2)
       // Copy constraied edges from old triangles
-      T1.foreach(t => {t.markEdge(tList)/*;mesh.debug += t*/})
-      T2.foreach(t => {t.markEdge(tList)/*;mesh.debug += t*/})
+      T1.foreach(t => t.markEdge(tList))
+      T2.foreach(t => t.markEdge(tList))
       
-      var n = sNode
-      while(n != eNode) {
-        mesh.debug += n.triangle
-        n = n.next
-      }
-        
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh

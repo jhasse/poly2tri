@@ -180,7 +180,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
        val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
        
 	   draw.foreach( t => {
-	     if(true) {
+	     if(false) {
 		     for(i <- 0 to 2) {
 		       val s = t.points(i)
 	           val e = if(i == 2) t.points(0) else t.points(i + 1)
