@@ -189,14 +189,15 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     // Locate the first intersected triangle
     val firstTriangle = node.triangle.locateFirst(edge)
     
-    // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
-   
+    	
+       // Constrained edge lies below the advancing front. Traverse through intersected triangles,
+       // form empty pseudo-polygons, and re-triangulate
+      
        // Collect intersected triangles
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
        
-       // Not sure why tList.last is null sometimes....
        while(!tList.last.contains(edge.p))
          tList += tList.last.findNeighbor(edge.p)
        
@@ -210,6 +211,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
           mesh.map -= t
         })
         
+        // Using a hashMap or set may improve performance
 		val lPoints = new ArrayBuffer[Point]
 		val rPoints = new ArrayBuffer[Point]
 		   
@@ -263,7 +265,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
-      // Apply constraint; traverse the AFront, and build triangles
+      // Apply constraint; traverse the advancing front, and build triangles
       
       val ahead = (edge.p.x > edge.q.x)
       val point1 = if(ahead) edge.q else edge.p
@@ -299,11 +301,12 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       T.last markEdge(point1, point2)
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 
+      // Constrained edge lies on the side of a triangle
       // Mark constrained edge
       firstTriangle markEdge(edge.q, edge.p)
       firstTriangle.finalized = true
     } else {
-      throw new Exception("Triangulation error")
+      throw new Exception("Triangulation error - unexpected case")
     }
     
   }
