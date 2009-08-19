@@ -58,6 +58,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   // Sedidel Triangulator
   var seidel: Triangulator = null
   var segments: ArrayBuffer[Segment] = null
+  var chestSegs: ArrayBuffer[Segment] = null
+  var headSegs: ArrayBuffer[Segment] = null
   
   // EarClip Triangulator
   val earClip = new EarClip
@@ -86,8 +88,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   val strange = "data/strange.dat"
   val i18 = "data/i.18"
   val tank = "data/tank.dat"
+  val dude = "data/dude.dat"
   
-  var currentModel = nazcaHeron
+  var currentModel = dude
   var doCDT = true
   
   var mouseButton = 0
@@ -112,12 +115,12 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   
   def render(container: GameContainer, g: Graphics) {
     
-    g.drawString("'1-8' to cycle models, mouse to pan & zoom", 10, 520)
+    g.drawString("'1-9' to cycle models, mouse to pan & zoom", 10, 520)
     g.drawString("'SPACE' to show Seidel debug info", 10, 532)
     g.drawString("'m' to show trapezoidal map (Seidel debug mode)", 10, 544)
     g.drawString("'e' to switch Seidel / EarClip", 10, 556)
     g.drawString("'d' to switch CDT / Seidel", 10, 568)
-    g.drawString("'c' to how CDT mesh", 10, 580)
+    g.drawString("'c' to show CDT mesh, 's' to draw edges", 10, 580)
     
     g.scale(scaleFactor, scaleFactor)
 	g.translate(deltaX, deltaY)
@@ -177,25 +180,25 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
        val draw = if(drawcdtMesh) slCDT.triangleMesh else slCDT.triangles
        
 	   draw.foreach( t => {
-	     
-	     for(i <- 0 to 2) {
-	       val s = t.points(i)
-           val e = if(i == 2) t.points(0) else t.points(i + 1)
-           val j = if(i == 0) 2 else if(i == 1) 0 else 1
-           if(t.edges(j))
-             g.setColor(yellow)
-           else
-             g.setColor(red)
-	       g.drawLine(s.x,s.y,e.x,e.y)
-	     }
-         /*
-	     val triangle = new Polygon
-		 triangle.addPoint(t.points(0).x, t.points(0).y)
-		 triangle.addPoint(t.points(1).x, t.points(1).y)
-		 triangle.addPoint(t.points(2).x, t.points(2).y)
-		 g.setColor(red)
-		 g.draw(triangle) 
-         */
+	     if(true) {
+		     for(i <- 0 to 2) {
+		       val s = t.points(i)
+	           val e = if(i == 2) t.points(0) else t.points(i + 1)
+	           val j = if(i == 0) 2 else if(i == 1) 0 else 1
+	           if(t.edges(j))
+	             g.setColor(yellow)
+	           else
+	             g.setColor(red)
+		       g.drawLine(s.x,s.y,e.x,e.y)
+		     }
+	     } else {
+		     val triangle = new Polygon
+			 triangle.addPoint(t.points(0).x, t.points(0).y)
+			 triangle.addPoint(t.points(1).x, t.points(1).y)
+			 triangle.addPoint(t.points(2).x, t.points(2).y)
+			 g.setColor(red)
+			 g.draw(triangle) 
+         }
 	   })
        
 	   slCDT.debugTriangles.foreach( t => {
@@ -213,6 +216,18 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
      g.setColor(green)
      for(i <- 0 until segments.size) {
        val s = segments(i)
+       g.drawLine(s.p.x,s.p.y,s.q.x,s.q.y)
+     }
+   }
+   
+   if(currentModel == "data/dude.dat" && drawSegs) {
+     g.setColor(green)
+     for(i <- 0 until chestSegs.size) {
+       val s = chestSegs(i)
+       g.drawLine(s.p.x,s.p.y,s.q.x,s.q.y)
+     }
+     for(i <- 0 until headSegs.size) {
+       val s = headSegs(i)
        g.drawLine(s.p.x,s.p.y,s.q.x,s.q.y)
      }
    }
@@ -289,6 +304,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '6') selectModel(i18)
     if(c == '7') selectModel(nazcaHeron)
     if(c == '8') selectModel(tank)
+    if(c == '9') selectModel(dude)
     if(c == 's') drawSegs = !drawSegs
     if(c == 'c') drawcdtMesh = !drawcdtMesh
     if(c == 'e') {drawEarClip = !drawEarClip; drawCDT = false; selectModel(currentModel)}
@@ -297,50 +313,47 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   def selectModel(model: String) {
     model match {
       case "data/nazca_monkey.dat" => 
-        CDT.clearPoint = 50
-        loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500)
+        val clearPoint = Point(418, 282)
+        loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500, clearPoint)
       case "data/bird.dat" => 
-        CDT.clearPoint = 80
-        loadModel(bird, 25f, Point(400, 300), 350)
+        val clearPoint = Point(400, 300)
+        loadModel(bird, 25f, Point(400, 300), 350, clearPoint)
       case "data/i.snake" => 
-        doCDT = true; drawCDT = true
-        CDT.clearPoint = 6
-        loadModel(snake, 10f, Point(600, 300), 10)
+        val clearPoint = Point(336f, 196f)
+        loadModel(snake, 10f, Point(600, 300), 10, clearPoint)
       case "data/star.dat" => 
-        doCDT = true; drawCDT = true
-        CDT.clearPoint = 6
-        loadModel(star, -1f, Point(0f, 0f), 10)
+        val clearPoint = Point(400, 204)
+        loadModel(star, -1f, Point(0f, 0f), 10, clearPoint)
       case "data/strange.dat" => 
-        doCDT = true; drawCDT = true
-        CDT.clearPoint = 13
-        loadModel(strange, -1f, Point(0f, 0f), 15)
+        val clearPoint = Point(400, 268)
+        loadModel(strange, -1f, Point(0f, 0f), 15, clearPoint)
       case "data/i.18" => 
-        doCDT = true; drawCDT = true
-        CDT.clearPoint = 7
-        loadModel(i18, 20f, Point(600f, 500f), 20)
+        val clearPoint = Point(510, 385)
+        loadModel(i18, 20f, Point(600f, 500f), 20, clearPoint)
       case "data/nazca_heron_old.dat" => 
-        //doCDT = false; drawCDT = false; drawcdtMesh = false
-        CDT.clearPoint = 100
-        loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500) 
+        val clearPoint = Point(85, 290)
+        loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500, clearPoint) 
       case "data/tank.dat" => 
-        //doCDT = false; drawCDT = false; drawcdtMesh = false
-        doCDT = true; drawCDT = true
-        CDT.clearPoint = 38
-        loadModel(tank, -1f, Point(100f, 0f), 10)
+        val clearPoint = Point(450, 350)
+        loadModel(tank, -1f, Point(100f, 0f), 10, clearPoint)
+      case "data/dude.dat" => 
+        val clearPoint = Point(365, 427)
+        loadModel(dude, -1f, Point(100f, -200f), 10, clearPoint)
       case _ => 
         assert(false)
+        
     }
     currentModel = model
   }
    
-  def loadModel(model: String, scale: Float, center: Point, maxTriangles: Int) {
+  def loadModel(model: String, scale: Float, center: Point, maxTriangles: Int, clearPoint: Point) {
     
     println
     println("************** " + model + " **************")
     
     polyX = new ArrayBuffer[Float]
     polyY = new ArrayBuffer[Float]
-    val points = new ArrayBuffer[Point]
+    var points = new ArrayBuffer[Point]
     
     val angle = Math.Pi
     for (line <- Source.fromFile(model).getLines) {
@@ -359,7 +372,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     }
     
     segments = new ArrayBuffer[Segment]
-    for(i <- 0 until polyX.size-1)
+    for(i <- 0 until points.size-1)
       segments += new Segment(points(i), points(i+1))
     segments += new Segment(points.first, points.last)
     
@@ -367,9 +380,49 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     println
     
     if(doCDT) {
+      
+        val pts = points.toArray
+        
 	    val t1 = System.nanoTime
-	    slCDT = CDT.init(points)
+	    slCDT = new CDT(pts, clearPoint)
+     
+        // Add some holes....
+        if(model == "data/dude.dat") {
+          
+          val headHole = Array(Point(325f,437f), Point(320f,423f), Point(329f,413f), Point(332f,423f))
+          val chestHole = Array(Point(320.72342f,480f), Point(338.90617f,465.96863f), 
+                                Point(347.99754f,480.61584f), Point(329.8148f,510.41534f), 
+                                Point(339.91632f,480.11077f), Point(334.86556f,478.09046f))
+            
+          // Tramsform the points 
+          for(i <- 0 until headHole.size) {
+            val hx = -headHole(i).x*scale + center.x
+            val hy = -headHole(i).y*scale + center.y
+            headHole(i) = Point(hx, hy)
+           }
+          for(i <- 0 until chestHole.size) {
+             val cx = -chestHole(i).x*scale + center.x
+             val cy = -chestHole(i).y*scale + center.y
+             chestHole(i) = Point(cx, cy)
+          }
+          
+          chestSegs = new ArrayBuffer[Segment]
+	      for(i <- 0 until chestHole.size-1)
+	        chestSegs += new Segment(chestHole(i), chestHole(i+1))
+	      chestSegs += new Segment(chestHole.first, chestHole.last)
+    
+          headSegs = new ArrayBuffer[Segment]
+	      for(i <- 0 until headHole.size-1)
+	        chestSegs += new Segment(headHole(i), headHole(i+1))
+	      chestSegs += new Segment(headHole.first, headHole.last)
+       
+          slCDT.addHole(headHole)
+          slCDT.addHole(chestHole)
+        }
+        
+        slCDT triangulate
 	    val runTime = System.nanoTime - t1
+        
 	    println("CDT average (ms) =  " + runTime*1e-6)
 		println("Number of triangles = " + slCDT.triangles.size)
 	    println

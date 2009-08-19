@@ -34,10 +34,10 @@ import scala.collection.mutable.{HashSet, ArrayBuffer}
 
 import shapes.{Point, Triangle}
 
-class Mesh(initialTriangle: Triangle) {
+class Mesh {
   
   // Triangles that constitute the mesh
-  val map = HashSet(initialTriangle)
+  val map = HashSet.empty[Triangle]
   // Debug triangles
   val debug = HashSet.empty[Triangle]
   val triangles = new ArrayBuffer[Triangle]

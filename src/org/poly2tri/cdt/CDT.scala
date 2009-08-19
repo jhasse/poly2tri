@@ -30,11 +30,10 @@
  */
 package org.poly2tri.cdt
 
-import scala.collection.mutable.{ArrayBuffer, Set}
+import scala.collection.mutable.ArrayBuffer
 
 import shapes.{Segment, Point, Triangle}
 import utils.Util
-import seidel.MonotoneMountain
 
 /**
  * Sweep-line, Constrained Delauney Triangulation (CDT)
@@ -45,14 +44,25 @@ import seidel.MonotoneMountain
 // NOTE: May need to implement edge insertion which combines advancing front (AF) 
 // and triangle traversal respectively. See figure 14(a) from Domiter et al.
 // Although it may not be necessary for simple polygons....
-object CDT {
+
+class CDT(polyLine: Array[Point], clearPoint: Point) {
+        
+  // Triangle list
+  def triangles = mesh.triangles
+  def triangleMesh = mesh.map
+  def debugTriangles = mesh.debug
   
-  // Inital triangle factor
-  val ALPHA = 0.3f
-  var clearPoint = 0
+  // Initialize edges
+  initEdges(polyLine)
   
-  // Triangulate simple polygon
-  def init(points: ArrayBuffer[Point]): CDT = {
+  // Add a hole 
+  def addHole(holePolyLine: Array[Point]) {
+    initEdges(holePolyLine)
+    points = points ++ holePolyLine.toList
+  }
+  
+  // Triangulate simple polygon with holes
+  def triangulate {
     
     var xmax, xmin = points.first.x
     var ymax, ymin = points.first.y
@@ -71,33 +81,39 @@ object CDT {
     val p1 = Point(xmin - deltaX, ymin - deltaY)
     val p2 = Point(xmax + deltaX, p1.y)
     
-    val segments = initSegments(points)
-    val sortedPoints = pointSort(points)
+    // Sort the points along y-axis
+    points = pointSort
     
-    val tPoints = Array(sortedPoints(0), p1, p2)
-    val iTriangle = new Triangle(tPoints)
-    new CDT(sortedPoints, segments, iTriangle)
+    // Initial triangle
+    val iTriangle = new Triangle(Array(points(0), p1, p2))
+    mesh.map += iTriangle
+    aFront = new AFront(iTriangle)
+    
+    // Sweep points; build mesh
+    sweep
+    // Finalize triangulation
+    finalization
+  
   }
   
-  // Create segments and connect end points; update edge event pointer
-  private def initSegments(points: ArrayBuffer[Point]): List[Segment] = {
+  // Create edges and connect end points; update edge event pointer
+  private def initEdges(pts: Array[Point]) {
     
-    var segments = List[Segment]()
-    
-    for(i <- 0 until points.size-1) {
-      val endPoints = validatePoints(points(i), points(i+1))
-      segments =  new Segment(endPoints(0), endPoints(1)) :: segments
-      endPoints(1).edges += segments.first
+    // Connect pts
+    for(i <- 0 until pts.size-1) {
+      val endPoints = validatePoints(pts(i), pts(i+1))
+      val edge =  new Segment(endPoints(0), endPoints(1))
+      endPoints(1).edges += edge
     }
     
-    val endPoints = validatePoints(points.first, points.last) 
-    segments =  new Segment(endPoints(0), endPoints(1)) :: segments
-    endPoints(1).edges += segments.first
+    // Connect endpoints
+    val endPoints = validatePoints(pts.first, pts.last) 
+    val edge =  new Segment(endPoints(0), endPoints(1)) 
+    endPoints(1).edges += edge
     
-    segments
   }
   
-  def validatePoints(p1: Point, p2: Point): List[Point] = {
+  private def validatePoints(p1: Point, p2: Point): List[Point] = {
     
     if(p1.y > p2.y) {
 	    // For CDT we want q to be the point with > y
@@ -108,6 +124,7 @@ object CDT {
 	    if(p1.x > p2.x) {
 	      return List(p2, p1)
 	    } else if(p1.x == p2.x) {
+	      println(p1 + "," + p2)
           throw new Exception("Duplicate point")
         }
 	  }
@@ -115,50 +132,17 @@ object CDT {
     List(p1, p2)
   }
   
-  // Insertion sort is one of the fastest algorithms for sorting arrays containing 
-  // fewer than ten elements, or for lists that are already mostly sorted.
   // Merge sort: O(n log n)
-  private def pointSort(points: ArrayBuffer[Point]): List[Point] = {
-    if(points.size < 10) 
-      Util.insertSort((p1: Point, p2: Point) => p1 > p2)(points).toList
-    else
-      Util.msort((p1: Point, p2: Point) => p1 > p2)(points.toList)
-  }
- 
-}
-
-class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Triangle) {
+  private def pointSort: List[Point] = 
+    Util.msort((p1: Point, p2: Point) => p1 > p2)(points)
   
-          
-  // Triangle list
-  def triangles = mesh.triangles
-  def triangleMesh = mesh.map
-  def debugTriangles = mesh.debug
-  
-  // The triangle mesh
-  private val mesh = new Mesh(iTriangle)
-  // Advancing front
-  private val aFront = new AFront(iTriangle)
-  
-  private val PI_2 = Math.Pi/2
-  private val PI_34 = Math.Pi*3/4
-  
-  // Triangle used to clean interior
-  var cleanTri: Triangle = null
-  
-  // Sweep points; build mesh
-  sweep
-  // Finalize triangulation
-  finalization
- 
   // Implement sweep-line 
   private def sweep {
     
-    for(i <- 1 until points.size) {
+    for(i <- 1 until 36 /*points.size*/) {
       val point = points(i)
       // Process Point event
       val node = pointEvent(point)
-      if(i == CDT.clearPoint) {cleanTri = node.triangle; mesh.debug += cleanTri}
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, node))
     }
@@ -168,10 +152,16 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   // Final step in the sweep-line CDT algo
   // Clean exterior triangles
   private def finalization {
-    
-    mesh.map.foreach(m => m.markNeighborEdges)
+    var found = false
+    mesh.map.foreach(m => {
+      if(!found)
+        if(m.pointIn(clearPoint)) {
+          found = true
+          cleanTri = m
+         }
+      m.markNeighborEdges
+    })
     mesh clean cleanTri
-      
   }
   
   // Point event
@@ -201,17 +191,14 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     
     // Remove intersected triangles
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
-       
+   
        // Collect intersected triangles
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
        
        // Not sure why tList.last is null sometimes....
-       while(tList.last != null && !tList.last.contains(edge.p))
-         tList += tList.last.findNeighbor(edge.p - edge.q)
-       
-       if(tList.last == null)
-         tList -= tList.last
+       while(!tList.last.contains(edge.p))
+         tList += tList.last.findNeighbor(edge.p)
        
        // Neighbor triangles
        val nTriangles = new ArrayBuffer[Triangle]
@@ -221,8 +208,10 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
         tList.foreach(t => {
           t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
           mesh.map -= t
+          //mesh.debug += t
         })
-      
+        //nTriangles.foreach(n => mesh.debug += n)
+        
 		val lPoints = new ArrayBuffer[Point]
 		val rPoints = new ArrayBuffer[Point]
 		   
@@ -249,20 +238,23 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       triangulate(lPoints.toArray, List(edge.q, edge.p), T1)
       val T2 = new ArrayBuffer[Triangle]
       triangulate(rPoints.toArray, List(edge.q, edge.p), T2)
-      
+     
       // Update neighbors
       edgeNeighbors(nTriangles, T1)
       edgeNeighbors(nTriangles, T2)
       T1.last.markNeighbor(T2.last)
       
       // Update advancing front
-  
+      
       val ahead = (edge.p.x > edge.q.x)
 	  val point1 = if(ahead) edge.q else edge.p 
 	  val point2 = if(ahead) edge.p else edge.q 
+    
+      val sNode = if(ahead) node else aFront.locate(point1).prev  
+      val eNode = aFront.locate(point2).next
       
-      val sNode = aFront.locate(point1)  
-      val eNode = aFront.locate(point2)
+      //mesh.debug += sNode.triangle
+      //mesh.debug += eNode.triangle
       
       aFront.constrainedEdge(sNode, eNode, T1, T2, edge)
       
@@ -270,9 +262,15 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
       T1.last markEdge(point1, point2)
       T2.last markEdge(point1, point2)
       // Copy constraied edges from old triangles
-      T1.foreach(t => t.markEdge(tList))
-      T2.foreach(t => t.markEdge(tList))
+      T1.foreach(t => {t.markEdge(tList)/*;mesh.debug += t*/})
+      T2.foreach(t => {t.markEdge(tList)/*;mesh.debug += t*/})
       
+      var n = sNode
+      while(n != eNode) {
+        mesh.debug += n.triangle
+        n = n.next
+      }
+        
     } else if(firstTriangle == null) {
       
       // No triangles are intersected by the edge; edge must lie outside the mesh
@@ -323,11 +321,11 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Update neigbor pointers for edge event
   // Inneficient, but it works well...
-  def edgeNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
+  private def edgeNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
     
     for(t1 <- nTriangles) 
       for(t2 <- T) 
-        t1.markNeighbor(t2) 
+        t2.markNeighbor(t1) 
                                                                                 
     for(i <- 0 until T.size) 
       for(j <- i+1 until T.size) 
@@ -411,7 +409,7 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
   
   // Circumcircle test. 
   // Determines if point d lies inside triangle abc's circumcircle 
-  def illegal(a: Point, b: Point, c: Point, d: Point): Boolean = {
+  private def illegal(a: Point, b: Point, c: Point, d: Point): Boolean = {
     
     val ccw = Util.orient2d(a, b, c) > 0
     
@@ -475,5 +473,18 @@ class CDT(val points: List[Point], val segments: List[Segment], iTriangle: Trian
     }
 
   }  
+  
+  // The triangle mesh
+  private val mesh = new Mesh 
+  // Advancing front
+  private var aFront: AFront = null
+  // Sorted point list
+  private var points = polyLine.toList
+  // Half Pi
+  private val PI_2 = Math.Pi/2
+  // Inital triangle factor
+  private val ALPHA = 0.3f
+  // Triangle used to clean interior
+  private var cleanTri: Triangle = null
   
 }

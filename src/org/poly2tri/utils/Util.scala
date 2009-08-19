@@ -85,7 +85,7 @@ object Util {
   //         negative if point a, b, and c are clockwise
   //         zero if points are collinear
   // See: http://www-2.cs.cmu.edu/~quake/robust.html
-  def orient(b: Point, a: Point, p: Point): Float = {
+  def orient(a: Point, b: Point, p: Point): Float = {
     val acx = a.x - p.x
     val bcx = b.x - p.x
     val acy = a.y - p.y

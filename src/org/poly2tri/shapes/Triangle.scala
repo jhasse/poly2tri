@@ -155,15 +155,18 @@ class Triangle(val points: Array[Point]) {
   
   // Locate next triangle crossed by edge
   def findNeighbor(e: Point): Triangle = {
-    if(Util.orient2d(points(0), points(1), e) < 0)
+    
+    if(contains(e)) return this
+    
+    if(Util.orient2d(points(1), points(0), e) > 0) 
       return neighbors(2)
-    else if(Util.orient2d(points(1), points(2), e) < 0)
+    else if(Util.orient2d(points(2), points(1), e) > 0) 
       return neighbors(0)
-    else if(Util.orient2d(points(2), points(0), e) < 0)
+    else if(Util.orient2d(points(0), points(2), e) > 0) 
       return neighbors(1)
     else
-      // Point must reside inside this triangle
-      this
+      throw new Exception("Point not found")
+    
   }
   
   // The neighbor clockwise to given point
@@ -335,6 +338,12 @@ class Triangle(val points: Array[Point]) {
     val b = points(0).x - points(1).x
     val h = points(2).y - points(1).y
     (b*h*0.5f)
+  }
+  
+  def centroid: Point = {
+    val cx = (points(0).x + points(1).x + points(2).x)/3f
+    val cy = (points(0).y + points(1).y + points(2).y)/3f
+    Point(cx, cy)
   }
   
 }

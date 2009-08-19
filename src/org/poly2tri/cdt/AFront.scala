@@ -101,7 +101,7 @@ class AFront(iTriangle: Triangle) {
     var marked = false
     
     // Scan the advancing front and update Node triangle pointers
-    while(node != null && node != eNode.next) {
+    while(node != null && node != eNode) {
       
       T2.foreach(t => {
         if(t.contains(node.point, node.next.point))
