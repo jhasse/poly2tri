@@ -30,7 +30,6 @@
  */
 package org.poly2tri.shapes
 
-import scala.collection.mutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 import utils.Util
@@ -80,6 +79,7 @@ class Triangle(val points: Array[Point]) {
       neighbors(2) = t
       t.markNeighbor(points(0), points(1), this)
     }
+    
   }
   
   def clearNeighbors {
@@ -87,6 +87,7 @@ class Triangle(val points: Array[Point]) {
   }
   
   def oppositePoint(t: Triangle): Point = {
+    
     assert(t != this, "self-pointer error")
     if(points(0) == t.points(1)) 
       points(1)
@@ -123,6 +124,7 @@ class Triangle(val points: Array[Point]) {
 
   // Locate first triangle crossed by constrained edge
   def locateFirst(edge: Segment): Triangle = {
+    
     if(contains(edge)) this
     if(edge.q == points(0)) 
       search(points(1), points(2), edge, neighbors(2))
@@ -171,6 +173,7 @@ class Triangle(val points: Array[Point]) {
   
   // The neighbor clockwise to given point
   def neighborCW(point: Point): Triangle = {
+    
     if(point == points(0)) {
       neighbors(1)
     }else if(point == points(1)) {
@@ -181,6 +184,7 @@ class Triangle(val points: Array[Point]) {
   
   // The neighbor counter-clockwise to given point
   def neighborCCW(oPoint: Point): Triangle = {
+    
     if(oPoint == points(0)) {
       neighbors(2)
     }else if(oPoint == points(1)) {
@@ -191,6 +195,7 @@ class Triangle(val points: Array[Point]) {
   
   // The neighbor clockwise to given point
   def neighborAcross(point: Point): Triangle = {
+    
     if(point == points(0)) {
       neighbors(0)
     }else if(point == points(1)) {
@@ -201,6 +206,7 @@ class Triangle(val points: Array[Point]) {
   
   // The point counter-clockwise to given point
   def pointCCW(point: Point): Point = {
+    
     if(point == points(0)) {
       points(1)
     } else if(point == points(1)) {
@@ -214,6 +220,7 @@ class Triangle(val points: Array[Point]) {
   
   // The point counter-clockwise to given point
   def pointCW(point: Point): Point = {
+    
     if(point == points(0)) {
       points(2)
     } else if(point == points(1)) {
@@ -227,6 +234,7 @@ class Triangle(val points: Array[Point]) {
   
   // Legalized triangle by rotating clockwise around point(0)
   def legalize(oPoint: Point) {
+    
 	points(1) = points(0)
 	points(0) = points(2)
 	points(2) = oPoint
@@ -234,6 +242,7 @@ class Triangle(val points: Array[Point]) {
   
   // Legalize triagnle by rotating clockwise around oPoint
   def legalize(oPoint: Point, nPoint: Point) {
+    
     if(oPoint == points(0)) {
       points(1) = points(0)
       points(0) = points(2)
@@ -257,6 +266,7 @@ class Triangle(val points: Array[Point]) {
   
   // Check if legalized triangle will be collinear
   def collinear(oPoint: Point, nPoint: Point): Boolean = {
+    
     if(oPoint == points(0)) {
       Util.collinear(points(0), points(2), nPoint)
     } else if (oPoint == points(1)) {
@@ -268,6 +278,7 @@ class Triangle(val points: Array[Point]) {
   
   // Rotate neighbors clockwise around give point. Share diagnal with triangle
   def rotateNeighborsCW(oPoint: Point, triangle: Triangle) {
+    
     if(oPoint == points(0)) {
       neighbors(2) = neighbors(1)
       neighbors(1) = null
@@ -289,6 +300,7 @@ class Triangle(val points: Array[Point]) {
 
   // Finalize edge marking
   def markNeighborEdges {
+    
     for(i <- 0 to 2) 
       if(edges(i)) 
         i match {
@@ -299,6 +311,7 @@ class Triangle(val points: Array[Point]) {
   }
   
   def markEdge(triangle: Triangle) {
+    
     for(i <- 0 to 2) 
       if(edges(i)) 
         i match {
@@ -309,6 +322,7 @@ class Triangle(val points: Array[Point]) {
   }
   
   def markEdge(T: ArrayBuffer[Triangle]) {
+    
     for(t <- T) {
 	    for(i <- 0 to 2) 
 	      if(t.edges(i)) 
@@ -322,6 +336,7 @@ class Triangle(val points: Array[Point]) {
   
   // Mark edge as constrained
   def markEdge(p: Point, q: Point) {
+    
     if((q == points(0) && p == points(1)) || (q == points(1) && p == points(0))) {
       finalized = true
       edges(2) = true
@@ -335,12 +350,14 @@ class Triangle(val points: Array[Point]) {
   }
   
   def area = {
+    
     val b = points(0).x - points(1).x
     val h = points(2).y - points(1).y
     (b*h*0.5f)
   }
   
   def centroid: Point = {
+    
     val cx = (points(0).x + points(1).x + points(2).x)/3f
     val cy = (points(0).y + points(1).y + points(2).y)/3f
     Point(cx, cy)

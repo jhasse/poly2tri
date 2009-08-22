@@ -14,7 +14,7 @@ object Util {
   val ccwerrboundA = (3.0 + 16.0 * epsilon) * epsilon
   val iccerrboundA = (10.0 + 96.0 * epsilon) * epsilon
   
-  // From "Scala By Example," by Martin Odersky
+  // Refursive merge sort, from "Scala By Example," by Martin Odersky
   def msort[A](less: (A, A) => Boolean)(xs: List[A]): List[A] = {
     def merge(xs1: List[A], xs2: List[A]): List[A] =
       if (xs1.isEmpty) xs2
@@ -26,6 +26,7 @@ object Util {
       else merge(msort(less)(xs take n), msort(less)(xs drop n))
   }
   
+  // Insertion sort - best for lists <= 10 elements
   def insertSort[A](less: (A, A) => Boolean)(xs: ArrayBuffer[A]): ArrayBuffer[A] = {    
     var j = 1
     while(j < xs.size){   
@@ -46,7 +47,7 @@ object Util {
 
     val d = Math.abs((p2-p1) cross (p1-p3))
     
-    if(Math.abs(d) <= COLLINEAR_SLOP) 
+    if(d <= COLLINEAR_SLOP) 
       true
     else 
       false
@@ -157,7 +158,7 @@ object Util {
      (center, radius)
    }
    
-   def det(p1: Point, p2: Point, p3: Point): Float = {
+   private def det(p1: Point, p2: Point, p3: Point): Float = {
      
      val a11 = p1.x
      val a12 = p1.y
@@ -171,7 +172,7 @@ object Util {
      
    }
    
-   def detC(p1: Point, p2: Point, p3: Point): Float = {
+   private def detC(p1: Point, p2: Point, p3: Point): Float = {
      
      val a11 = p1.x*p1.x + p1.y*p1.y
      val a12 = p1.x

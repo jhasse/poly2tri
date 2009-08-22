@@ -413,9 +413,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     
           headSegs = new ArrayBuffer[Segment]
 	      for(i <- 0 until headHole.size-1)
-	        chestSegs += new Segment(headHole(i), headHole(i+1))
-	      chestSegs += new Segment(headHole.first, headHole.last)
+	        headSegs += new Segment(headHole(i), headHole(i+1))
+	      headSegs += new Segment(headHole.first, headHole.last)
        
+          // Add the holes
           slCDT.addHole(headHole)
           slCDT.addHole(chestHole)
         }

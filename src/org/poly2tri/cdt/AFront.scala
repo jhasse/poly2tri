@@ -99,6 +99,7 @@ class AFront(iTriangle: Triangle) {
     val point2 = edge.p
     
     // Scan the advancing front and update Node triangle pointers
+    // TODO: Make this more efficient
     while(node != null && node != eNode.next) {
       T2.foreach(t => {
         if(t.contains(node.point, node.next.point))

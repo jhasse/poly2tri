@@ -30,20 +30,23 @@
  */
 package org.poly2tri.cdt
 
-import scala.collection.mutable.{HashSet, ArrayBuffer}
+import scala.collection.mutable.ArrayBuffer
 
 import shapes.{Point, Triangle}
 
 class Mesh {
   
   // Triangles that constitute the mesh
-  val map = HashSet.empty[Triangle]
+  val map = new ArrayBuffer[Triangle]
   // Debug triangles
-  val debug = HashSet.empty[Triangle]
+  val debug = new ArrayBuffer[Triangle]
   val triangles = new ArrayBuffer[Triangle]
   
-  // Recursively collect triangles
+  // Recursively collect interior triangles and clean the mesh
+  // Excludes exterior triangles outside constrained edges
+  // TODO: Investigate depth first search as an alternative
   def clean(triangle: Triangle) {
+    
     if(triangle != null && !triangle.interior) {
       triangle.interior = true
       triangles += triangle

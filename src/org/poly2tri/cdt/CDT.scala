@@ -45,6 +45,7 @@ import utils.Util
 // and triangle traversal respectively. See figure 14(a) from Domiter et al.
 // Although it may not be necessary for simple polygons....
 
+// clearPoint is any interior point inside the polygon                                                      
 class CDT(polyLine: Array[Point], clearPoint: Point) {
         
   // Triangle list
@@ -140,6 +141,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   private def sweep {
     
     for(i <- 1 until points.size) {
+      
       val point = points(i)
       // Process Point event
       val node = pointEvent(point)
@@ -149,18 +151,21 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     
   }  
   
-  // Final step in the sweep-line CDT algo
+  // Final step in the sweep-line CDT 
   // Clean exterior triangles
   private def finalization {
+    
     var found = false
     mesh.map.foreach(m => {
       if(!found)
+        // Mark the originating clean triangle
         if(m.pointIn(clearPoint)) {
           found = true
           cleanTri = m
          }
       m.markNeighborEdges
     })
+    // Collect interior triangles constrained by edges
     mesh clean cleanTri
   }
   
@@ -367,7 +372,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       do {
         angle = fill(node1)
         node1 = node1.next
-      } while(angle <= PI_2 && node1.next != null) 
+      } while(angle <= PI_2 && angle >= -PI_2 && node1.next != null) 
     }
     
     var node2 = n.prev
@@ -377,17 +382,19 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       do {
 	    angle = fill(node2)
         node2 = node2.prev
-      } while(angle <= PI_2 && node2.prev != null)
+      } while(angle <= PI_2 && angle >= -PI_2 && node2.prev != null)
     }
     
   }
   
   // Fill empty space with a triangle
   private def fill(node: Node): Double = {
+    
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
-	  val angle = Math.abs(Math.atan2(a cross b, a dot b))
-	  if(angle <= PI_2) {
+	  val angle = Math.atan2(a cross b, a dot b)
+      // Is the angle acute?
+	  if(angle <= PI_2 && angle >= -PI_2) {
 	    val points = Array(node.prev.point, node.point, node.next.point)
 	    val triangle = new Triangle(points)
         // Update neighbor pointers
