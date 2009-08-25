@@ -54,7 +54,8 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   def debugTriangles = mesh.debug
   
   val cList = new ArrayBuffer[Point]
-  var refine = false
+  
+  var refined = false
   
   // Initialize edges
   initEdges(polyLine)
@@ -152,8 +153,8 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   
   // Implement sweep-line 
   private def sweep {
-    // 49 69
-    val size = if(refine) 50 else points.size
+    
+    val size = if(refined) 1 else points.size
     
     for(i <- 1 until points.size) {
       
@@ -182,17 +183,22 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     })
     // Collect interior triangles constrained by edges
     mesh clean cleanTri
-    
+   
+  }
+  
+  // Refine the mesh using Steiner points
+  def refine {
+    cList.clear
     mesh.triangles.foreach(t => {
       if(t.thin) {
         val center = Util.circumcenter(t.points(0), t.points(1), t.points(2))
         cList += center
-        refine = true
-        //addPoint(center)
-        //mesh.debug += t
+        addPoint(center)
       }
     })
-    
+    // Retriangulate
+    if(cList.size > 0)
+      triangulate
   }
   
   // Point event
