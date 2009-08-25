@@ -41,10 +41,6 @@ import utils.Util
  *      International Journal of Geographical Information Science
  */
 
-// NOTE: May need to implement edge insertion which combines advancing front (AF) 
-// and triangle traversal respectively. See figure 14(a) from Domiter et al.
-// Although it may not be necessary for simple polygons....
-
 // clearPoint is any interior point inside the polygon                                                      
 class CDT(polyLine: Array[Point], clearPoint: Point) {
         
@@ -67,8 +63,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   }
   
   // Add an internal point
-  // Good for manually refining the mesh. Use this when you want to eliminate
-  // skinny triangles
+  // Good for manually refining the mesh
   def addPoint(point: Point) {
     points = point :: points
   }
@@ -186,21 +181,25 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
    
   }
   
-  // Refine the mesh using Steiner points
+  // Delauney Refinement: Refine triangules using Steiner points
+  // Probably overkill for 2D games, and will create a large number of
+  // triangles that are probably unoptimal for a physics engine like
+  // Box2D.... Better to manually enter interior points for mesh "smoothing"
+  // TODO: Finish implementation... Maybe!
   def refine {
     cList.clear
     mesh.triangles.foreach(t => {
       if(t.thin) {
         val center = Util.circumcenter(t.points(0), t.points(1), t.points(2))
-        cList += center
-        addPoint(center)
+          cList += center
+          addPoint(center)
       }
     })
     // Retriangulate
     if(cList.size > 0)
       triangulate
   }
-  
+    
   // Point event
   private def pointEvent(point: Point): Node = {
     
@@ -231,6 +230,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
     	
+       // Interior mesh traversal - edge is "burried" in the mesh
        // Constrained edge lies below the advancing front. Traverse through intersected triangles,
        // form empty pseudo-polygons, and re-triangulate
       
@@ -238,14 +238,23 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
        val tList = new ArrayBuffer[Triangle]
        tList += firstTriangle
        
-       while(!tList.last.contains(edge.p))
+       while(tList.last != null && !tList.last.contains(edge.p))
          tList += tList.last.findNeighbor(edge.p)
        
+       // TODO: Finish implementing edge insertion which combines advancing front (AF) 
+       // and triangle traversal respectively. See figure 14(a) from Domiter et al.
+       // Should only occur with complex patterns of interior points
+       // Already added provision for transitioning from AFront traversal to
+       // interior mesh traversal - may need to add the opposite case
+       if(tList.last == null)
+         throw new Exception("Not implemented yet - interior points too complex")
+       
        // Neighbor triangles
+       // HashMap or set may improve performance
        val nTriangles = new ArrayBuffer[Triangle]
        
         // Remove old triangles; collect neighbor triangles
-        // Keep duplicates out
+        // Keep duplicates out 
         tList.foreach(t => {
           t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
           mesh.map -= t
@@ -304,6 +313,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       
     } else if(firstTriangle == null) {
       
+      // AFront traversal
       // No triangles are intersected by the edge; edge must lie outside the mesh
       // Apply constraint; traverse the advancing front, and build triangles
       
@@ -315,6 +325,9 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       nTriangles += pNode.triangle
       
       val ahead = (edge.p.x > edge.q.x)
+      
+      // If this is true we transition from AFront traversal to
+      // interior mesh traversal
       var aboveEdge = false
       
       if(ahead) {
@@ -327,7 +340,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
           aboveEdge = edge < pNode.point
 	    }
       } else {
-       // Scal left
+       // Scan left
        pNode = pNode.prev
        while(pNode.point != edge.p && !aboveEdge) {
 		  points += pNode.point
@@ -353,31 +366,19 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       // Update neighbors
       edgeNeighbors(nTriangles, T)
       
-      // Update advancing front 
-      if(ahead && !aboveEdge)
-        aFront link (first, pNode, T.last)
-      else if(!ahead && !aboveEdge)
-        aFront link (pNode, first, T.last)
-      
       // Mark constrained edge
-      T.last markEdge(edge.q, point2)
+      T.last markEdge(edge.q, point2) 
       
+      // Update advancing front 
       if(aboveEdge) {
-        val iNode = if(ahead) {
-          val n = new Node(point2, pNode.prev.triangle)
-          aFront link (first, n, T.last)
-          n.next = pNode
-          pNode.prev = n
-          n
-        } else {
-          val n = new Node(point2, T.last)
-          aFront link (n, first, T.last)
-          pNode.next = n
-          n.prev = pNode
-          pNode
-        } 
+        val iNode = aFront.aboveEdge(first, pNode, T.last, point2, ahead)
         edgeEvent(new Segment(edge.p, point2), iNode)
-      }
+      } else {
+        if(ahead)
+          aFront link (first, pNode, T.last)
+        else 
+          aFront link (pNode, first, T.last)
+      }     
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 
       // Constrained edge lies on the side of a triangle

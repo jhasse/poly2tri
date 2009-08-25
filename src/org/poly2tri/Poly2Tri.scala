@@ -42,7 +42,7 @@ import earClip.EarClip
 import cdt.CDT
 
 // TODO: Lots of documentation!
-
+//     : Add Hertel-Mehlhorn algorithm
 object Poly2Tri {
 
   def main(args: Array[String]) {
@@ -250,11 +250,15 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     mousePressed = true
     mousePosOld = mousePos
     mousePos = Point(x, y)
-    /*
-    val point = mousePos/scaleFactor + Point(deltaX, deltaY)
-    slCDT.addPoint(point)
-    slCDT.triangulate
-    */
+    
+    // Right click
+    // Correctly adjust for pan and zoom
+    if(mouseButton == 1) {
+      val point = mousePos/scaleFactor + Point(deltaX, deltaY)
+      slCDT.addPoint(point)
+      slCDT.triangulate
+    }
+    
   }
   
   /**
@@ -306,6 +310,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       if (hiLighter == -1)
         hiLighter = seidel.polygons.size-1
     }
+    
     if(c == 'm') drawMap = !drawMap 
     if(c == 'd') drawCDT = !drawCDT
     if(c == '1') selectModel(nazcaMonkey)
@@ -320,6 +325,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == 's') drawSegs = !drawSegs
     if(c == 'c') drawcdtMesh = !drawcdtMesh
     if(c == 'e') {drawEarClip = !drawEarClip; drawCDT = false; selectModel(currentModel)}
+    if(c == 'r') slCDT.refine
+    
   }
     
   def selectModel(model: String) {
@@ -434,12 +441,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         }
         
         slCDT triangulate
-	    val runTime = System.nanoTime - t1
+	    val runTime = System.nanoTime - t1                             
         
-        for(j <- 0 until 1) {
-	        slCDT.refine
-        }
-        //slCDT.refine
 	    println("CDT average (ms) =  " + runTime*1e-6)
 		println("Number of triangles = " + slCDT.triangles.size)
 	    println

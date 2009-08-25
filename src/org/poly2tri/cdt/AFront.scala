@@ -114,6 +114,23 @@ class AFront(iTriangle: Triangle) {
     
   }
   
+  // Transition from AFront traversal to interior mesh traversal
+  def aboveEdge(first: Node, pNode: Node, last: Triangle, 
+                point2: Point, ahead:Boolean): Node = 
+    if(ahead) {
+          val n = new Node(point2, pNode.prev.triangle)
+          link (first, n, last)
+          n.next = pNode
+          pNode.prev = n
+          n
+        } else {
+          val n = new Node(point2, last)
+          link (n, first, last)
+          pNode.next = n
+          n.prev = pNode
+          pNode
+        } 
+  
   def -=(tuple: Tuple3[Node, Node, Triangle]) {
     val (node, kNode, triangle) = tuple
     kNode.next.prev = node

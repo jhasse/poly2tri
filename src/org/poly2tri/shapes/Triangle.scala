@@ -168,7 +168,7 @@ class Triangle(val points: Array[Point]) {
     else if(Util.orient2d(points(0), points(2), p) > 0) 
       return neighbors(1)
     else
-      throw new Exception("Point not found")
+      return null
     
   }
   
