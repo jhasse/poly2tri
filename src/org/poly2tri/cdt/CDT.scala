@@ -152,8 +152,8 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   
   // Implement sweep-line 
   private def sweep {
-    // 48 67
-    val size = if(refine) 47 else points.size
+    // 49 69
+    val size = if(refine) 50 else points.size
     
     for(i <- 1 until size) {
       
@@ -187,7 +187,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       if(t.thin) {
         val center = Util.circumcenter(t.points(0), t.points(1), t.points(2))
         cList += center
-        //refine = true
+        refine = true
         //addPoint(center)
         //mesh.debug += t
       }
@@ -218,7 +218,10 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   private def edgeEvent(edge: Segment, node: Node) { 
     
     // Locate the first intersected triangle
-    val firstTriangle = node.triangle.locateFirst(edge)
+    val firstTriangle = if(!node.triangle.contains(edge.q))
+      node.triangle
+    else
+      node.triangle.locateFirst(edge)
     
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
     	
@@ -306,57 +309,70 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       nTriangles += pNode.triangle
       
       val ahead = (edge.p.x > edge.q.x)
+      var aboveEdge = false
       
       if(ahead) {
+        // Scan right
         pNode = pNode.next
-	    while(pNode.point != edge.p) {
+	    while(pNode.point != edge.p && !aboveEdge) {
 		  points += pNode.point
           nTriangles += pNode.triangle
 		  pNode = pNode.next
+          aboveEdge = edge < pNode.point
 	    }
       } else {
+       // Scal left
        pNode = pNode.prev
-       while(pNode.point != edge.p) {
+       while(pNode.point != edge.p && !aboveEdge) {
 		  points += pNode.point
           nTriangles += pNode.triangle
 		  pNode = pNode.prev
+          aboveEdge = edge < pNode.point
 	    }
+       nTriangles += pNode.triangle
      }
-      
-      /*
-      val s = new Segment(first.point, first.next.point)
-      if(s > point1) {
-        mesh.map -= first.triangle
-        first.triangle = first.triangle.neighborCW(first.point)
-        val t = first.triangle.neighborAcross(first.point)
-        val n = new Node(point1, t)
-        first.next = n
-        n.prev = first
-        n.next = first.next.next
-        n.next.prev = n
+   
+      val point2 = if(aboveEdge) {
+        val p1 = pNode.point
+        val p2 = if(ahead) pNode.prev.point else pNode.next.point
+        edge.intersect(p1, p2)
+      } else {
+        edge.p
       }
       
-      */
-   
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
-      triangulate(points.toArray, List(edge.q, edge.p), T)
+      triangulate(points.toArray, List(edge.q, point2), T)
      
       // Update neighbors
       edgeNeighbors(nTriangles, T)
       
       // Update advancing front 
-      if(ahead)
+      if(ahead && !aboveEdge)
         aFront link (first, pNode, T.last)
-      else
+      else if(!ahead && !aboveEdge)
         aFront link (pNode, first, T.last)
       
       // Mark constrained edge
-      T.last markEdge(edge.q, edge.p)
+      T.last markEdge(edge.q, point2)
       
-      if(pNode.point != edge.p) {
-        println("span")
-        //edgeEvent(edge, pNode)
+      if(aboveEdge) {
+        val iNode = if(ahead) {
+          val n = new Node(point2, pNode.prev.triangle)
+          aFront link (first, n, T.last)
+          n.next = pNode
+          pNode.prev = n
+          n
+        } else {
+          val n = new Node(point2, pNode.next.triangle)
+          aFront link (n, first, T.last)
+          pNode.next = n
+          n.prev = pNode
+          n
+        }
+        val above = point2.y > edge.p.y
+        val e = if(above) new Segment(edge.p, point2) else { println("wtf"); new Segment(point2, edge.p)}
+        edgeEvent(e, iNode)
       }
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 

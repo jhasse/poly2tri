@@ -50,5 +50,29 @@ class Segment(var p: Point, var q: Point) {
   def > (point: Point) = (Math.floor(point.y) < Math.floor(slope * point.x + b))
   // Determines if this segment lies below the given point
   def < (point: Point) = (Math.floor(point.y) > Math.floor(slope * point.x + b))
+  
+  private def signedArea(a: Point, b: Point, c: Point): Float =
+    (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x)
+
+  def intersect(c: Point, d: Point): Point = {
+     
+    val a = p
+    val b = q
+  
+    val a1 = signedArea(a, b, d)
+    val a2 = signedArea(a, b, c)
+
+    if (a1 != 0.0f && a2 != 0.0f && a1*a2 < 0.0f) {
+        val a3 = signedArea(c, d, a)
+        val a4 = a3 + a2 - a1
+        if (a3 * a4 < 0.0f) {
+            val t = a3 / (a3 - a4)
+            return a + ((b - a) * t)
+        }
+    }
+
+    throw new Exception("Error")
     
+  }
+
 }

@@ -283,8 +283,23 @@ object Util {
        throw new Exception("Points nearly collinear")
      }
 
-}
+  }
 
+   def closestPtSegment(c: Point, a: Point, b: Point): Point = {
+     val ab = b - a
+     var t = (c - a) dot ab
+     if (t <= 0.0f) 
+       return a
+     else {
+      val denom = ab dot ab
+      if (t >= denom) 
+	    return b
+	  else {
+	    t = t / denom
+	  }
+     }
+     a + (ab * t)
+  }
  
 }
 
