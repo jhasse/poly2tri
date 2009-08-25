@@ -353,7 +353,8 @@ class Triangle(val points: Array[Point]) {
     
     val b = points(0).x - points(1).x
     val h = points(2).y - points(1).y
-    (b*h*0.5f)
+    
+    Math.abs((b*h*0.5f))
   }
   
   def centroid: Point = {
@@ -362,5 +363,19 @@ class Triangle(val points: Array[Point]) {
     val cy = (points(0).y + points(1).y + points(2).y)/3f
     Point(cx, cy)
   }
+  
+  def thin: Boolean = {
+     val a1 = (points(1) - points(0))
+	 val b1 = (points(2) - points(0))
+     val a2 = (points(0) - points(1))
+     val b2 = (points(2) - points(1))
+	 val angle1 = Math.abs(Math.atan2(a1 cross b1, a1 dot b1))
+     val angle2 = Math.abs(Math.atan2(a2 cross b2, a2 dot b2))
+	 val angle3 = Math.Pi - angle1 - angle2
+     // 30 degrees
+     val minAngle = Math.Pi/6
+     //println(angle1 + "," + angle2 + "," + angle3)
+     (angle1 <= minAngle || angle2 <= minAngle || angle3 <= minAngle)
+  } 
   
 }

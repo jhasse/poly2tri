@@ -53,6 +53,9 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   def triangleMesh = mesh.map
   def debugTriangles = mesh.debug
   
+  val cList = new ArrayBuffer[Point]
+  var refine = false
+  
   // Initialize edges
   initEdges(polyLine)
   
@@ -62,8 +65,19 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     points = points ++ holePolyLine.toList
   }
   
+  // Add an internal point
+  // Good for manually refining the mesh. Use this when you want to eliminate
+  // skinny triangles
+  def addPoint(point: Point) {
+    points = point :: points
+  }
+  
   // Triangulate simple polygon with holes
   def triangulate {
+    
+    mesh.map.clear
+    mesh.triangles.clear
+    mesh.debug.clear
     
     var xmax, xmin = points.first.x
     var ymax, ymin = points.first.y
@@ -125,7 +139,6 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
 	    if(p1.x > p2.x) {
 	      return List(p2, p1)
 	    } else if(p1.x == p2.x) {
-	      println(p1 + "," + p2)
           throw new Exception("Duplicate point")
         }
 	  }
@@ -139,8 +152,10 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   
   // Implement sweep-line 
   private def sweep {
+    // 48 67
+    val size = if(refine) 68 else points.size
     
-    for(i <- 1 until points.size) {
+    for(i <- 1 until size) {
       
       val point = points(i)
       // Process Point event
@@ -167,6 +182,17 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     })
     // Collect interior triangles constrained by edges
     mesh clean cleanTri
+    
+    mesh.triangles.foreach(t => {
+      if(t.thin) {
+        val center = Util.circumcenter(t.points(0), t.points(1), t.points(2))
+        cList += center
+        refine = true
+        //addPoint(center)
+        //mesh.debug += t
+      }
+    })
+    
   }
   
   // Point event
@@ -286,11 +312,23 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       nTriangles += pNode.triangle
       pNode = pNode.next
       
-	  while(pNode.point != point2 && edge > pNode.point) {
+	  while(pNode.point != point2) {
 		points += pNode.point
         nTriangles += pNode.triangle
 		pNode = pNode.next
 	  }
+      
+      val s = new Segment(first.point, first.next.point)
+      if(s > point1) {
+        mesh.map -= first.triangle
+        first.triangle = first.triangle.neighborCW(first.point)
+        val t = first.triangle.neighborAcross(first.point)
+        val n = new Node(point1, t)
+        first.next = n
+        n.prev = first
+        n.next = first.next.next
+        n.next.prev = n
+      }
       
       // Triangulate empty areas.
       val T = new ArrayBuffer[Triangle]
@@ -304,6 +342,11 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       
       // Mark constrained edge
       T.last markEdge(point1, point2)
+      
+      if(pNode.point != edge.p) {
+        println("span")
+        //edgeEvent(edge, pNode)
+      }
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 
       // Constrained edge lies on the side of a triangle

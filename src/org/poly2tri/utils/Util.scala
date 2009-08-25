@@ -133,6 +133,30 @@ object Util {
 
    }
    
+   // Original by Jonathan Shewchuk
+   // http://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+   def circumcenter(a: Point, b: Point, c: Point): Point = {
+
+     /* Use coordinates relative to point `a' of the triangle. */
+     val xba = b.x - a.x
+     val yba = b.y - a.y
+     val xca = c.x - a.x
+     val yca = c.y - a.y
+     /* Squares of lengths of the edges incident to `a'. */
+     val balength = xba * xba + yba * yba
+     val calength = xca * xca + yca * yca
+
+     /* Calculate the denominator of the formulae. */
+     val denominator = 0.5 / orient2d(b, c, a)
+
+     /* Calculate offset (from `a') of circumcenter. */
+     val xcirca = (yca * balength - yba * calength) * denominator
+     val ycirca = (xba * calength - xca * balength) * denominator
+     
+     a + Point(xcirca.toFloat, ycirca.toFloat)
+
+  }
+
    // Returns triangle circumcircle point and radius
    def circumCircle(a: Point, b: Point, c: Point): Tuple2[Point, Float] = {
      

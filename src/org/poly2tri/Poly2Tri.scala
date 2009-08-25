@@ -209,6 +209,13 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 		 g.setColor(blue)
 		 g.draw(triangle) 
 	   })
+    
+	   //slCDT.cList.foreach(c => {
+       for(i <- 0 until 7) {
+	     val circ = new Circle(slCDT.cList(i).x, slCDT.cList(i).y, 0.5f)
+	     g.setColor(blue); g.draw(circ); g.fill(circ)
+       }
+       //})
        
    }
    
@@ -243,6 +250,11 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     mousePressed = true
     mousePosOld = mousePos
     mousePos = Point(x, y)
+    /*
+    val point = mousePos/scaleFactor + Point(deltaX, deltaY)
+    slCDT.addPoint(point)
+    slCDT.triangulate
+    */
   }
   
   /**
@@ -423,6 +435,15 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         
         slCDT triangulate
 	    val runTime = System.nanoTime - t1
+        
+        if(slCDT.cList.size > 1) {
+          //slCDT.addPoint(slCDT.cList(0))
+          //slCDT.addPoint(slCDT.cList(1))
+          println(slCDT.cList.size)
+          for(i <- 0 until 7) 
+            slCDT.addPoint(slCDT.cList(i))
+          slCDT.triangulate
+        }
         
 	    println("CDT average (ms) =  " + runTime*1e-6)
 		println("Number of triangles = " + slCDT.triangles.size)
