@@ -157,15 +157,15 @@ class Triangle(val points: Array[Point]) {
   }
   
   // Locate next triangle crossed by edge
-  def findNeighbor(e: Point): Triangle = {
+  def findNeighbor(p: Point): Triangle = {
     
-    if(contains(e)) return this
+    if(contains(p)) return this
     
-    if(Util.orient2d(points(1), points(0), e) > 0) 
+    if(Util.orient2d(points(1), points(0), p) > 0) 
       return neighbors(2)
-    else if(Util.orient2d(points(2), points(1), e) > 0) 
+    else if(Util.orient2d(points(2), points(1), p) > 0) 
       return neighbors(0)
-    else if(Util.orient2d(points(0), points(2), e) > 0) 
+    else if(Util.orient2d(points(0), points(2), p) > 0) 
       return neighbors(1)
     else
       throw new Exception("Point not found")

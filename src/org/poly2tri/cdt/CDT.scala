@@ -155,7 +155,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     // 49 69
     val size = if(refine) 50 else points.size
     
-    for(i <- 1 until size) {
+    for(i <- 1 until points.size) {
       
       val point = points(i)
       // Process Point event
@@ -331,7 +331,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
 	    }
        nTriangles += pNode.triangle
      }
-   
+      
       val point2 = if(aboveEdge) {
         val p1 = pNode.point
         val p2 = if(ahead) pNode.prev.point else pNode.next.point
@@ -364,15 +364,13 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
           pNode.prev = n
           n
         } else {
-          val n = new Node(point2, pNode.next.triangle)
+          val n = new Node(point2, T.last)
           aFront link (n, first, T.last)
           pNode.next = n
           n.prev = pNode
-          n
-        }
-        val above = point2.y > edge.p.y
-        val e = if(above) new Segment(edge.p, point2) else { println("wtf"); new Segment(point2, edge.p)}
-        edgeEvent(e, iNode)
+          pNode
+        } 
+        edgeEvent(new Segment(edge.p, point2), iNode)
       }
       
     } else if(firstTriangle.contains(edge.q, edge.p)) { 

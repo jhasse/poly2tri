@@ -439,7 +439,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         if(slCDT.cList.size > 1) {
           //slCDT.addPoint(slCDT.cList(0))
           //slCDT.addPoint(slCDT.cList(1))
-          for(i <- 0 until 9 /*slCDT.cList.size*/) 
+          for(i <- 0 until slCDT.cList.size) 
             slCDT.addPoint(slCDT.cList(i))
           slCDT.triangulate
         }
