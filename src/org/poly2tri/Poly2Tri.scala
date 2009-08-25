@@ -210,12 +210,10 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 		 g.draw(triangle) 
 	   })
     
-	   //slCDT.cList.foreach(c => {
-       for(i <- 0 until 7) {
-	     val circ = new Circle(slCDT.cList(i).x, slCDT.cList(i).y, 0.5f)
+	   slCDT.cList.foreach(c => {
+	     val circ = new Circle(c.x, c.y, 0.5f)
 	     g.setColor(blue); g.draw(circ); g.fill(circ)
-       }
-       //})
+       })
        
    }
    
@@ -439,10 +437,9 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         if(slCDT.cList.size > 1) {
           //slCDT.addPoint(slCDT.cList(0))
           //slCDT.addPoint(slCDT.cList(1))
-          println(slCDT.cList.size)
-          for(i <- 0 until 7) 
+          for(i <- 0 until slCDT.cList.size) 
             slCDT.addPoint(slCDT.cList(i))
-          slCDT.triangulate
+          //slCDT.triangulate
         }
         
 	    println("CDT average (ms) =  " + runTime*1e-6)
