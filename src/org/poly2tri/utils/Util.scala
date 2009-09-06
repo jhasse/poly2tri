@@ -280,7 +280,9 @@ object Util {
      if ((det > errbound) || (-det > errbound)) {
        return det >= 0
      } else {
-       throw new Exception("Points nearly collinear")
+       // Cheat a little bit.... we have a degenerate triangle
+	   val d = pd * 0.1e-6f
+       return incircle(pa, pb, pc, d)
      }
 
   }
