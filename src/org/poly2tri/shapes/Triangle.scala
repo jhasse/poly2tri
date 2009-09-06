@@ -375,8 +375,26 @@ class Triangle(val points: Array[Point]) {
 	 val angle3 = Math.Pi - angle1 - angle2
      // 30 degrees
      val minAngle = Math.Pi/6
-     //println(angle1 + "," + angle2 + "," + angle3)
      (angle1 <= minAngle || angle2 <= minAngle || angle3 <= minAngle)
   } 
+  
+  // Compute barycentric coordinates (u, v, w) for
+  // point p with respect to triangle 
+  // From "Real-Time Collision Detection" by Christer Ericson
+  def barycentric(p: Point): List[Float] = {
+    val v0 = points(1) - points(0)
+    val v1 = points(2) - points(0)
+    val v2 = p - points(0)
+    val d00 = v0 dot v0
+    val d01 = v0 dot v1
+    val d11 = v1 dot v1
+    val d20 = v2 dot v0
+    val d21 = v2 dot v1
+    val denom = d00 * d11 - d01 * d01
+    val v = (d11 * d20 - d01 * d21) / denom
+    val w = (d00 * d21 - d01 * d20) / denom
+    val u = 1.0f - v - w
+    List(u, v, w)
+ }
   
 }
