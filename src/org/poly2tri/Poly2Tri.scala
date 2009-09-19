@@ -115,7 +115,13 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   }
   
   def render(container: GameContainer, g: Graphics) {
-    
+
+    val red = new Color(1f, 0f,0.0f)
+    val blue = new Color(0f, 0f, 1f)
+    val green = new Color(0f, 1f, 0f)
+    val yellow = new Color(1f, 1f, 0f)
+
+    g.setColor(green)
     g.drawString("'1-9' to cycle models, mouse to pan & zoom", 10, 522)
     g.drawString("'c,s,e' to switch CDT / Seidel / EarClip algos", 10, 537)
     g.drawString("'t' to show trapezoidal map (Seidel)", 10, 552)
@@ -124,12 +130,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
 
     g.scale(scaleFactor, scaleFactor)
 	  g.translate(deltaX, deltaY)
-   
-    val red = new Color(1f, 0f,0.0f)
-    val blue = new Color(0f, 0f, 1f)
-    val green = new Color(0f, 1f, 0f)
-    val yellow = new Color(1f, 1f, 0f)
-    
+       
     algo match {
 
       case Algo.Seidel => {
