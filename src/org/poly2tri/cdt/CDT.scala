@@ -109,76 +109,65 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   
   // Create edges and connect end points; update edge event pointer
   private def initEdges(pts: Array[Point]) {
-    
     // Connect pts
     for(i <- 0 until pts.size-1) {
       val endPoints = validatePoints(pts(i), pts(i+1))
       val edge =  new Segment(endPoints(0), endPoints(1))
       endPoints(1).edges += edge
     }
-    
     // Connect endpoints
     val endPoints = validatePoints(pts.first, pts.last) 
     val edge =  new Segment(endPoints(0), endPoints(1)) 
     endPoints(1).edges += edge
-    
   }
   
   private def validatePoints(p1: Point, p2: Point): List[Point] = {
-    
     if(p1.y > p2.y) {
 	    // For CDT we want q to be the point with > y
-        return List(p2, p1)
-	 } else if(p1.y == p2.y) {
+      return List(p2, p1)
+    } else if(p1.y == p2.y) {
 	    // If y values are equal, make sure point with smaller x value
 	    // is to the left
 	    if(p1.x > p2.x) {
 	      return List(p2, p1)
 	    } else if(p1.x == p2.x) {
-          throw new Exception("Duplicate point")
-        }
+        throw new Exception("Duplicate point")
+      }
 	  }
-    
     List(p1, p2)
   }
   
   // Merge sort: O(n log n)
   private def pointSort: List[Point] = 
-    Util.msort((p1: Point, p2: Point) => p1 > p2)(points)
+  Util.msort((p1: Point, p2: Point) => p1 > p2)(points)
   
   // Implement sweep-line 
   private def sweep {
-    
     val size = if(refined) 1 else points.size
-    
     for(i <- 1 until points.size) {
-      
       val point = points(i)
       // Process Point event
       val node = pointEvent(point)
       // Process edge events
       point.edges.foreach(e => edgeEvent(e, node))
     }
-    
   }  
   
   // Final step in the sweep-line CDT 
   // Clean exterior triangles
   private def finalization {
-    
     var found = false
     mesh.map.foreach(m => {
       if(!found)
-        // Mark the originating clean triangle
-        if(m.pointIn(clearPoint)) {
-          found = true
-          cleanTri = m
-         }
+      // Mark the originating clean triangle
+      if(m.pointIn(clearPoint)) {
+        found = true
+        cleanTri = m
+      }
       m.markNeighborEdges
     })
     // Collect interior triangles constrained by edges
     mesh clean cleanTri
-   
   }
   
   // Delauney Refinement: Refine triangules using Steiner points
@@ -191,13 +180,13 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     mesh.triangles.foreach(t => {
       if(t.thin) {
         val center = Util.circumcenter(t.points(0), t.points(1), t.points(2))
-          cList += center
-          addPoint(center)
+        cList += center
+        addPoint(center)
       }
     })
     // Retriangulate
     if(cList.size > 0)
-      triangulate
+    triangulate
   }
     
   // Point event
@@ -224,63 +213,63 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     
     // Locate the first intersected triangle
     val firstTriangle = if(!node.triangle.contains(edge.q))
-      node.triangle
+    node.triangle
     else
-      node.triangle.locateFirst(edge)
+    node.triangle.locateFirst(edge)
     
     if(firstTriangle != null && !firstTriangle.contains(edge)) {
     	
-       // Interior mesh traversal - edge is "burried" in the mesh
-       // Constrained edge lies below the advancing front. Traverse through intersected triangles,
-       // form empty pseudo-polygons, and re-triangulate
+      // Interior mesh traversal - edge is "burried" in the mesh
+      // Constrained edge lies below the advancing front. Traverse through intersected triangles,
+      // form empty pseudo-polygons, and re-triangulate
       
-       // Collect intersected triangles
-       val tList = new ArrayBuffer[Triangle]
-       tList += firstTriangle
+      // Collect intersected triangles
+      val tList = new ArrayBuffer[Triangle]
+      tList += firstTriangle
        
-       while(tList.last != null && !tList.last.contains(edge.p))
-         tList += tList.last.findNeighbor(edge.p)
+      while(tList.last != null && !tList.last.contains(edge.p))
+      tList += tList.last.findNeighbor(edge.p)
        
-       // TODO: Finish implementing edge insertion which combines advancing front (AF) 
-       // and triangle traversal respectively. See figure 14(a) from Domiter et al.
-       // Should only occur with complex patterns of interior points
-       // Already added provision for transitioning from AFront traversal to
-       // interior mesh traversal - may need to add the opposite case
-       if(tList.last == null)
-         throw new Exception("Not implemented yet - interior points too complex")
+      // TODO: Finish implementing edge insertion which combines advancing front (AF)
+      // and triangle traversal respectively. See figure 14(a) from Domiter et al.
+      // Should only occur with complex patterns of interior points
+      // Already added provision for transitioning from AFront traversal to
+      // interior mesh traversal - may need to add the opposite case
+      if(tList.last == null)
+      throw new Exception("Not implemented yet - interior points too complex")
        
-       // Neighbor triangles
-       // HashMap or set may improve performance
-       val nTriangles = new ArrayBuffer[Triangle]
+      // Neighbor triangles
+      // HashMap or set may improve performance
+      val nTriangles = new ArrayBuffer[Triangle]
        
-        // Remove old triangles; collect neighbor triangles
-        // Keep duplicates out 
-        tList.foreach(t => {
-          t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
-          mesh.map -= t
-        })
+      // Remove old triangles; collect neighbor triangles
+      // Keep duplicates out
+      tList.foreach(t => {
+        t.neighbors.foreach(n => if(n != null && !tList.contains(n)) nTriangles += n)
+        mesh.map -= t
+      })
         
-        // Using a hashMap or set may improve performance
-		val lPoints = new ArrayBuffer[Point]
-		val rPoints = new ArrayBuffer[Point]
+      // Using a hashMap or set may improve performance
+      val lPoints = new ArrayBuffer[Point]
+      val rPoints = new ArrayBuffer[Point]
 		   
-        // Collect points left and right of edge
-		tList.foreach(t => {
-		  t.points.foreach(p => {
-		    if(p != edge.q && p != edge.p) {
-		      if(Util.orient2d(edge.q, edge.p, p) > 0 ) {
-		        // Keep duplicate points out
-                if(!lPoints.contains(p)) {
-		          lPoints += p
-                }
-		      } else { 
-		        // Keep duplicate points out
-                if(!rPoints.contains(p))
-		          rPoints += p
+      // Collect points left and right of edge
+      tList.foreach(t => {
+        t.points.foreach(p => {
+          if(p != edge.q && p != edge.p) {
+            if(Util.orient2d(edge.q, edge.p, p) > 0 ) {
+              // Keep duplicate points out
+              if(!lPoints.contains(p)) {
+                lPoints += p
               }
-             }
-		  })
-		})
+            } else {
+              // Keep duplicate points out
+              if(!rPoints.contains(p))
+              rPoints += p
+            }
+          }
+          })
+       })
       
       // Triangulate empty areas.
       val T1 = new ArrayBuffer[Triangle]
@@ -296,8 +285,8 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       // Update advancing front
       
       val ahead = (edge.p.x > edge.q.x)
-	  val point1 = if(ahead) edge.q else edge.p 
-	  val point2 = if(ahead) edge.p else edge.q 
+      val point1 = if(ahead) edge.q else edge.p
+      val point2 = if(ahead) edge.p else edge.q
     
       val sNode = if(ahead) node else aFront.locate(point1)
       val eNode = aFront.locate(point2)
@@ -333,23 +322,23 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       if(ahead) {
         // Scan right
         pNode = pNode.next
-	    while(pNode.point != edge.p && !aboveEdge) {
-		  points += pNode.point
+        while(pNode.point != edge.p && !aboveEdge) {
+          points += pNode.point
           nTriangles += pNode.triangle
-		  pNode = pNode.next
+          pNode = pNode.next
           aboveEdge = edge < pNode.point
-	    }
+        }
       } else {
-       // Scan left
-       pNode = pNode.prev
-       while(pNode.point != edge.p && !aboveEdge) {
-		  points += pNode.point
+        // Scan left
+        pNode = pNode.prev
+        while(pNode.point != edge.p && !aboveEdge) {
+          points += pNode.point
           nTriangles += pNode.triangle
-		  pNode = pNode.prev
+          pNode = pNode.prev
           aboveEdge = edge < pNode.point
-	    }
-       nTriangles += pNode.triangle
-     }
+        }
+        nTriangles += pNode.triangle
+      }
       
       val point2 = if(aboveEdge) {
         val p1 = pNode.point
@@ -396,11 +385,11 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
   private def edgeNeighbors(nTriangles: ArrayBuffer[Triangle], T: ArrayBuffer[Triangle]) {
     
     for(t1 <- nTriangles) 
-      for(t2 <- T) 
-        t2.markNeighbor(t1) 
+      for(t2 <- T)
+        t2.markNeighbor(t1)
                                                                                 
     for(i <- 0 until T.size) 
-      for(j <- i+1 until T.size) 
+      for(j <- i+1 until T.size)
         T(i).markNeighbor(T(j))
     
   }
@@ -455,7 +444,7 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     if(node2.prev != null) {
       var angle = 0.0
       do {
-	    angle = fill(node2)
+        angle = fill(node2)
         node2 = node2.prev
       } while(angle <= PI_2 && angle >= -PI_2 && node2.prev != null)
     }
@@ -468,31 +457,28 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
 	  val a = (node.prev.point - node.point)
 	  val b = (node.next.point - node.point)
 	  val angle = Math.atan2(a cross b, a dot b)
-      // Is the angle acute?
+    // Is the angle acute?
 	  if(angle <= PI_2 && angle >= -PI_2) {
 	    val points = Array(node.prev.point, node.point, node.next.point)
 	    val triangle = new Triangle(points)
-        // Update neighbor pointers
-        node.prev.triangle.markNeighbor(triangle)
-        node.triangle.markNeighbor(triangle)
+      // Update neighbor pointers
+      node.prev.triangle.markNeighbor(triangle)
+      node.triangle.markNeighbor(triangle)
 	    mesh.map += triangle
 	    aFront -= (node.prev, node, triangle)
 	  }
-      angle
+    angle
   }
   
   // Circumcircle test. 
   // Determines if point d lies inside triangle abc's circumcircle 
   private def illegal(a: Point, b: Point, c: Point, d: Point): Boolean = {
-    
     val ccw = Util.orient2d(a, b, c) > 0
-    
     // Make sure abc is oriented counter-clockwise
     if(ccw) 
-      Util.incircle(a, b, c, d) 
+      Util.incircle(a, b, c, d)
     else 
       Util.incircle(a, c, b, d)
-    
   }
   
   // Ensure adjacent triangles are legal
@@ -509,33 +495,33 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
     
     if(illegal && !t2.finalized) {
 
-        // Flip edge and rotate everything clockwise
+      // Flip edge and rotate everything clockwise
      
-        // Legalize points
+      // Legalize points
 	    t1.legalize(oPoint)
 	    t2.legalize(oPoint, point)
         
-        // Update neighbors
+      // Update neighbors
      
-        // Copy old neighbors
+      // Copy old neighbors
 	    val neighbors = List(t2.neighbors(0), t2.neighbors(1), t2.neighbors(2))
-        // Clear old neighbors
-        t2.clearNeighbors
-        // Update new neighbors
+      // Clear old neighbors
+      t2.clearNeighbors
+      // Update new neighbors
 	    for(n <- neighbors) {
 	      if(n != null) {
 	        t1.markNeighbor(n)
-            t2.markNeighbor(n)
+          t2.markNeighbor(n)
 	      }
 	    }
-        t2.markNeighbor(t1)
+      t2.markNeighbor(t1)
         
-        // Don't legalize these triangles again
-        t2.finalized = true
-        t1.finalized = true
+      // Don't legalize these triangles again
+      t2.finalized = true
+      t1.finalized = true
         
-        // Update advancing front
-        aFront.insertLegalized(t1.points(1), t1, node)
+      // Update advancing front
+      aFront.insertLegalized(t1.points(1), t1, node)
         
     } else {
       
@@ -545,7 +531,6 @@ class CDT(polyLine: Array[Point], clearPoint: Point) {
       aFront.insert(point, t1, node)
 
     }
-
   }  
   
   // The triangle mesh

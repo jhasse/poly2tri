@@ -38,21 +38,10 @@ class EarClip {
  
 	var numTriangles = 0
  
-	def triangulatePolygon(x: Array[Float], y: Array[Float], vn: Int, results: Array[Triangle]): Int = {
-			
-	       /*
-	        val p1 = Point(x(0), y(0))
-            val p2 = Point(x(1), y(1))
-            val p3 = Point(x(2), y(2))
-            
-            val ccw = Util.orient2d(p1, p2, p3) > 0
-            */
-	  
-            val xv = x.reverse.toArray
-            val yv = y.reverse.toArray
-            
-	        if (vn < 3) return 0
-	        var vNum = vn
+	def triangulatePolygon(xv: Array[Float], yv: Array[Float], vn: Int, results: Array[Triangle]): Int = {
+ 
+      if (vn < 3) return 0
+      var vNum = vn
             
 			//Recurse and split on pinch points
 			val pA = new Poly
@@ -133,15 +122,18 @@ class EarClip {
 						
 					System.out.println("Couldn't find an ear, dumping remaining poly:\n");
 					System.out.println("Please submit this dump to ewjordan at Box2d forums\n");
+
+        assert(false)
+        
 					for (i <- 0 until bufferSize) {
 						results(i).set(buffer(i));
 					}
 			
 					if (bufferSize > 0) return bufferSize;
-	                else {
-	                  numTriangles = -1
-	                  return numTriangles
-                   }
+            else {
+              numTriangles = -1
+              return numTriangles
+             }
 				}
 				
 	            // Clip off the ear:
