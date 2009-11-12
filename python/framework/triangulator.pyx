@@ -29,6 +29,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
+from random import shuffle
 
 ###
 ### Based on Raimund Seidel'e paper "A simple and fast incremental randomized
@@ -42,14 +43,112 @@ cdef extern from 'math.h':
     double floor(double)
     double sqrt(double)
 
+class Triangulator:
+  
+    def __init__(self, points):
+        self.polygons = []
+        self.edge_list = self.init_edges(points)
+        self.trapezoids = []
+        self.trapezoidal_map = TrapezoidalMap()
+        boundingBox = self.trapezoidal_map.boundingBox(self.edge_list)
+        self.query_graph = QueryGraph(Sink(boundingBox))
+        self.xmono_poly = []
+        self.process()
+  
+    def trapezoidMap(self): 
+        return self.trapezoidal_map.map
+    
+    # Build the trapezoidal map and query graph
+    def process(self):
+        for e in self.edge_list:
+            traps = self.query_graph.followSegment(e)
+            for t in traps:
+                self.trapezoidal_map.map.remove(t)
+            for t in traps:
+                tlist = []
+                cp = t.contains(e.p)
+                cq = t.contains(e.q)
+                if cp and cq:
+                    tlist = self.trapezoidal_map.case1(t, e)
+                    self.query_graph.case1(t.sink, e, tlist)
+                elif cp and not cq:
+                    tlist = self.trapezoidal_map.case2(t, e) 
+                    self.query_graph.case2(t.sink, e, tlist)
+                elif not cp and not cq:
+                    tlist = self.trapezoidal_map.case3(t, e)
+                    self.query_graph.case3(t.sink, e, tlist)
+                else:
+                    tlist = self.trapezoidal_map.case4(t, e)
+                    self.query_graph.case4(t.sink, e, tlist)
+                
+                # Add new trapezoids to map
+                for t in tlist:
+                  self.trapezoidal_map.map.append(t)
+          
+            self.trapezoidal_map.clear()
+
+        # Mark outside trapezoids
+        for t in self.trapezoidal_map.map:
+            self.mark_outside(t)
+        
+        # Collect interior trapezoids
+        for t in self.trapezoidal_map.map:
+            if t.inside():
+                self.trapezoids.append(t)
+                t.add_points()
+
+        self.create_mountains()
+
+    def mono_polies(self):
+        polies = []
+        for x in self.xmono_poly:
+            polies.append(x.monoPoly)
+        return polies
+  
+    def create_mountains(self):
+        for s in self.edge_list:          
+            if len(s.mpoints) > 0:
+                mountain = MonotoneMountain()
+                k = merge_sort(s.mpoints)
+                points = [s.p] + k + [s.q]
+                for p in points:
+                    mountain.append(p)
+                mountain.process()
+                for t in mountain.triangles:
+                    self.polygons.append(t)
+                self.xmono_poly.append(mountain)
+  
+    def mark_outside(self, t):
+        if t.top is self.boundingBox.top or t.bottom is self.boundingBox.bottom:
+            t.trimNeighbors()
+  
+    def init_edges(self, points):
+        edges = []
+        for i in range(len(points)-1):
+            edges.append(Edge(points[i], points[i+1]))
+        edges.append(Edge(points[0], points[-1]))
+        return self.order_edges(edges)
+  
+    def order_edges(self, edges):
+        segs = []
+        for s in edges:
+            p = self.shearTransform(s.p)
+            q = self.shearTransform(s.q)
+            if p.x > q.x: segs.append(Edge(q, p))
+            elif p.x < q.x: segs.append(Edge(p, q))
+        shuffle(segs)
+        return segs
+
+    def shearTransform(self, point):
+        return Point(point.x + 1e-4 * point.y, point.y)
+ 
 cdef list merge_sort(list l):
     cdef list lleft, lright
     cdef int p1, p2, p
     if len(l)>1 :
         lleft = merge_sort(l[:len(l)/2])
         lright = merge_sort(l[len(l)/2:])
-        #do merge here
-        p1,p2,p = 0,0,0
+        p1, p2, p = 0, 0, 0
         while p1<len(lleft) and p2<len(lright):
             if lleft[p1][0] < lright[p2][0]:
                 l[p]=lleft[p1]
@@ -387,26 +486,20 @@ class Node:
     def __init__(self, left, right):
         self.left = left
         self.right = right
-        if left is not None: 
-            left.parent_list.append(self)
-        if right is not None: 
-            right.parent_list.append(self)
+        if left is not None: left.parent_list.append(self)
+        if right is not None: right.parent_list.append(self)
   
     def replace(self, node):
         for parent in node.parent_list:
-            if parent.left is node:
-                parent.left = self
-            else:
-                parent.right = self 
+            if parent.left is node: parent.left = self
+            else: parent.right = self 
             self.parent_list.append(parent)
 
 class Sink(Node):
 
     def __new__(cls, trapezoid):
-        if trapezoid.sink is not None:
-            return trapezoid.sink
-        else:
-            return Sink(trapezoid)
+        if trapezoid.sink is not None: return trapezoid.sink
+        else: return Sink(trapezoid)
             
     def __init__(self, trapezoid):
         Node.__init__(self, None, None)
@@ -424,10 +517,8 @@ class XNode(Node):
         self.rchild = rchild
     
     def locate(self, e): 
-        if e.p.x >= self.point.x:
-            return self.right.locate(e)
-        else:         
-            return self.left.locate(e)
+        if e.p.x >= self.point.x: return self.right.locate(e)
+        else: return self.left.locate(e)
 
 class YNode(Node):
 
@@ -438,15 +529,11 @@ class YNode(Node):
         self.rchild = rchild
         
     def locate(self, e):
-        if self.edge.is_above(e.p):
-            return self.right.locate(e)
-        elif self.edge.is_below(e.p):
-            return self.left.locate(e)
+        if self.edge.is_above(e.p): return self.right.locate(e)
+        elif self.edge.is_below(e.p): return self.left.locate(e)
         else:
-          if e.slope < self.edge.slope:
-            return self.right.locate(e)
-          else:
-            return self.left.locate(e)
+            if e.slope < self.edge.slope: return self.right.locate(e)
+            else: return self.left.locate(e)
             
 class QueryGraph:
 
