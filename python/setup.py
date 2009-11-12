@@ -7,9 +7,9 @@ from Cython.Distutils import build_ext
 
 # Usage: python setup.py build_ext --i
 
-version = '0.01'
+version = '0.1'
 
-sourcefiles = ['engine/engine.pyx']
+sourcefiles = ['include/framework.pyx']
 
 # Platform-dependent submodules
 
@@ -24,21 +24,21 @@ else:
     libs = ['GLEW', 'GLU', 'glfw', 'GL']
     
 mod_engine = Extension(
-    "engine",
+    "framework",
     sourcefiles, 
     libraries = libs,
     language = 'c'
 )
 
 setup(
-    name = 'OpenMelee',
+    name = 'Poly2Tri',
     version = version,
-    description = 'A Star Control Clone',
-    author = 'Mason Green & Tom Novelli',
+    description = 'A 2D Polygon Triangulator',
+    author = 'Mason Green (zzzzrrr)',
     author_email = '',
     maintainer = '',
     maintainer_email = '',
-    url = 'http://openmelee.org/',
+    url = 'http://code.google.com/p/poly2tri/',
     cmdclass = {'build_ext': build_ext},
     ext_modules = [mod_engine],
 )
