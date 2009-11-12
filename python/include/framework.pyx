@@ -1,2 +1,1 @@
-import "glfw.pxd"
-import "gl.pxd"
+import "triangulator.pyx"
