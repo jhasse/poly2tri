@@ -99,18 +99,15 @@ class Triangulator(object) {
           trapezoidalMap.clear
           i += 1
         
-        // Mark outside trapezoids
         for t in trapezoidalMap.map
             markOutside(t)
         
-        // Collect interior trapezoids
         for t in trapezoidalMap.map
           if t.inside:
             trapezoids.append(t)
             t.addPoints()
 
-        // Generate the triangles
-        createMountains 
+        createMountains()
         
       }
   
@@ -132,29 +129,20 @@ class Triangulator(object) {
           
           if(s.mPoints.size > 0) {
             
-             val mountain = new MonotoneMountain
-             var k: List[Point] = None
+             mountain = MonotoneMountain()
+          
 
-             // Sorting is a perfromance hit. Literature says this can be accomplised in
-             // linear time, although I don't see a way around using traditional methods
-             // when using a randomized incremental algorithm
-             if(s.mPoints.size < 10) 
-               // Insertion sort is one of the fastest algorithms for sorting arrays containing 
-               // fewer than ten elements, or for lists that are already mostly sorted.
-               k = Util.insertSort((p1: Point, p2: Point) => p1 < p2)(s.mPoints).toList
+             if len(s.mPoints) < 10:
+               k = insertSort((p1: Point, p2: Point) => p1 < p2)(s.mPoints).toList
              else 
-               k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
+               k = msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
              
-             val points = s.p :: k ::: List(s.q)
+             points = s.p :: k ::: List(s.q)
              
-             var j = 0
-             while(j < points.size) {
-               mountain += points(j)
-               j += 1
-             }
+             for p in points:
+               mountain.add(p)
              
-             // Triangulate monotone mountain
-             mountain process
+             mountain.process()
              
              // Extract the triangles into a single list
              j = 0
