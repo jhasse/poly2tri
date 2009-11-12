@@ -534,7 +534,8 @@ cdef class MonotoneMountain:
                 self.tail = point
                 self.size += 1
 
-    def remove(self, Point point):
+    cdef void remove(self, Point point):
+        cdef Point next, prev
         next = point.next
         prev = point.prev
         point.prev.next = next
@@ -552,7 +553,7 @@ cdef class MonotoneMountain:
             p = p.next
         self.triangulate()
 
-    def triangulate(self):
+    cdef void triangulate(self):
         while not len(self.convex_points) > 0:
             ear = self.convex_points.remove(0)
             a = ear.prev
@@ -565,25 +566,25 @@ cdef class MonotoneMountain:
             if self.valid(c): self.convex_points.append(c)
         assert(self.size <= 3, "Triangulation bug, please report")
 
-    def valid(self, Point p):
+    cdef bool valid(self, Point p):
         return p != self.head and p != self.tail and self.is_convex(p)
 
-    def gen_mono_poly(self): 
-        p = self.head
+    cdef void gen_mono_poly(self): 
+        cdef Point p = self.head
         while(p is not None):
             self.mono_poly.append(p)
             p = p.next
 
-    def angle(self, Point p):
+    cdef float angle(self, Point p):
         cdef Point a = p.next - p
         cdef Point b = p.prev - p
         return atan2(a.cross(b), a.dot(b))
 
-    def angle_sign(self):
-        a = self.head.next - self.head
-        b = self.tail - self.head
+    cdef float angle_sign(self):
+        cdef Point a = self.head.next - self.head
+        cdef Point b = self.tail - self.head
         return atan2(a.cross(b), a.dot(b)) >= 0
 
-    def is_convex(self, Point p):
+    cdef bool is_convex(self, Point p):
         if self.positive != (self.angle(p) >= 0): return False
         return True      
