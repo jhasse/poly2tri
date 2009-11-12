@@ -9,7 +9,7 @@ from Cython.Distutils import build_ext
 
 version = '0.1'
 
-sourcefiles = ['include/framework.pyx']
+sourcefiles = ['framework/framework.pyx']
 
 # Platform-dependent submodules
 
