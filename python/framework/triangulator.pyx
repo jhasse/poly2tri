@@ -29,7 +29,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-from math import floor
 
 ###
 ### Based on Raimund Seidel'e paper "A simple and fast incremental randomized
@@ -39,6 +38,8 @@ from math import floor
 cdef extern from 'math.h':
     double cos(double)
     double sin(double)
+    double atan2(double, double)
+    double floor(double)
     double sqrt(double)
 
 cdef list merge_sort(list l):
@@ -493,4 +494,96 @@ class QueryGraph:
         yNode = YNode(e, Sink(tlist[0]), Sink(tlist[1]))
         qNode = XNode(e.q, yNode, Sink(tlist[2]))
         self.replace(sink, qNode)
+
+cdef float PI_SLOP = 3.1
+
+cdef class MonotoneMountain:
+
+    cdef:
+        Point tail, head
+        int size
+        list convex_points
+        list mono_poly
+        list triangles
+        list convex_polies                        
+        bool positive
+
+    def __init__(self):
+        self.size = 0
+        self.tail, self.head = None
+        self.positive = False
+        self.convex_points = []
+        self.mono_poly = []
+        self.triangles = []
+        self.convex_polies = []
         
+    def append(self, Point point):
+        if self.size == 0: 
+            self.head = point
+            self.size += 1
+        elif self.size == 1:
+            if point.not_equal(self.head):
+                self.tail = point
+                self.tail.prev = self.head
+                self.head.next = self.tail
+                self.size += 1
+        else:
+            if point.not_equal(self.tail):
+                self.tail.next = point
+                point.prev = self.tail
+                self.tail = point
+                self.size += 1
+
+    def remove(self, Point point):
+        next = point.next
+        prev = point.prev
+        point.prev.next = next
+        point.next.prev = prev
+        self.size -= 1
+
+    def process(self):
+        self.positive = self.angle_sign()
+        self.gen_mono_poly()
+        p = self.head.next
+        while p != self.tail:
+            a = self.angle(p)
+            if a >= PI_SLOP or a <= -PI_SLOP: self.remove(p)
+            elif self.is_convex(p): self.convex_points.append(p)
+            p = p.next
+        self.triangulate()
+
+    def triangulate(self):
+        while not len(self.convex_points) > 0:
+            ear = self.convex_points.remove(0)
+            a = ear.prev
+            b = ear
+            c = ear.next
+            triangle = [a, b, c]
+            self.triangles.append(triangle)
+            self.remove(ear)
+            if self.valid(a): self.convex_points.append(a)
+            if self.valid(c): self.convex_points.append(c)
+        assert(self.size <= 3, "Triangulation bug, please report")
+
+    def valid(self, Point p):
+        return p != self.head and p != self.tail and self.is_convex(p)
+
+    def gen_mono_poly(self): 
+        p = self.head
+        while(p is not None):
+            self.mono_poly.append(p)
+            p = p.next
+
+    def angle(self, Point p):
+        cdef Point a = p.next - p
+        cdef Point b = p.prev - p
+        return atan2(a.cross(b), a.dot(b))
+
+    def angle_sign(self):
+        a = self.head.next - self.head
+        b = self.tail - self.head
+        return atan2(a.cross(b), a.dot(b)) >= 0
+
+    def is_convex(self, Point p):
+        if self.positive != (self.angle(p) >= 0): return False
+        return True      
