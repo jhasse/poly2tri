@@ -79,9 +79,8 @@ cdef class Game:
     
     def __init__(self, window_width, window_height):
         
-        p1 = Point(12, 10)
-        p2 = Point(50, 47)
-        print p1.cross(p2)
+        points = [Point(100,100), Point(-100,100), Point(-100,-100), Point(100,-100)]
+        seidel = Triangulator(points)
      
         glfwInit()
         
