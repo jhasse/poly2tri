@@ -153,7 +153,7 @@ cdef list merge_sort(list l):
         lright = merge_sort(l[len(l)/2:])
         p1, p2, p = 0, 0, 0
         while p1<len(lleft) and p2<len(lright):
-            if lleft[p1][0] < lright[p2][0]:
+            if lleft[p1].x < lright[p2].x:
                 l[p]=lleft[p1]
                 p+=1
                 p1+=1
