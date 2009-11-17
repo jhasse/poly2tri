@@ -5,13 +5,10 @@ from math import pi as PI
 
 from gl cimport *
 
-#from triangulator import Point
-
-include "triangulator.pyx"
-
 cdef extern from 'math.h':
     double cos(double)
     double sin(double)
+    double sqrt(double)
 
 SEGMENTS = 25
 INCREMENT = 2.0 * PI / SEGMENTS
@@ -61,11 +58,6 @@ from glfw cimport *
 
 import sys
 
-cdef extern from 'math.h':
-    double cos(double)
-    double sin(double)
-    double sqrt(double)
-
 # Keyboard callback wrapper
 kbd_callback_method = None
 
@@ -78,9 +70,6 @@ cdef class Game:
     title = "Poly2Tri"
     
     def __init__(self, window_width, window_height):
-        
-        points = [Point(100,100), Point(-100,100), Point(-100,-100), Point(100,-100)]
-        seidel = Triangulator(points)
      
         glfwInit()
         

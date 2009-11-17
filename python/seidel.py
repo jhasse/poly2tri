@@ -30,24 +30,19 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 from random import shuffle
+from math import atan2, floor
 
 ###
 ### Based on Raimund Seidel'e paper "A simple and fast incremental randomized
 ### algorithm for computing trapezoidal decompositions and for triangulating polygons"
 ### (Ported from poly2tri)
 
-cdef extern from 'math.h':
-    double cos(double)
-    double sin(double)
-    double atan2(double, double)
-    double floor(double)
-    double sqrt(double)
-
-class Point:
+class Point(object):
     
-    def __cinit__(self, float x, float y):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.next, self.prev = None, None
 
     def __sub__(self, other):
         if isinstance(other, Point):
@@ -61,10 +56,10 @@ class Point:
         else:
             return Point(self.x + other, self.y + other)
     
-    def __mul__(self, float f):
+    def __mul__(self, f):
         return Point(self.x * f, self.y * f)
     
-    def __div__(self, float a):
+    def __div__(self, a):
         return Point(self.x / a, self.y / a)
     
     def cross(self, p):
@@ -88,38 +83,24 @@ class Point:
     def clone(self):
         return Point(self.x, self.y)
 
-cdef class Edge:
- 
-    cdef object above, below
-    cdef float slope, b
+class Edge(object):
+
     mpoints = []
+    above, below = None, None
     
-    def __cinit__(self, p, q):
+    def __init__(self, p, q):
         self.p = p
         self.q = q
-        self.slope = (q.y - p.y)/(q.x - p.x)
+        self.slope = 0.0 if (q.x - p.x) == 0 else (q.y - p.y)/(q.x - p.x)
         self.b = p.y - (p.x * self.slope)
-  
-    property p:
-        def __get__(self): return self.p
-        
-    property q:
-        def __get__(self): return self.q
-        
-    property above:
-        def __get__(self): return self.above
-        
-    property below:
-        def __get__(self): return self.below
-        
-    cdef bool is_above(self, point):
+          
+    def is_above(self, point):
         return (floor(point.y) < floor(self.slope * point.x + self.b))
-    cdef bool is_below(self, point):
+        
+    def is_below(self, point):
         return (floor(point.y) > floor(self.slope * point.x + self.b))
 
-    cdef float intersect(self, c, d):
-        cdef float a1, a2, a3, a4, t
-        cdef Point a, b
+    def intersect(self, c, d):
         a = self.p
         b = self.q
         a1 = self.signed_area(a, b, d)
@@ -132,18 +113,12 @@ cdef class Edge:
                 return a + ((b - a) * t)
         return 0.0
         
-    cdef float signed_area(self, a, b, c):
+    def signed_area(self, a, b, c):
         return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x)
         
-cdef class Trapezoid:
-  
-    cdef Edge top, bottom
-    cdef Trapezoid upper_left, lower_left
-    cdef Trapezoid upper_right, lower_right
-    cdef object sink
-    cdef bool inside
+class Trapezoid(object):
     
-    def __cinit__(self, left_point, right_point, Edge top, Edge bottom):
+    def __init__(self, left_point, right_point, top, bottom):
         self.left_point = left_point
         self.right_point = right_point
         self.top = top
@@ -154,57 +129,20 @@ cdef class Trapezoid:
         self.lower_right = None
         self.inside = True
         self.sink = None
-    
-    property inside:
-        def __get__(self): return self.inside
         
-    property top:
-        def __get__(self): return self.top
-        
-    property bottom:
-        def __get__(self): return self.bottom
-        
-    property left_point:
-        def __get__(self): return self.left_point
-        def __set__(self, lp): self.left_point = lp
-        
-    property right_point:
-        def __get__(self): return self.right_point
-        def __set__(self, rp): self.right_point = rp
-        
-    property sink:
-        def __get__(self): return self.sink
-        def __set__(self, object s): self.sink = s
-    
-    property upper_left:
-        def __get__(self): return self.upper_left
-        def __set__(self, Trapezoid other): self.upper_left = other
-        
-    property upper_right:
-        def __get__(self): return self.upper_right
-        def __set__(self, Trapezoid other): self.upper_right = other
-
-    property lower_left:
-        def __get__(self): return self.lower_left
-        def __set__(self, Trapezoid other): self.lower_left = other
-        
-    property lower_right:
-        def __get__(self): return self.lower_right
-        def __set__(self, Trapezoid other): self.lower_right = other
-        
-    def update_left(self, Trapezoid ul, Trapezoid ll):
+    def update_left(self, ul, ll):
         self.upper_left = ul
         self.lower_left = ll
         if ul != None: ul.upper_right = self
         if ll != None: ll.lower_right = self  
   
-    def update_right(self, Trapezoid ur, Trapezoid lr):
+    def update_right(self, ur, lr):
         self.upper_right = ur
         self.lower_right = lr
         if ur != None: ur.upper_left = self
         if lr != None: lr.lower_left = self   
 
-    def update_left_right(self, Trapezoid ul, Trapezoid ll, Trapezoid ur, Trapezoid lr):
+    def update_left_right(self, ul, ll, ur, lr):
         self.upper_left = ul
         self.lower_left = ll 
         self.upper_right = ur 
@@ -227,7 +165,7 @@ cdef class Trapezoid:
                 self.top.is_above(point) and self.bottom.is_below(point))
   
     def vertices(self):
-        cdef list verts = []
+        verts = []
         verts.append(line_intersect(self.top, self.left_point.x))
         verts.append(line_intersect(self.bottom, self.left_point.x))
         verts.append(line_intersect(self.bottom, self.right_point.x))
@@ -236,21 +174,22 @@ cdef class Trapezoid:
   
     def add_points(self):
         if self.left_point != self.bottom.p: 
-            self.bottom.mpoints.append(self.left_point.clone)
+            self.bottom.mpoints.append(self.left_point.clone())
         if self.right_point != self.bottom.q: 
-            self.bottom.mpoints.append(self.right_point.clone)
+            self.bottom.mpoints.append(self.right_point.clone())
         if self.left_point != self.top.p: 
-            self.top.mpoints.append(self.left_point.clone)
+            self.top.mpoints.append(self.left_point.clone())
         if self.right_point != self.top.q: 
-            self.top.mpoints.append(self.right_point.clone)
+            self.top.mpoints.append(self.right_point.clone())
 
-cdef Point line_intersect(Edge e, float x):
-    cdef float y =  e.slope * x + e.b
+def line_intersect(edge, x):
+    y =  edge.slope * x + edge.b
     return Point(x, y)
     
-class Triangulator:
+class Triangulator(object):
   
     def __init__(self, poly_line):
+    
         self.polygons = []
         self.edge_list = self.init_edges(poly_line)
         self.trapezoids = []
@@ -258,38 +197,44 @@ class Triangulator:
         self.bounding_box = self.trapezoidal_map.bounding_box(self.edge_list)
         self.query_graph = QueryGraph(isink(self.bounding_box))
         self.xmono_poly = []
-        
-        self.process()
+        self.process()        
   
-    def trapezoidMap(self): 
+    def triangles(self):
+        triangles = []
+        for p in self.polygons:
+            verts = []
+            for v in p:
+                verts.append((v.x, v.y))
+            triangles.append(verts)
+        return triangles
+            
+    def trapezoid_map(self): 
         return self.trapezoidal_map.map
     
     # Build the trapezoidal map and query graph
     def process(self):
-    
-        for e in self.edge_list:
-            traps = self.query_graph.follow_edge(e)
+        for edge in self.edge_list:
+            traps = self.query_graph.follow_edge(edge)
             for t in traps:
                 try:
                     self.trapezoidal_map.map.remove(t)
                 except:
                     pass
             for t in traps:
-                tlist = []
-                cp = t.contains(e.p)
-                cq = t.contains(e.q)
+                cp = t.contains(edge.p)
+                cq = t.contains(edge.q)
                 if cp and cq:
-                    tlist = self.trapezoidal_map.case1(t, e)
-                    self.query_graph.case1(t.sink, e, tlist)
+                    tlist = self.trapezoidal_map.case1(t, edge)
+                    self.query_graph.case1(t.sink, edge, tlist)
                 elif cp and not cq:
-                    tlist = self.trapezoidal_map.case2(t, e) 
-                    self.query_graph.case2(t.sink, e, tlist)
+                    tlist = self.trapezoidal_map.case2(t, edge) 
+                    self.query_graph.case2(t.sink, edge, tlist)
                 elif not cp and not cq:
-                    tlist = self.trapezoidal_map.case3(t, e)
-                    self.query_graph.case3(t.sink, e, tlist)
+                    tlist = self.trapezoidal_map.case3(t, edge)
+                    self.query_graph.case3(t.sink, edge, tlist)
                 else:
-                    tlist = self.trapezoidal_map.case4(t, e)
-                    self.query_graph.case4(t.sink, e, tlist)
+                    tlist = self.trapezoidal_map.case4(t, edge)
+                    self.query_graph.case4(t.sink, edge, tlist)
                 # Add new trapezoids to map
                 for t in tlist:
                   self.trapezoidal_map.map.append(t)
@@ -305,6 +250,7 @@ class Triangulator:
                 self.trapezoids.append(t)
                 t.add_points()
 
+        # Generate the triangles
         self.create_mountains()
 
     def mono_polies(self):
@@ -314,14 +260,13 @@ class Triangulator:
         return polies
   
     def create_mountains(self):
-        for s in self.edge_list:          
-            if len(s.mpoints) > 0:
+        for edge in self.edge_list:          
+            if len(edge.mpoints) > 0:
                 mountain = MonotoneMountain()
-                print s.mpoints
-                k = merge_sort(s.mpoints)
-                points = [s.p] + k + [s.q]
+                k = merge_sort(edge.mpoints)
+                points = [edge.p] + k + [edge.q]
                 for p in points:
-                    mountain.append(p)
+                    mountain.add(p)
                 mountain.process()
                 for t in mountain.triangles:
                     self.polygons.append(t)
@@ -342,24 +287,22 @@ class Triangulator:
         edges.append(Edge(p, q))
         return self.order_edges(edges)
   
-    def order_edges(self, edges):
-        segs = []
-        for s in edges:
-            p = self.shearTransform(s.p)
-            q = self.shearTransform(s.q)
+    def order_edges(self, edge_list):
+        edges = []
+        for e in edge_list:
+            p = self.shear_transform(e.p)
+            q = self.shear_transform(e.q)
             if p.x > q.x: 
-                segs.append(Edge(q, p))
+                edges.append(Edge(q, p))
             elif p.x < q.x: 
-                segs.append(Edge(p, q))
-        shuffle(segs)
-        return segs
+                edges.append(Edge(p, q))
+        shuffle(edges)
+        return edges
 
-    def shearTransform(self, point):
+    def shear_transform(self, point):
         return Point(point.x + 1e-4 * point.y, point.y)
  
-cdef list merge_sort(l):
-    cdef list lleft, lright
-    cdef int p1, p2, p
+def merge_sort(l):
     if len(l)>1 :
         lleft = merge_sort(l[:len(l)/2])
         lright = merge_sort(l[len(l)/2:])
@@ -378,7 +321,7 @@ cdef list merge_sort(l):
         else : print "internal error"
     return l
 
-class TrapezoidalMap:
+class TrapezoidalMap(object):
 
     map = []
     margin = 50
@@ -388,8 +331,10 @@ class TrapezoidalMap:
     def clear(self):
         self.bcross = None
         self.tcross = None
+        map = []
 
-    def case1(self, Trapezoid t, Edge e):
+    def case1(self, trapezoid, edge):
+        t = trapezoid; e = edge
         trapezoids = []
         trapezoids.append(Trapezoid(t.left_point, e.p, t.top, t.bottom))
         trapezoids.append(Trapezoid(e.p, e.q, t.top, e))
@@ -401,7 +346,8 @@ class TrapezoidalMap:
         trapezoids[3].update_right(t.upper_right, t.lower_right)
         return trapezoids
 
-    def case2(self, Trapezoid t, Edge e):
+    def case2(self, trapezoid, edge):
+        t = trapezoid; e = edge
         rp = e.q if e.q.x == t.right_point.x else t.right_point
         trapezoids = []
         trapezoids.append(Trapezoid(t.left_point, e.p, t.top, t.bottom))
@@ -416,7 +362,8 @@ class TrapezoidalMap:
         e.below = trapezoids[2]
         return trapezoids
   
-    def case3(self, Trapezoid t, Edge e):
+    def case3(self, trapezoid, edge):
+        t = trapezoid; e = edge
         lp = e.p if e.p.x == t.left_point.x  else t.left_point
         rp = e.q if e.q.x == t.right_point.x else t.right_point
         trapezoids = []
@@ -440,7 +387,8 @@ class TrapezoidalMap:
         e.below = trapezoids[1]
         return trapezoids
 
-    def case4(self, Trapezoid t, Edge e):
+    def case4(self, trapezoid, edge):
+        t = trapezoid; e = edge
         lp = e.p if e.p.x == t.left_point.x else t.left_point
         trapezoids = []
         if self.tcross is t.top:
@@ -457,34 +405,30 @@ class TrapezoidalMap:
             trapezoids[1].update_left(e.below, t.lower_left)
         trapezoids.append(Trapezoid(e.q, t.right_point, t.top, t.bottom))
         trapezoids[2].update_left_right(trapezoids[0], trapezoids[1], t.upper_right, t.lower_right)
-        
         return trapezoids
   
     def bounding_box(self, edges): 
         margin = self.margin
         max = edges[0].p + margin
         min = edges[0].q - margin
-        for e in edges:
-            if e.p.x > max.x: max = Point(e.p.x + margin, max.y)
-            if e.p.y > max.y: max = Point(max.x, e.p.y + margin)
-            if e.q.x > max.x: max = Point(e.q.x + margin, max.y)
-            if e.q.y > max.y: max = Point(max.x, e.q.y + margin)
-            if e.p.x < min.x: min = Point(e.p.x - margin, min.y)
-            if e.p.y < min.y: min = Point(min.x, e.p.y - margin)
-            if e.q.x < min.x: min = Point(e.q.x - margin, min.y)
-            if e.q.y < min.y: min = Point(min.x, e.q.y - margin)
+        for edge in edges:
+            if edge.p.x > max.x: max = Point(edge.p.x + margin, max.y)
+            if edge.p.y > max.y: max = Point(max.x, edge.p.y + margin)
+            if edge.q.x > max.x: max = Point(edge.q.x + margin, max.y)
+            if edge.q.y > max.y: max = Point(max.x, edge.q.y + margin)
+            if edge.p.x < min.x: min = Point(edge.p.x - margin, min.y)
+            if edge.p.y < min.y: min = Point(min.x, edge.p.y - margin)
+            if edge.q.x < min.x: min = Point(edge.q.x - margin, min.y)
+            if edge.q.y < min.y: min = Point(min.x, edge.q.y - margin)
         top = Edge(Point(min.x, max.y), Point(max.x, max.y))
         bottom = Edge(Point(min.x, min.y), Point(max.x, min.y))
         left = bottom.p
         right = top.q
         return Trapezoid(left, right, top, bottom)
 
-cdef class Node:
+class Node(object):
 
-    cdef Node left, right
-    cdef object parent_list
-    
-    def __init__(self, Node left, Node right):
+    def __init__(self, left, right):
         self.parent_list = []
         self.left = left
         self.right = right
@@ -492,19 +436,8 @@ cdef class Node:
             left.parent_list.append(self)
         if right != None: 
             right.parent_list.append(self)
-    
-    property left:
-        def __get__(self): return self.left
-        def __set__(self, Node left): self.left = left
-    
-    property right:
-        def __get__(self): return self.right
-        def __set__(self, Node right): self.right = right
-    
-    property parent_list:
-        def __get__(self): return self.parent_list
         
-    def replace(self, Node node):
+    def replace(self, node):
         for parent in node.parent_list:
             if parent.left is node: 
                 parent.left = self
@@ -512,117 +445,98 @@ cdef class Node:
                 parent.right = self 
         self.parent_list += node.parent_list
     
-cdef class Sink(Node):
-    
-    cdef Trapezoid trapezoid
-    
-    def __init__(self, trapezoid):
-        self.trapezoid = trapezoid
-        super(Sink, self).__init__(None, None)
-        trapezoid.sink = self
-  
-    property trapezoid:
-        def __get__(self): return self.trapezoid
+class Sink(Node):
         
-    def locate(self, e): 
+    def __init__(self, trapezoid):
+        super(Sink, self).__init__(None, None)
+        self.trapezoid = trapezoid
+        trapezoid.sink = self
+        
+    def locate(self, edge): 
         return self
 
-cdef Sink isink(Trapezoid trapezoid):
+def isink(trapezoid):
     if trapezoid.sink != None: 
         return trapezoid.sink
     return Sink(trapezoid)
     
-cdef class XNode(Node):
+class XNode(Node):
 
-    cdef Point point
-    
-    def __init__(self, Point point, Node lchild, Node rchild):
+    def __init__(self, point, lchild, rchild):
         super(XNode, self).__init__(lchild, rchild)
         self.point = point
     
-    def locate(self, Edge e): 
-        if e.p.x >= self.point.x: 
-            return self.right.locate(e)
-        return self.left.locate(e)
+    def locate(self, edge): 
+        if edge.p.x >= self.point.x: 
+            return self.right.locate(edge)
+        return self.left.locate(edge)
 
-cdef class YNode(Node):
-
-    cdef Edge edge
+class YNode(Node):
     
-    def __init__(self, Edge edge, Node lchild, Node rchild):
+    def __init__(self, edge, lchild, rchild):
         super(YNode, self).__init__(lchild, rchild)
         self.edge = edge
         
-    def locate(self, Edge e):
-        if self.edge.is_above(e.p): 
-            return self.right.locate(e)
-        elif self.edge.is_below(e.p): 
-            return self.left.locate(e)
+    def locate(self, edge):
+        if self.edge.is_above(edge.p): 
+            return self.right.locate(edge)
+        elif self.edge.is_below(edge.p): 
+            return self.left.locate(edge)
         else:
-            if e.slope < self.edge.slope: 
-                return self.right.locate(e)
+            if edge.slope < self.edge.slope: 
+                return self.right.locate(edge)
             else:
-                return self.left.locate(e)
+                return self.left.locate(edge)
             
-cdef class QueryGraph:
-
-    cdef Node head
+class QueryGraph:
     
-    def __init__(self, Node head):
+    def __init__(self, head):
         self.head = head
         
-    def locate(self, Edge e):
-        return self.head.locate(e).trapezoid
+    def locate(self, edge):
+        return self.head.locate(edge).trapezoid
   
-    def follow_edge(self, Edge e):
-        trapezoids = [self.locate(e)]
-        cdef int j = 0
-        while(e.q.x > trapezoids[j].right_point.x):
-            if e.is_above(trapezoids[j].right_point):
+    def follow_edge(self, edge):
+        trapezoids = [self.locate(edge)]
+        j = 0
+        while(edge.q.x > trapezoids[j].right_point.x):
+            if edge.is_above(trapezoids[j].right_point):
                 trapezoids.append(trapezoids[j].upper_right)
             else:
                 trapezoids.append(trapezoids[j].lower_right)
             j += 1
         return trapezoids
   
-    def replace(self, Sink sink, Node node):
+    def replace(self, sink, node):
         if not sink.parent_list:
           self.head = node
         else:
           node.replace(sink)
 
-    def case1(self, Sink sink, Edge e, tlist):
-        cdef Node yNode = YNode(e, isink(tlist[1]), isink(tlist[2]))
-        cdef Node qNode = XNode(e.q, yNode, isink(tlist[3]))
-        cdef Node pNode = XNode(e.p, isink(tlist[0]), qNode)
+    def case1(self, sink, edge, tlist):
+        yNode = YNode(edge, isink(tlist[1]), isink(tlist[2]))
+        qNode = XNode(edge.q, yNode, isink(tlist[3]))
+        pNode = XNode(edge.p, isink(tlist[0]), qNode)
         self.replace(sink, pNode)
   
-    def case2(self, Sink sink, Edge e, tlist):
-        yNode = YNode(e, isink(tlist[1]), isink(tlist[2]))
-        pNode = XNode(e.p, isink(tlist[0]), yNode)
+    def case2(self, sink, edge, tlist):
+        yNode = YNode(edge, isink(tlist[1]), isink(tlist[2]))
+        pNode = XNode(edge.p, isink(tlist[0]), yNode)
         self.replace(sink, pNode)
   
-    def case3(self, Sink sink, Edge e, tlist):
-        yNode = YNode(e, isink(tlist[0]), isink(tlist[1]))
+    def case3(self, sink, edge, tlist):
+        yNode = YNode(edge, isink(tlist[0]), isink(tlist[1]))
         self.replace(sink, yNode)
 
-    def case4(self, Sink sink, Edge e, tlist):
-        yNode = YNode(e, isink(tlist[0]), isink(tlist[1]))
-        qNode = XNode(e.q, yNode, isink(tlist[2]))
+    def case4(self, sink, edge, tlist):
+        yNode = YNode(edge, isink(tlist[0]), isink(tlist[1]))
+        qNode = XNode(edge.q, yNode, isink(tlist[2]))
         self.replace(sink, qNode)
 
-cdef float PI_SLOP = 3.1
 
-cdef class MonotoneMountain:
+PI_SLOP = 3.1
 
-    cdef:
-        Point tail, head
-        int size
-        list convex_points
-        list mono_poly
-        list triangles
-        list convex_polies                        
-        bool positive
+class MonotoneMountain:
 
     def __init__(self):
         self.size = 0
@@ -634,7 +548,7 @@ cdef class MonotoneMountain:
         self.triangles = []
         self.convex_polies = []
         
-    def append(self, Point point):
+    def add(self, point):
         if self.size == 0: 
             self.head = point
             self.size += 1
@@ -651,8 +565,7 @@ cdef class MonotoneMountain:
                 self.tail = point
                 self.size += 1
 
-    cdef void remove(self, Point point):
-        cdef Point next, prev
+    def remove(self, point):
         next = point.next
         prev = point.prev
         point.prev.next = next
@@ -663,16 +576,18 @@ cdef class MonotoneMountain:
         self.positive = self.angle_sign()
         self.gen_mono_poly()
         p = self.head.next
-        while p != self.tail:
+        while p is not self.tail:
             a = self.angle(p)
-            if a >= PI_SLOP or a <= -PI_SLOP: self.remove(p)
-            elif self.is_convex(p): self.convex_points.append(p)
+            if a >= PI_SLOP or a <= -PI_SLOP: 
+                self.remove(p)
+            elif self.is_convex(p): 
+                self.convex_points.append(p)
             p = p.next
         self.triangulate()
 
-    cdef void triangulate(self):
-        while not len(self.convex_points) > 0:
-            ear = self.convex_points.remove(0)
+    def triangulate(self):
+        while len(self.convex_points) > 0:
+            ear = self.convex_points.pop(0)
             a = ear.prev
             b = ear
             c = ear.next
@@ -683,25 +598,25 @@ cdef class MonotoneMountain:
             if self.valid(c): self.convex_points.append(c)
         assert(self.size <= 3, "Triangulation bug, please report")
 
-    cdef bool valid(self, Point p):
+    def valid(self, p):
         return p != self.head and p != self.tail and self.is_convex(p)
 
-    cdef void gen_mono_poly(self): 
-        cdef Point p = self.head
+    def gen_mono_poly(self): 
+        p = self.head
         while(p != None):
             self.mono_poly.append(p)
             p = p.next
 
-    cdef float angle(self, Point p):
-        cdef Point a = p.next - p
-        cdef Point b = p.prev - p
+    def angle(self, p):
+        a = p.next - p
+        b = p.prev - p
         return atan2(a.cross(b), a.dot(b))
 
-    cdef float angle_sign(self):
-        cdef Point a = self.head.next - self.head
-        cdef Point b = self.tail - self.head
+    def angle_sign(self):
+        a = self.head.next - self.head
+        b = self.tail - self.head
         return atan2(a.cross(b), a.dot(b)) >= 0
 
-    cdef bool is_convex(self, Point p):
+    def is_convex(self, p):
         if self.positive != (self.angle(p) >= 0): return False
         return True      
