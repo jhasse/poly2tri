@@ -14,7 +14,7 @@ SEGMENTS = 25
 INCREMENT = 2.0 * PI / SEGMENTS
     
 def init_gl(width, height):
-    #glEnable(GL_LINE_SMOOTH)
+    glEnable(GL_LINE_SMOOTH)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glClearColor(0.0, 0.0, 0.0, 0.0)

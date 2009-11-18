@@ -101,10 +101,10 @@ class MonotoneMountain {
       while(p != tail) {
         val a = angle(p)
         // If the point is almost colinear with it's neighbor, remove it!
-        if(a >= PI_SLOP || a <= -PI_SLOP)
-        remove(p)
-        else
-        if(convex(p)) convexPoints += p
+        if(a >= PI_SLOP || a <= -PI_SLOP || a == 0.0)
+          remove(p)
+        else if(convex(p))
+          convexPoints += p
         p = p.next
       }
       

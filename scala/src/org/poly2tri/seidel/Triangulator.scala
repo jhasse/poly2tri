@@ -112,7 +112,7 @@ class Triangulator(points: ArrayBuffer[Point]) {
       i += 1
     
     }
-    
+
     // Mark outside trapezoids
     for(t <- trapezoidalMap.map) 
       markOutside(t)
@@ -147,7 +147,7 @@ class Triangulator(points: ArrayBuffer[Point]) {
       val s = segmentList(i)
       
       if(s.mPoints.size > 0) {
-        
+         
          val mountain = new MonotoneMountain
          var k: List[Point] = null
     
@@ -162,7 +162,6 @@ class Triangulator(points: ArrayBuffer[Point]) {
            k = Util.msort((p1: Point, p2: Point) => p1 < p2)(s.mPoints.toList)
          
          val points = s.p :: k ::: List(s.q)
-         
          var j = 0
          while(j < points.size) {
            mountain += points(j)

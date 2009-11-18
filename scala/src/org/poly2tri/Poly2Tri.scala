@@ -79,16 +79,17 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
   var drawSegs = true
   var drawCDTMesh = false
   
-  val nazcaMonkey = "data/nazca_monkey.dat"
-  val nazcaHeron = "data/nazca_heron_old.dat"
-  val bird = "data/bird.dat"
-  val snake = "data/i.snake"
-  val star = "data/star.dat"
-  val strange = "data/strange.dat"
-  val i18 = "data/i.18"
-  val tank = "data/tank.dat"
-  val dude = "data/dude.dat"
-  
+  val nazcaMonkey = "../data/nazca_monkey.dat"
+  val nazcaHeron = "../data/nazca_heron_old.dat"
+  val bird = "../data/bird.dat"
+  val snake = "../data/i.snake"
+  val star = "../data/star.dat"
+  val strange = "../data/strange.dat"
+  val i18 = "../data/i.18"
+  val tank = "../data/tank.dat"
+  val dude = "../data/dude.dat"
+  val basic = "../data/basic.dat"
+
   var currentModel = dude
   var doCDT = true
   // The current algorithm
@@ -207,7 +208,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
       }
     }
    
-    if(currentModel == "data/dude.dat" && drawSegs) {
+    if(currentModel == "../data/dude.dat" && drawSegs) {
       g.setColor(green)
       for(i <- 0 until chestSegs.size) {
         val s = chestSegs(i)
@@ -287,7 +288,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     if(c == '7') selectModel(nazcaHeron)
     if(c == '8') selectModel(tank)
     if(c == '9') selectModel(dude)
-    
+    if(c == '0') selectModel(basic)
+
     if(c == 'd') drawSegs = !drawSegs
     if(c == 'm') drawCDTMesh = !drawCDTMesh
     if(c == 't') drawMap = !drawMap
@@ -303,33 +305,36 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     
   def selectModel(model: String) {
     model match {
-      case "data/nazca_monkey.dat" => 
+      case "../data/nazca_monkey.dat" =>
         val clearPoint = Point(418, 282)
         loadModel(nazcaMonkey, 4.5f, Point(400, 300), 1500, clearPoint)
-      case "data/bird.dat" => 
+      case "../data/bird.dat" =>
         val clearPoint = Point(400, 300)
         loadModel(bird, 25f, Point(400, 300), 350, clearPoint)
-      case "data/i.snake" => 
+      case "../data/i.snake" =>
         val clearPoint = Point(336f, 196f)
         loadModel(snake, 10f, Point(600, 300), 10, clearPoint)
-      case "data/star.dat" => 
+      case "../data/star.dat" =>
         val clearPoint = Point(400, 204)
         loadModel(star, -1f, Point(0f, 0f), 10, clearPoint)
-      case "data/strange.dat" => 
+      case "../data/strange.dat" =>
         val clearPoint = Point(400, 268)
         loadModel(strange, -1f, Point(0f, 0f), 15, clearPoint)
-      case "data/i.18" => 
+      case "../data/i.18" =>
         val clearPoint = Point(510, 385)
         loadModel(i18, 20f, Point(600f, 500f), 20, clearPoint)
-      case "data/nazca_heron_old.dat" => 
+      case "../data/nazca_heron_old.dat" =>
         val clearPoint = Point(85, 290)
         loadModel(nazcaHeron, 4.2f, Point(400f, 300f), 1500, clearPoint) 
-      case "data/tank.dat" => 
+      case "../data/tank.dat" =>
         val clearPoint = Point(450, 350)
         loadModel(tank, -1f, Point(100f, 0f), 10, clearPoint)
-      case "data/dude.dat" => 
+      case "../data/dude.dat" =>
         val clearPoint = Point(365, 427)
         loadModel(dude, -1f, Point(100f, -200f), 10, clearPoint)
+      case "../data/basic.dat" =>
+        val clearPoint = Point(365, 427)
+        loadModel(basic, -1f, Point(400f, 300f), 10, clearPoint)
       case _ =>        
     }
     currentModel = model
@@ -378,7 +383,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         slCDT = new CDT(pts, clearPoint)
 
         // Add some holes....
-        if(model == "data/dude.dat") {
+        if(model == "../data/dude.dat") {
 
           val headHole = Array(Point(325f,437f), Point(320f,423f), Point(329f,413f), Point(332f,423f))
           val chestHole = Array(Point(320.72342f,480f), Point(338.90617f,465.96863f),
@@ -443,8 +448,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         var xVerts = polyX.toArray
         var yVerts = polyY.toArray
 
-        val xv = if(currentModel != "data/strange.dat") xVerts.reverse.toArray else xVerts
-        val yv = if(currentModel != "data/strange.dat") yVerts.reverse.toArray else yVerts
+        val xv = if(currentModel != "../data/strange.dat") xVerts.reverse.toArray else xVerts
+        val yv = if(currentModel != "../data/strange.dat") yVerts.reverse.toArray else yVerts
 
         val t1 = System.nanoTime
         earClip.triangulatePolygon(xv, yv, xVerts.size, earClipResults)
