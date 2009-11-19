@@ -11,7 +11,7 @@ class Poly2Tri(Game):
         super(Poly2Tri, self).__init__(*self.screen_size)       
         
         # Load point set
-        file_name = "../data/dude.dat"
+        file_name = "../data/nazca_monkey.dat"
         self.points = self.load_points(file_name)
         
         # Triangulate
@@ -30,7 +30,7 @@ class Poly2Tri(Game):
         pass
         
     def render(self):
-        reset_zoom(2.0, (400, 500), self.screen_size)
+        reset_zoom(8, (0, 0), self.screen_size)
         red = 255, 0, 0
         for t in self.triangles:
             draw_polygon(t, red)

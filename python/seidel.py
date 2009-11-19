@@ -30,7 +30,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 from random import shuffle
-from math import atan2, floor
+from math import atan2
 
 ##
 ## Based on Raimund Seidel'e paper "A simple and fast incremental randomized
@@ -94,10 +94,12 @@ class Edge(object):
         self.mpoints.append(q)
           
     def is_above(self, point):
-        return (floor(point.y) < floor(self.slope * point.x + self.b))
+        # NOTE rounding can effect numerical robustness
+        return (round(point.y, 10) < round(self.slope * point.x + self.b, 10))
         
     def is_below(self, point):
-        return (floor(point.y) > floor(self.slope * point.x + self.b))
+        # NOTE rounding can effect numerical robustness
+        return (round(point.y, 10) > round(self.slope * point.x + self.b, 10))
 
     def intersect(self, c, d):
         a = self.p
