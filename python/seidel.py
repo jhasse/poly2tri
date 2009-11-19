@@ -38,6 +38,9 @@ from math import atan2
 ## (Ported from poly2tri)
 ##
 
+# Shear transform. Can effect numerical robustness
+SHEAR = 1e-6
+
 class Point(object):
     
     def __init__(self, x, y):
@@ -297,11 +300,11 @@ class Triangulator(object):
                 edges.append(Edge(q, p))
             elif p.x < q.x: 
                 edges.append(Edge(p, q))
-        #shuffle(edges)
+        shuffle(edges)
         return edges
 
     def shear_transform(self, point):
-        return Point(point.x + 1e-4 * point.y, point.y)
+        return Point(point.x + SHEAR * point.y, point.y)
  
 def merge_sort(l):
     if len(l)>1 :

@@ -30,12 +30,12 @@ class Poly2Tri(Game):
         pass
         
     def render(self):
-        reset_zoom(8, (0, 0), self.screen_size)
+        reset_zoom(7, (0, 0), self.screen_size)
         red = 255, 0, 0
         for t in self.triangles:
             draw_polygon(t, red)
         green = 0, 255, 0
-        #draw_polygon(self.points, green)
+        draw_polygon(self.points, green)
         '''
         yellow = 255, 255, 0
         for t in self.trapezoids:
@@ -54,6 +54,8 @@ class Poly2Tri(Game):
                 break
             points.append((float(s[0]), float(s[1])))
         return points
+
+bad = (544.80998999999997, 579.86046999999996), (544.80998999999997, 450.57477), (594.09569999999997, 450.57477), (643.38142000000005, 450.57477), (643.38142000000005, 525.26486999999997), (643.38142000000005, 599.95487000000003), (603.67391999999995, 654.55056999999999), (563.96655999999996, 709.14621999999997), (554.38819999999998, 709.14621999999997), (544.80998999999997, 709.14621999999997)
         
 if __name__ == '__main__':
     demo = Poly2Tri()
