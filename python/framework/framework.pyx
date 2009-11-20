@@ -50,6 +50,14 @@ def draw_polygon(verts, color):
     for v in verts:
         glVertex2f(v[0], v[1])
     glEnd()
+    
+def draw_line(p1, p2, color):
+    r, g, b = color
+    glColor3f(r, g, b)
+    glBegin(GL_LINES)
+    glVertex2f(p1[0], p1[1])
+    glVertex2f(p2[0], p2[1])
+    glEnd()
        
 ##
 ## Game engine / main loop / UI

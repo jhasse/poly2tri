@@ -237,6 +237,7 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
     // Correctly adjust for pan and zoom
     if(mouseButton == 1) {
       val point = mousePos/scaleFactor + Point(deltaX, deltaY)
+      println(point)
       slCDT.addPoint(point)
       slCDT.triangulate
     }
@@ -333,8 +334,8 @@ class Poly2TriDemo extends BasicGame("Poly2Tri") {
         val clearPoint = Point(365, 427)
         loadModel(dude, -1f, Point(100f, -200f), 10, clearPoint)
       case "../data/basic.dat" =>
-        val clearPoint = Point(365, 427)
-        loadModel(basic, -1f, Point(400f, 300f), 10, clearPoint)
+        val clearPoint = Point(500, 450)
+        loadModel(basic, -5f, Point(500, 450), 10, clearPoint)
       case _ =>        
     }
     currentModel = model
