@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.6
-from framework import Game, draw_polygon, reset_zoom, draw_line
+from framework import Game, draw_polygon, reset_zoom, draw_line, decompose_poly, makeCCW
 
 from seidel import Triangulator
 
@@ -7,11 +7,26 @@ class Poly2Tri(Game):
 
     screen_size = 800.0, 600.0
 
+    dude = [[174.50415,494.59368],[215.21844,478.87939],[207.36129,458.87939],[203.07558,441.02225],[203.07558,418.1651],
+        [210.93272,394.59367],[224.50415,373.1651],[241.64701,358.1651],[257.36129,354.59367],[275.93272,356.73653],
+        [293.07558,359.59367],[309.50415,377.45082],[322.36129,398.1651],[331.64701,421.73653],[335.21844,437.45082],
+        [356.64701,428.52225],[356.1113,428.34367],[356.1113,428.34367],[368.78987,419.59368],[349.50415,384.59367],
+        [323.78987,359.59367],[290.93272,343.87939],[267.36129,341.02225],[264.50415,331.02225],[264.50415,321.02225],
+        [268.78987,306.02225],[285.93272,286.02225],[295.21844,270.30796],[303.78987,254.59367],[306.64701,213.87939],
+        [320,202.36218],[265,202.36218],[286.64701,217.45082],[293.78987,241.02225],[285,257.36218],[270.93272,271.73653],
+        [254.50415,266.02225],[250.93272,248.1651],[256.64701,233.1651],[256.64701,221.02225],[245.93272,215.30796],
+        [238.78987,216.73653],[233.78987,232.45082],[232.36129,249.59367],[243.07558,257.09367],[242.89701,270.30796],
+        [235.93272,279.95082],[222.36129,293.1651],[205.21844,300.6651],[185,297.36218],[170,242.36218],[175,327.36218],
+        [185,322.36218],[195,317.36218],[230.75415,301.02225],[235.39701,312.45082],[240.57558,323.52225],
+        [243.61129,330.48653],[245.21844,335.12939],[245.03987,344.4151],[229.86129,349.4151],[209.14701,362.09367],
+        [192.89701,377.80796],[177.18272,402.27225],[172.36129,413.87939],[169.14701,430.48653],[168.61129,458.52225],
+        [168.61129,492.80796]]
+        
     def __init__(self):
         super(Poly2Tri, self).__init__(*self.screen_size)       
         
         # Load point set
-        file_name = "../data/star.dat"
+        file_name = "../data/dude.dat"
         self.points = self.load_points(file_name)
         
         # Triangulate
@@ -24,20 +39,33 @@ class Poly2Tri(Game):
         self.trapezoids = seidel.trapezoidal_map.map
         self.edges = seidel.edge_list
         print "time (ms) = %f  , num triangles = %d" % (dt, len(self.triangles))
+        
+        for p in self.dude:
+            p[0] -= 75
             
+        makeCCW(self.dude)
+        self.dude_poly = []
+        t1 = self.time
+        decompose_poly(self.dude, self.dude_poly)
+        dt = (self.time - t1) * 1000.0
+        print "time (ms) = %f  , num polies = %d" % (dt, len(self.dude_poly))
+        
         self.main_loop()
         
     def update(self):
         pass
         
     def render(self):
-        reset_zoom(2.1, (400, 100), self.screen_size)
+        reset_zoom(2.1, (300, 450), self.screen_size)
         red = 255, 0, 0
         yellow = 255, 255, 0
         green = 0, 255, 0
         for t in self.triangles:
             draw_polygon(t, red)
         
+        for p in self.dude_poly:
+            draw_polygon(p, red)
+            
         '''
         for t in self.trapezoids:
             verts = self.trapezoids[t].vertices()

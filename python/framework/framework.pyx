@@ -4,6 +4,7 @@
 from math import pi as PI
 
 from gl cimport *
+include "polydecomp.pxi"
 
 cdef extern from 'math.h':
     double cos(double)
