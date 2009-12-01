@@ -1,6 +1,6 @@
 ##
 ## Ported from PolyDeomp by Mark Bayazit 
-## http://mnbayazit.com/406/credit
+## http://mnbayazit.com/406/bayazit
 ##
 from sys import float_info
 
