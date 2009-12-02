@@ -104,37 +104,17 @@ class Edge(object):
         self.mpoints.append(p)
         self.mpoints.append(q)
     
-    ##
-    ## NOTE Rounding accuracy significantly effects numerical robustness!!!
-    ##
-    
     def is_above(self, point):
         cdef double *a = [self.p.x, self.p.y]
         cdef double *b = [self.q.x, self.q.y]
         cdef double *c = [point.x, point.y]
-        return orient2d(a, b, c) < 0
+        return orient2d(a, b, c) < 0.0
         
     def is_below(self, point):
         cdef double *a = [self.p.x, self.p.y]
         cdef double *b = [self.q.x, self.q.y]
         cdef double *c = [point.x, point.y]
-        return orient2d(a, b, c) > 0
-
-    def intersect(self, c, d):
-        a = self.p
-        b = self.q
-        a1 = self.signed_area(a, b, d)
-        a2 = self.signed_area(a, b, c)
-        if  a1 != 0.0 and a2 != 0.0 and (a1 * a2) < 0.0:
-            a3 = self.signed_area(c, d, a)
-            a4 = a3 + a2 - a1
-            if a3 * a4 < 0.0:
-                t = a3 / (a3 - a4)
-                return a + ((b - a) * t)
-        return 0.0
-        
-    def signed_area(self, a, b, c):
-        return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x)
+        return orient2d(a, b, c) > 0.0
         
 class Trapezoid(object):
         
@@ -209,7 +189,6 @@ def line_intersect(edge, x):
 class Triangulator(object):
      
     def __init__(self, poly_line):
-        assert len(poly_line) > 3, "Number of points must be > 3"
         self.polygons = []
         self.trapezoids = []
         self.xmono_poly = []
@@ -498,7 +477,7 @@ class YNode(Node):
             return self.rchild.locate(edge)
         if self.edge.is_below(edge.p): 
             return self.lchild.locate(edge)
-        if edge.slope < self.edge.slope: 
+        if self.edge.is_above(edge.q): 
             return self.rchild.locate(edge)
         return self.lchild.locate(edge)
             
