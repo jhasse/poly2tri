@@ -209,7 +209,6 @@ def line_intersect(edge, x):
 class Triangulator(object):
      
     def __init__(self, poly_line):
-        assert len(poly_line) > 3, "Number of points must be > 3"
         self.polygons = []
         self.trapezoids = []
         self.xmono_poly = []
