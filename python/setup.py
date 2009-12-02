@@ -9,7 +9,7 @@ from Cython.Distutils import build_ext
 
 version = '0.1'
 
-sourcefiles = ['framework/framework.pyx']
+sourcefiles = ['framework/framework.pyx', 'framework/predicates.c']
 
 # Platform-dependent submodules
 

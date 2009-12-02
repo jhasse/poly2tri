@@ -4,15 +4,18 @@
 ##
 from sys import float_info
 
-def makeCCW(list poly):
+cdef extern from 'predicates.h':
+    double orient2d(double *pa, double *pb, double *pc)
+    
+def make_ccw(list poly):
     cdef int br = 0
     # find bottom right point
     for i from 1 <= i < len(poly):
         if poly[i][1] < poly[br][1] or (poly[i][1] == poly[br][1] and poly[i][0] > poly[br][0]):
-            br = i
+            br = i       
     # reverse poly if clockwise
     if not left(at(poly, br - 1), at(poly, br), at(poly, br + 1)):
-        poly.reverse()
+        poly.reverse()    
 
 cpdef list decompose_poly(list poly, list polys):
 
@@ -48,8 +51,8 @@ cpdef list decompose_poly(list poly, list polys):
 
             # if there are no vertices to connect to, choose a point in the middle
             if lower_index == (upper_index + 1) % len(poly):
-                p[0] = (lowerInt[0] + upperInt[0]) / 2
-                p[1] = (lowerInt[1] + upperInt[1]) / 2
+                p[0] = (lowerInt[0] + upperInt[0]) * 0.5
+                p[1] = (lowerInt[1] + upperInt[1]) * 0.5
 
                 if i < upper_index:
                     lower_poly.extend(poly[i:upper_index+1])
@@ -99,26 +102,19 @@ cpdef list decompose_poly(list poly, list polys):
             else:
                 decompose_poly(upper_poly, polys)
                 decompose_poly(lower_poly, polys)
-            
             return
 
     polys.append(poly)
     
 cdef list intersection(list p1, list p2, list q1, list q2):
-    cdef list i = []
-    cdef float a1, b1, c1, a2, b2, c2, det
-    a1 = p2[1] - p1[1]
-    b1 = p1[0] - p2[0]
-    c1 = a1 * p1[0] + b1 * p1[1]
-    a2 = q2[1] - q1[1]
-    b2 = q1[0] - q2[0]
-    c2 = a2 * q1[0] + b2 * q1[1]
-    det = a1 * b2 - a2 * b1
-    if not eq(det, 0): 
-        # lines are not parallel
-        i.append((b2 * c1 - b1 * c2) / det)
-        i.append((a1 * c2 - a2 * c1) / det)
-    return i
+    cdef double pqx, pqy, bax, bay, t
+    pqx = p1[0] - p2[0]
+    pqy = p1[1] - p2[1]
+    t = pqy*(q1[0]-p2[0]) - pqx*(q1[1]-p2[1])
+    t /= pqx*(q2[1]-q1[1]) - pqy*(q2[0]-q1[0])
+    bax = t*(q2[0]-q1[0]) + q1[0]
+    bay = t*(q2[1]-q1[1]) + q1[1]
+    return [bax, bay]
 
 cdef bool eq(float a, float b):
     return abs(a - b) <= 1e-8
@@ -130,16 +126,28 @@ cdef float area(list a, list b, list c):
     return (((b[0] - a[0])*(c[1] - a[1]))-((c[0] - a[0])*(b[1] - a[1])))
 
 cdef bool left(list a, list b, list c):
-    return area(a, b, c) > 0
+    cdef double *x = [a[0], a[1]]
+    cdef double *y = [b[0], b[1]]
+    cdef double *z = [c[0], c[1]]
+    return orient2d(x, y, z) > 0.0
 
 cdef bool leftOn(list a, list b, list c):
-    return area(a, b, c) >= 0
+    cdef double *x = [a[0], a[1]]
+    cdef double *y = [b[0], b[1]]
+    cdef double *z = [c[0], c[1]]
+    return orient2d(x, y, z) >= 0.0
 
 cdef bool right(list a, list b, list c):
-    return area(a, b, c) < 0
+    cdef double *x = [a[0], a[1]]
+    cdef double *y = [b[0], b[1]]
+    cdef double *z = [c[0], c[1]]
+    return orient2d(x, y, z) < 0.0
 
 cdef bool rightOn(list a, list b, list c):
-    return area(a, b, c) <= 0
+    cdef double *x = [a[0], a[1]]
+    cdef double *y = [b[0], b[1]]
+    cdef double *z = [c[0], c[1]]
+    return orient2d(x, y, z) <= 0.0
 
 cdef float sqdist(list a, list b):
     cdef float dx = b[0] - a[0]
