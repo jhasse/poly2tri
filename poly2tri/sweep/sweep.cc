@@ -57,11 +57,13 @@ void Sweep::SweepPoints(SweepContext& tcx ) {
 	for(int i = 1; i < tcx.point_count(); i++ ) {
 	
 		Point& point = *tcx.GetPoint(i);
+        
 		Node& node = PointEvent(tcx, point);
-    
+        
 		for(int i = 0; i < point.edge_list.size(); i++) {
-			EdgeEvent(tcx, point.edge_list[i], node );
+			EdgeEvent(tcx, point.edge_list[i], node);
 		}
+            
 	}
   
 }
@@ -93,10 +95,10 @@ Node& Sweep::PointEvent(SweepContext& tcx, Point& point) {
 }
 
 void Sweep::EdgeEvent(SweepContext& tcx, Edge& edge, Node& node) {
-	
+	  
 	tcx.edge_event.constrained_edge = &edge;
 	tcx.edge_event.right = edge.p->x > edge.q->x;
-	
+  
 	if(IsEdgeSideOfTriangle(*node.triangle, *edge.p, *edge.q)){
 		return;
 	}
@@ -274,7 +276,7 @@ double Sweep::HoleAngle(Node& node) {
 		double ay = node.next->point->y - node.point->y;
 		double bx = node.prev->point->x - node.point->x;
 		double by = node.prev->point->y - node.point->y;
-		return atan2(ax*by - ay*bx, ax*bx + ay*by);
+		return atan2(ax * by - ay * bx, ax * bx + ay * by);
 }
 
 /**
@@ -380,7 +382,7 @@ bool Sweep::Incircle(Point& pa, Point& pb, Point& pc, Point& pd) {
     double oabd = adxbdy - bdxady;
 
     if( oabd <= 0 )
-        return false;
+      return false;
 
     double cdx = pc.x - pd.x;
     double cdy = pc.y - pd.y;
@@ -390,7 +392,7 @@ bool Sweep::Incircle(Point& pa, Point& pb, Point& pc, Point& pd) {
     double ocad = cdxady - adxcdy;
 
     if( ocad <= 0 )
-        return false;
+      return false;
     
     double bdxcdy = bdx * cdy;
     double cdxbdy = cdx * bdy;
@@ -693,7 +695,7 @@ void Sweep::FillRightConcaveEdgeEvent(SweepContext& tcx, Edge& edge, Node& node)
 
 void Sweep::FillRightConvexEdgeEvent(SweepContext& tcx, Edge& edge, Node& node) {
 
-	// Next concave or convex?
+	// Next concave or convex?  
 	if(Orient2d(*node.next->point, *node.next->next->point, *node.next->next->next->point ) == CCW) {
 		// Concave
 		FillRightConcaveEdgeEvent(tcx, edge, *node.next);
@@ -788,25 +790,25 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, 
 	}
 	
 	if(InScanArea(p, *t.PointCCW(p), *t.PointCW(p), op)) {
-			// Lets rotate shared edge one vertex CW
-			RotateTrianglePair(t, p, ot, op);
-			tcx.MapTriangleToNodes(t);
-			tcx.MapTriangleToNodes(ot);
-			
-			if( p == eq && op == ep ) {
-				if(eq == *tcx.edge_event.constrained_edge->q && ep == *tcx.edge_event.constrained_edge->p) {
-					t.MarkConstrainedEdge(&ep, &eq);
-					ot.MarkConstrainedEdge(&ep, &eq);
-					Legalize(tcx, t);                    
-					Legalize(tcx, ot);  
-				}	else {
-					// XXX: I think one of the triangles should be legalized here?                    
-				}
-			} else {
-				Orientation o = Orient2d(eq, op, ep);
-				t = NextFlipTriangle(tcx, (int) o, t, ot, p, op);
-				FlipEdgeEvent(tcx, ep, eq, t, p);
-			}
+    // Lets rotate shared edge one vertex CW
+    RotateTrianglePair(t, p, ot, op);
+    tcx.MapTriangleToNodes(t);
+    tcx.MapTriangleToNodes(ot);
+    
+    if( p == eq && op == ep ) {
+      if(eq == *tcx.edge_event.constrained_edge->q && ep == *tcx.edge_event.constrained_edge->p) {
+        t.MarkConstrainedEdge(&ep, &eq);
+        ot.MarkConstrainedEdge(&ep, &eq);
+        Legalize(tcx, t);                    
+        Legalize(tcx, ot);  
+      }	else {
+        // XXX: I think one of the triangles should be legalized here?                    
+      }
+    } else {
+      Orientation o = Orient2d(eq, op, ep);
+      t = NextFlipTriangle(tcx, (int) o, t, ot, p, op);
+      FlipEdgeEvent(tcx, ep, eq, t, p);
+    }
 	} else {
 		Point& newP = NextFlipPoint( ep, eq, ot, op);
 		FlipScanEdgeEvent(tcx, ep, eq, t, ot, newP);
@@ -816,36 +818,36 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, 
 
 Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle&  t, Triangle& ot, Point& p, Point& op) {
 																	
-		if(o == CCW ) {
-			// ot is not crossing edge after flip
-			int edge_index = ot.EdgeIndex(&p, &op);
-			ot.delaunay_edge[edge_index] = true;
-			Legalize(tcx, ot);
-			ot.ClearDelunayEdges();
-			return t;
-		}
-		
-		// t is not crossing edge after flip
-		int edge_index = t.EdgeIndex(&p, &op);
-		t.delaunay_edge[edge_index] = true;
-		Legalize(tcx, t);
-		t.ClearDelunayEdges();            
-		return ot;
+  if(o == CCW) {
+    // ot is not crossing edge after flip
+    int edge_index = ot.EdgeIndex(&p, &op);
+    ot.delaunay_edge[edge_index] = true;
+    Legalize(tcx, ot);
+    ot.ClearDelunayEdges();
+    return t;
+  }
+  
+  // t is not crossing edge after flip
+  int edge_index = t.EdgeIndex(&p, &op);
+  t.delaunay_edge[edge_index] = true;
+  Legalize(tcx, t);
+  t.ClearDelunayEdges();            
+  return ot;
 }
 
-Point& Sweep::NextFlipPoint(Point& ep, Point& eq, Triangle& ot, Point& op ) {
+Point& Sweep::NextFlipPoint(Point& ep, Point& eq, Triangle& ot, Point& op) {
 
-		Orientation o2d = Orient2d(eq, op, ep);
-		if(o2d == CW) {
-			// Right
-			return *ot.PointCCW(op);
-		} else if(o2d == CCW) {
-			// Left                
-			return *ot.PointCW(op);
-		}	else {
-			//throw new RuntimeException("[Unsupported] Opposing point on constrained edge");
-			assert(0);
-		}                    
+  Orientation o2d = Orient2d(eq, op, ep);
+  if(o2d == CW) {
+    // Right
+    return *ot.PointCCW(op);
+  } else if(o2d == CCW) {
+    // Left                
+    return *ot.PointCW(op);
+  }	else {
+    //throw new RuntimeException("[Unsupported] Opposing point on constrained edge");
+    assert(0);
+  }                    
 		
 }
 

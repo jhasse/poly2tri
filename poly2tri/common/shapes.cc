@@ -329,5 +329,12 @@ Triangle& Triangle::NeighborAcross(Point& opoint) {
 	return *neighbors_[2];
 }
 
+void Triangle::DebugPrint() {
+  using namespace std;
+  cout << points_[0]->x << "," << points_[0]->y << " ";
+  cout << points_[1]->x << "," << points_[1]->y << " ";
+  cout << points_[2]->x << "," << points_[2]->y << endl;
+}
+
 
 

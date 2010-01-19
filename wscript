@@ -4,12 +4,12 @@ APPNAME='p2t'
 srcdir = '.'
 blddir = 'build'
 
-p2t_source_files = ['poly2tri/sweep/cdt.cc', 
+p2t_source_files = ['poly2tri/common/shapes.cc',
+                    'poly2tri/sweep/cdt.cc', 
                     'poly2tri/sweep/advancing_front.cc',
                     'poly2tri/sweep/mesh.cc',
                     'poly2tri/sweep/sweep_context.cc',
-					'poly2tri/sweep/sweep.cc',
-                    'poly2tri/common/shapes.cc']
+                    'poly2tri/sweep/sweep.cc']
                 
 testbed_source_files = ['testbed/main.cc']
                

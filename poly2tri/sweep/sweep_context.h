@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <list>
+#include <vector>
 
 // Inital triangle factor, seed triangle will extend 30% of 
 // PointSet width to both left and right.
@@ -46,7 +47,7 @@ class SweepContext {
 public:
 
   // Constructor
-  SweepContext(Point polyline[], const int& point_count);
+  SweepContext(Point** polyline, const int& point_count);
   // Destructor
   ~SweepContext();
   
@@ -81,6 +82,7 @@ public:
   
   std::list<Triangle*> GetTriangles();
   
+  std::vector<Edge*> edge_list;
   
   struct Basin {
   
@@ -118,9 +120,7 @@ public:
 private:
 
   std::list<Triangle*> tri_list_;
-  
-  Point* points_;
-	int point_count_;
+  std::vector<Point> points_;
   
   // Advancing front
   AdvancingFront* front_;
@@ -132,7 +132,7 @@ private:
   //EdgeEvent edgeEvent = new EdgeEvent();
     
   void InitTriangulation();
-  void InitEdges();
+  void InitEdges(Point** polyline, const int& point_count);
   
   //void MeshCleanReq(Triangle& triangle )
   
@@ -147,7 +147,7 @@ private:
 
 inline AdvancingFront* SweepContext::front() { return front_; }
 
-inline int SweepContext::point_count() { return point_count_; }
+inline int SweepContext::point_count() { return points_.size(); }
 
 inline void SweepContext::set_head(Point* p1) { head_ = p1; }
 

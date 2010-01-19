@@ -86,10 +86,12 @@ Node* AdvancingFront::LocatePoint(Point* point) {
 				break;
 		}
 	}
-	search_node_ = node;
+	if(node) search_node_ = node;
 	return node;
 }
 		
 AdvancingFront::~AdvancingFront() {
-  delete head_; search_node_; tail_;
+  delete head_; 
+  delete search_node_; 
+  delete tail_;
 }

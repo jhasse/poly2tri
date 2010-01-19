@@ -28,7 +28,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 // Include guard
 #ifndef SHAPES_H
 #define SHAPES_H
@@ -48,7 +47,8 @@ struct Point {
   double x, y;
   
   /// Default constructor does nothing (for performance).
-  Point() {}
+  Point() { x = 0.0; y = 0.0; }
+  
   /// The edges this point constitutes an upper ending point
   std::vector<Edge> edge_list;
   
@@ -91,6 +91,18 @@ struct Point {
     y /= len;
     return len;
   }
+  
+  bool operator < (Point& b) {
+    if (y < b.y) {
+      return true;
+    } else if (y == b.y) {
+      // Make sure q is point with greater x value 
+      if(x < b.x) {
+        return true;
+      } 
+    }
+    return false;
+  }
     
 };
 
@@ -110,6 +122,7 @@ struct Edge {
         q = &p1;
         p = &p2;
       } else if(p1.x == p2.x) {
+        // Repeat points
         assert(false);
       }
     }
@@ -176,6 +189,8 @@ public:
 	
 	Triangle& NeighborAcross(Point& opoint);
 
+  void DebugPrint();
+  
 private:
 
   /// Triangle points
@@ -192,14 +207,7 @@ inline bool operator < (const Point& a, const Point& b) {
     // Make sure q is point with greater x value 
     if(a.x < b.x) {
       return true;
-    } else if (a.x > b.x) {
-      return false;
-    } else {
-      // Repeat point
-      //std::cout << "Repeat points not alowed: ";
-      //std::cout << a.x << "," << a.y << " " << b.x << "," << b.y << std::endl;
-      //assert(false);
-    }
+    } 
   }
   return false;
 }

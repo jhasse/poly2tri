@@ -28,10 +28,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdexcept>
-#include <math.h>
+#ifndef UTILS_H
+#define UTILS_H
 
-#include "shapes.h"
+#include <exception>
+#include <math.h>
 
 template<typename T, int size>
 int array_length(T(&)[size]){return size;}
@@ -67,32 +68,35 @@ Orientation Orient2d(Point& pa, Point& pb, Point& pc ) {
 
 bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd) {
 
-		const double pdx = pd.x;
-		const double pdy = pd.y;
-		const double adx = pa.x - pdx;
-		const double ady = pa.y - pdy;        
-		const double bdx = pb.x - pdx;
-		const double bdy = pb.y - pdy;
+  double pdx = pd.x;
+  double pdy = pd.y;
+  double adx = pa.x - pdx;
+  double ady = pa.y - pdy;        
+  double bdx = pb.x - pdx;
+  double bdy = pb.y - pdy;
 
-		const double adxbdy = adx * bdy;
-		const double bdxady = bdx * ady;
-		const double oabd = adxbdy - bdxady;
+  double adxbdy = adx * bdy;
+  double bdxady = bdx * ady;
+  double oabd = adxbdy - bdxady;
 
-		if(oabd <= 0) {
-			return false;
-		}
+  if(oabd <= EPSILON) {
+    return false;
+  }
 
-		const double cdx = pc.x - pdx;
-		const double cdy = pc.y - pdy;
+  double cdx = pc.x - pdx;
+  double cdy = pc.y - pdy;
 
-		const double cdxady = cdx * ady;
-		const double adxcdy = adx * cdy;
-		const double ocad = cdxady - adxcdy;
+  double cdxady = cdx * ady;
+  double adxcdy = adx * cdy;
+  double ocad = cdxady - adxcdy;
 
-		if(ocad <= 0) {
-			return false;
-		} 
-		
-		return true;
+  if(ocad <= EPSILON) {
+    return false;
+  } 
+  
+  return true;
+  
 }
+
+#endif
 

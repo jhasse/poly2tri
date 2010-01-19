@@ -30,7 +30,7 @@
  */
 #include "cdt.h"
 
-CDT::CDT(Point polyline[], const int& point_count) {
+CDT::CDT(Point** polyline, const int& point_count) {
 	sweep_context_ = new SweepContext(polyline, point_count);
 	sweep_ = new Sweep;
 }

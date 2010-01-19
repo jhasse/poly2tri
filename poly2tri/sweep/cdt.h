@@ -39,7 +39,7 @@ class CDT
 public:
 	
   /// Constructor
-	CDT(Point poly_line[], const int& point_count);
+	CDT(Point** poly_line, const int& point_count);
   /// Add a hole
   void AddHole(const Point poly_line[], const int point_count);
   /// Triangulate points

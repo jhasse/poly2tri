@@ -37,8 +37,6 @@
  * "FlipScan" Constrained Edge Algorithm invented by Thomas Åhlén, thahlen@gmail.com 
  */
 
-#include <list>
-
 class SweepContext;
 struct Node;
 struct Point;

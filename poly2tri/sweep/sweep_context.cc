@@ -4,16 +4,17 @@
 #include <GL/glfw.h>
 #include "advancing_front.h"
 
-SweepContext::SweepContext(Point polyline[], const int& point_count) {
+SweepContext::SweepContext(Point** polyline, const int& point_count) {
 
   basin = Basin();
   edge_event = EdgeEvent();
 	
-  point_count_ = point_count;
-	points_ = polyline; 
+  for(int i = 0; i < point_count; i++) {
+    points_.push_back(**&polyline[i]);
+  }
   
+  InitEdges(polyline, point_count);
   InitTriangulation();
-  InitEdges();
   
 }
 
@@ -27,7 +28,7 @@ void SweepContext::InitTriangulation() {
   double ymax(points_[0].y), ymin(points_[0].y);
   
   // Calculate bounds. 
-  for(int i = 0; i < point_count_; i++) {
+  for(int i = 0; i < points_.size(); i++) {
     Point p = points_[i];
     if(p.x > xmax)
         xmax = p.x;
@@ -46,22 +47,17 @@ void SweepContext::InitTriangulation() {
   
   // Sort points along y-axis
   double init_time = glfwGetTime();
-  std::sort(points_, points_ + point_count_);
+  std::sort(points_.begin(), points_.end());
   double dt = glfwGetTime() - init_time;
   printf("Sort time (secs) = %f\n", dt);
-  
-  /*
-  for(int i = 0; i < point_count_; i++) {
-    printf("%i: %f, %f\n", i+1, points_[i].x, points_[i].y);
-  }
-  */
-  
+
 }
 
-void SweepContext::InitEdges() {
-  for(int i = 0; i < point_count_; i++) {
-    int j = i < point_count_ - 1 ? i + 1 : 0;
-    new Edge(points_[i], points_[j]);
+void SweepContext::InitEdges(Point** polyline, const int& point_count) {
+
+  for(int i = 0; i < point_count; i++) {
+    int j = i < points_.size() - 1 ? i + 1 : 0;
+    edge_list.push_back(new Edge(**&polyline[i], **&polyline[j]));
   }
 }
     
@@ -157,7 +153,7 @@ void SweepContext::MeshCleanReq(Triangle& triangle ) {
 */
 
 SweepContext::~SweepContext() {
-  delete [] points_;
+  //delete [] points_;
   delete head_;
   delete tail_;
   delete front_;

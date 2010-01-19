@@ -44,8 +44,8 @@ using namespace std;
 
 void Init();
 void ShutDown(int return_code);
-void MainLoop();
-void Draw();
+void MainLoop(const double zoom);
+void Draw(const double zoom);
  
 float rotate_y = 0,
       rotate_z = 0;
@@ -62,6 +62,11 @@ double StringToDouble(const std::string& s) {
 }
 
 int main(int argc, char* argv[]) {
+  
+  if (argc != 3) {
+    cout << "Usage: p2t filename zoom" << endl;
+    return 1;
+  }
   
 	/*
   // initialize random seed: 
@@ -112,9 +117,9 @@ int main(int argc, char* argv[]) {
   int num_points = points.size();
   cout << "Number of points = " << num_points << endl;
   
-	Point* polyline = new Point[num_points];
+	Point** polyline = new Point *[num_points];
   for(int i = 0; i < num_points; i++) {
-    polyline[i] = points[i];
+    polyline[i] = &points[i];
   }
   
   Init();
@@ -128,7 +133,7 @@ int main(int argc, char* argv[]) {
   
   triangles = cdt->GetTriangles();
   
-  MainLoop();
+  MainLoop(atof(argv[2]));
   
   delete [] polyline;
   ShutDown(0);
@@ -161,7 +166,7 @@ void ShutDown(int return_code)
   exit(return_code);
 }
  
-void MainLoop()
+void MainLoop(const double zoom)
 {
   // the time of the previous frame
   double old_time = glfwGetTime();
@@ -187,7 +192,7 @@ void MainLoop()
     rotate_z += delta_rotate;
  
     // Draw the scene
-    Draw();
+    Draw(zoom);
     // swap back and front buffers
     glfwSwapBuffers();
   }
@@ -217,11 +222,12 @@ void ResetZoom(double zoom, double cx, double cy, double width, double height) {
     
 }
     
-void Draw()
+void Draw(const double zoom)
 {
   // reset zoom
-  double zoom = 0.5;
-  ResetZoom(zoom, 0, 0, 800, 600);
+  Point center = Point(0, 0);
+  
+  ResetZoom(zoom, center.x, center.y, 800, 600);
   
   list<Triangle*>::iterator it; 
   for (it = triangles.begin(); it != triangles.end(); it++) {
