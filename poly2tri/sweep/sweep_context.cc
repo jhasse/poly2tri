@@ -47,7 +47,7 @@ void SweepContext::InitTriangulation() {
   double dy = kAlpha * ( ymax - ymin );
   head_ = new Point(xmax + dx, ymin - dy);
   tail_ = new Point(xmin - dx, ymin - dy);
-  
+    
   // Sort points along y-axis
   double init_time = glfwGetTime();
   std::sort(points_, points_ + point_count_, cmp);
@@ -57,12 +57,13 @@ void SweepContext::InitTriangulation() {
   /*
   printf("*************************\n");
   for(int i = 0; i < point_count_; i++) {
-    printf("%p ", points_[i]);
-    printf("%f,%f\n", points_[i]->x, points_[i]->y);
+    printf("%f,%f ", points_[i]->x, points_[i]->y);
+    printf("%p\n", points_[i]);
   }
   
   printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
   for(int i = 0; i < edge_list.size(); i++) {
+    edge_list[i]->p->DebugPrint(); edge_list[i]->q->DebugPrint();
     printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
   }
   */
@@ -78,6 +79,7 @@ void SweepContext::InitEdges(Point** polyline, const int& point_count) {
   
   /*
   for(int i = 0; i < edge_list.size(); i++) {
+    edge_list[i]->p->DebugPrint(); edge_list[i]->q->DebugPrint();
     printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
   }
   */

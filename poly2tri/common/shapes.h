@@ -50,7 +50,7 @@ struct Point {
   Point() { x = 0.0; y = 0.0; }
   
   /// The edges this point constitutes an upper ending point
-  std::vector<Edge> edge_list;
+  std::vector<Edge*> edge_list;
   
   /// Construct using coordinates.
   Point(double x, double y) : x(x), y(y) {}
@@ -91,6 +91,10 @@ struct Point {
     y /= len;
     return len;
   }
+  
+  void DebugPrint() {
+    printf("%f,%f ", x, y);
+  }
     
 };
 
@@ -115,8 +119,8 @@ struct Edge {
       }
     }
     
-    q->edge_list.push_back(*this);
-    //printf("%i\n", q->edge_list.size());
+    q->edge_list.push_back(this);
+
   }
 
 };

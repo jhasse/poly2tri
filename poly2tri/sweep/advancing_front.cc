@@ -30,11 +30,16 @@
  */
 #include "advancing_front.h"
 
-Node* AdvancingFront::Locate(const double& x) {
+AdvancingFront::AdvancingFront() {
+  head_ = tail_ = search_node_ = NULL;
+}
 
+Node* AdvancingFront::Locate(const double& x) {
+  
 	Node* node = search_node_;
 
 	if(x < node->value) {
+    //printf("<: - %f,%f - %p\n", x, node->value, node->next);
 		while((node = node->prev) != NULL) {
 			if(x >= node->value) {
         search_node_ = node;
@@ -42,6 +47,8 @@ Node* AdvancingFront::Locate(const double& x) {
 			}
 		}
 	} else {
+    //printf("%p - %p\n", node, node->next);
+    //printf(">: %f - %f\n", x, node->value);
 		while((node = node->next) != NULL) {
 			if(x < node->value) {
         search_node_ = node->prev;

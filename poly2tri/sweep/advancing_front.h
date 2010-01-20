@@ -63,6 +63,7 @@ class AdvancingFront {
 
 public:
 
+  AdvancingFront();
 	// Destructor
 	~AdvancingFront();
 	

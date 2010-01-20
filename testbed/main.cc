@@ -66,7 +66,7 @@ double StringToDouble(const std::string& s) {
   return x;
 }
 
-bool draw_map = false;
+bool draw_map = true;
 
 int main(int argc, char* argv[]) {
   
@@ -150,7 +150,7 @@ void Init()
   if (glfwOpenWindow(window_width, window_height, 5, 6, 5, 0, 0, 0, GLFW_WINDOW) != GL_TRUE)
 	ShutDown(1);
 	
-  glfwSetWindowTitle("The GLFW Window");
+  glfwSetWindowTitle("Poly2Tri - C++");
  
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -240,23 +240,14 @@ void Draw(const double zoom) {
     Point& b = *t.GetPoint(1);
     Point& c = *t.GetPoint(2);
     
-    ConstrainedColor(t.constrained_edge[2]); 
-    glBegin(GL_LINES);  
-      glVertex2f(a.x, a.y); 
-      glVertex2f(b.x, b.y); 
-    glEnd( );
-
-    ConstrainedColor(t.constrained_edge[0]); 
-    glBegin(GL_LINES);
-      glVertex2f(b.x, b.y); 
-      glVertex2f(c.x, c.y);
-    glEnd( );
-
-    ConstrainedColor(t.constrained_edge[1]); 
-    glBegin(GL_LINES);
-      glVertex2f(c.x, c.y); 
-      glVertex2f(a.x, a.y); 
-    glEnd( );
+    // Red
+    glColor3f(1, 0, 0);
+    
+    glBegin(GL_LINE_LOOP);                      
+      glVertex2f(a.x, a.y);                         
+      glVertex2f(b.x, b.y);                          
+      glVertex2f(c.x, c.y);                           
+    glEnd();
 
   }
   
@@ -277,14 +268,23 @@ void DrawMap(const double zoom) {
     Point& b = *t.GetPoint(1);
     Point& c = *t.GetPoint(2);
     
-    // Red
-    glColor3f(1, 0, 0);
-    
-    glBegin(GL_LINE_LOOP);                      
-      glVertex2f(a.x, a.y);                         
-      glVertex2f(b.x, b.y);                          
-      glVertex2f(c.x, c.y);                           
-    glEnd();
+    ConstrainedColor(t.constrained_edge[2]); 
+    glBegin(GL_LINES);  
+      glVertex2f(a.x, a.y); 
+      glVertex2f(b.x, b.y); 
+    glEnd( );
+
+    ConstrainedColor(t.constrained_edge[0]); 
+    glBegin(GL_LINES);
+      glVertex2f(b.x, b.y); 
+      glVertex2f(c.x, c.y);
+    glEnd( );
+
+    ConstrainedColor(t.constrained_edge[1]); 
+    glBegin(GL_LINES);
+      glVertex2f(c.x, c.y); 
+      glVertex2f(a.x, a.y); 
+    glEnd( );
   
   }
   

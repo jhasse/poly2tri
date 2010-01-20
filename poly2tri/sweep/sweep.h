@@ -55,7 +55,7 @@ private:
 	
   Node& PointEvent(SweepContext& tcx, Point& point);
 	
-	void EdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void EdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 	
 	void EdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* triangle, Point& point);
 
@@ -80,30 +80,26 @@ private:
   void FillBasinReq(SweepContext& tcx, Node& node);
   
   bool IsShallow(SweepContext& tcx, Node& node);
-  
-  void FinalizationConvexHull(SweepContext& tcx);
-  
-  void TurnAdvancingFrontConvex(SweepContext& tcx, Node& b, Node& c);
 	
 	bool IsEdgeSideOfTriangle(Triangle& triangle, Point& ep, Point& eq);
 	
-	void FillEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 	
-	void FillRightAboveEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillRightAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillRightBelowEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillRightBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillRightConcaveEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillRightConvexEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 	
-	void FillLeftAboveEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillLeftAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillLeftBelowEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillLeftBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-	void FillLeftConvexEdgeEvent(SweepContext& tcx, Edge& edge, Node& node);
+	void FillLeftConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 	
 	void FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, Point& p);
 	
