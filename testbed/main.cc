@@ -46,13 +46,17 @@ void Init();
 void ShutDown(int return_code);
 void MainLoop(const double zoom);
 void Draw(const double zoom);
+void DrawMap(const double zoom);
 void ConstrainedColor(bool constrain);
 
 float rotate_y = 0,
       rotate_z = 0;
 const float rotations_per_tick = .2;
 
+/// Constrained triangles
 vector<Triangle*> triangles;
+/// Triangle map
+list<Triangle*> map;
 
 double StringToDouble(const std::string& s) {
   std::istringstream i(s);
@@ -61,6 +65,8 @@ double StringToDouble(const std::string& s) {
    return 0;
   return x;
 }
+
+bool draw_map = false;
 
 int main(int argc, char* argv[]) {
   
@@ -124,6 +130,7 @@ int main(int argc, char* argv[]) {
   cout << "Elapsed time (secs) = " << dt << endl;
   
   triangles = cdt->GetTriangles();
+  map = cdt->GetMap();
   
   MainLoop(atof(argv[2]));
   
@@ -184,7 +191,12 @@ void MainLoop(const double zoom)
     rotate_z += delta_rotate;
  
     // Draw the scene
-    Draw(zoom);
+    if(draw_map) {
+      DrawMap(zoom);
+    } else {
+      Draw(zoom);
+    }
+    
     // swap back and front buffers
     glfwSwapBuffers();
   }
@@ -214,8 +226,8 @@ void ResetZoom(double zoom, double cx, double cy, double width, double height) {
     
 }
     
-void Draw(const double zoom)
-{
+void Draw(const double zoom) {
+
   // reset zoom
   Point center = Point(0, 0);
   
@@ -246,6 +258,34 @@ void Draw(const double zoom)
       glVertex2f(a.x, a.y); 
     glEnd( );
 
+  }
+  
+}
+
+void DrawMap(const double zoom) {
+
+  // reset zoom
+  Point center = Point(0, 0);
+  
+  ResetZoom(zoom, center.x, center.y, 800, 600);
+  
+  list<Triangle*>::iterator it; 
+  for (it = map.begin(); it != map.end(); it++) {
+  
+    Triangle& t = **it;
+    Point& a = *t.GetPoint(0);
+    Point& b = *t.GetPoint(1);
+    Point& c = *t.GetPoint(2);
+    
+    // Red
+    glColor3f(1, 0, 0);
+    
+    glBegin(GL_LINE_LOOP);                      
+      glVertex2f(a.x, a.y);                         
+      glVertex2f(b.x, b.y);                          
+      glVertex2f(c.x, c.y);                           
+    glEnd();
+  
   }
   
 }

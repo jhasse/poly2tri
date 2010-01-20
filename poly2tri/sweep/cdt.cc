@@ -47,6 +47,10 @@ std::vector<Triangle*> CDT::GetTriangles() {
   return sweep_context_->GetTriangles();
 }
 
+std::list<Triangle*> CDT::GetMap() {
+  return sweep_context_->GetMap();
+}
+
 CDT::~CDT() {
 	delete sweep_context_;
 	delete sweep_;

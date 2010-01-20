@@ -46,6 +46,8 @@ public:
 	void Triangulate();
   /// Get Delaunay triangles
   std::vector<Triangle*> GetTriangles();
+  /// Get triangle map
+  std::list<Triangle*> CDT::GetMap();
 
 private:
 

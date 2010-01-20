@@ -21,6 +21,10 @@ std::vector<Triangle*> SweepContext::GetTriangles() {
   return triangles_;
 }
 
+std::list<Triangle*> SweepContext::GetMap() {
+  return map_;
+}
+
 void SweepContext::InitTriangulation() {
 
   double xmax(points_[0]->x), xmin(points_[0]->x);
