@@ -46,12 +46,13 @@ void Init();
 void ShutDown(int return_code);
 void MainLoop(const double zoom);
 void Draw(const double zoom);
- 
+void ConstrainedColor(bool constrain);
+
 float rotate_y = 0,
       rotate_z = 0;
 const float rotations_per_tick = .2;
 
-list<Triangle*> triangles;
+vector<Triangle*> triangles;
 
 double StringToDouble(const std::string& s) {
   std::istringstream i(s);
@@ -80,21 +81,12 @@ int main(int argc, char* argv[]) {
     double y = rand() % (b - a - 1) + a + 1;
     polyline[i] = Point(x, y);
   }
-	
-  polyline[0] = Point(5, 5);
-	polyline[1] = Point(-5, 5);
-	polyline[2] = Point(-5, -5); 
-	polyline[3] = Point(5, -5);
-  
-  //Point foo[] = {Point(5, 5.1), Point(-5, 5.2), Point(-5, -5.3), Point(5, -5.4), Point(5.1, 5.5), Point(5, 5.5),
-  //             Point(-5, 5.6), Point(-5, -5.7), Point(5, -5.8), Point(5, 5.9), Point(-5, 5.1), 
-  //             Point(-5, -5.11), Point(5, -5.12), Point(5, 5.13), Point(-5, 5.14), Point(-5, -5.15), Point(5, -5.16)};
-  
+ 
   */
   
   string line;
   ifstream myfile (argv[1]);
-  vector<Point> points;
+  vector<Point*> points;
   if (myfile.is_open()) {
     while (!myfile.eof()) {
       getline (myfile,line);
@@ -107,7 +99,7 @@ int main(int argc, char* argv[]) {
            back_inserter<vector<string> >(tokens));
       double x = StringToDouble(tokens[0]);
       double y = StringToDouble(tokens[1]);
-      points.push_back(Point(x, y));
+      points.push_back(new Point(x, y));
     }
     myfile.close();
   } else {
@@ -119,7 +111,7 @@ int main(int argc, char* argv[]) {
   
 	Point** polyline = new Point *[num_points];
   for(int i = 0; i < num_points; i++) {
-    polyline[i] = &points[i];
+    polyline[i] = points[i];
   }
   
   Init();
@@ -229,22 +221,41 @@ void Draw(const double zoom)
   
   ResetZoom(zoom, center.x, center.y, 800, 600);
   
-  list<Triangle*>::iterator it; 
-  for (it = triangles.begin(); it != triangles.end(); it++) {
-    Triangle* t = *it;
-    Point* a = t->GetPoint(0);
-    Point* b = t->GetPoint(1);
-    Point* c = t->GetPoint(2);
-    
-    // Red
-    glColor3f(1, 0, 0);
-    
-    glBegin(GL_LINE_LOOP);			  // Drawing Using Triangles
-      glVertex2f(a->x, a->y);				// Top
-      glVertex2f(b->x, b->y);				// Bottom Left
-      glVertex2f(c->x, c->y);				// Bottom Right
-    glEnd();
+  for (int i = 0; i < triangles.size(); i++) {
   
+    Triangle& t = *triangles[i];
+    Point& a = *t.GetPoint(0);
+    Point& b = *t.GetPoint(1);
+    Point& c = *t.GetPoint(2);
+    
+    ConstrainedColor(t.constrained_edge[2]); 
+    glBegin(GL_LINES);  
+      glVertex2f(a.x, a.y); 
+      glVertex2f(b.x, b.y); 
+    glEnd( );
+
+    ConstrainedColor(t.constrained_edge[0]); 
+    glBegin(GL_LINES);
+      glVertex2f(b.x, b.y); 
+      glVertex2f(c.x, c.y);
+    glEnd( );
+
+    ConstrainedColor(t.constrained_edge[1]); 
+    glBegin(GL_LINES);
+      glVertex2f(c.x, c.y); 
+      glVertex2f(a.x, a.y); 
+    glEnd( );
+
   }
   
+}
+
+void ConstrainedColor(bool constrain) {
+  if(constrain) {
+    // Green
+    glColor3f(0, 1, 0);
+  } else {
+    // Red
+    glColor3f(1, 0, 0);
+  }
 }

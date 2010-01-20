@@ -9,27 +9,26 @@ SweepContext::SweepContext(Point** polyline, const int& point_count) {
   basin = Basin();
   edge_event = EdgeEvent();
 	
-  for(int i = 0; i < point_count; i++) {
-    points_.push_back(**&polyline[i]);
-  }
+  points_ = polyline;
+  point_count_ = point_count;
   
-  InitEdges(polyline, point_count);
+  InitEdges(points_, point_count_);
   InitTriangulation();
   
 }
 
-std::list<Triangle*> SweepContext::GetTriangles() {
-  return tri_list_;
+std::vector<Triangle*> SweepContext::GetTriangles() {
+  return triangles_;
 }
 
 void SweepContext::InitTriangulation() {
 
-  double xmax(points_[0].x), xmin(points_[0].x);
-  double ymax(points_[0].y), ymin(points_[0].y);
+  double xmax(points_[0]->x), xmin(points_[0]->x);
+  double ymax(points_[0]->y), ymin(points_[0]->y);
   
   // Calculate bounds. 
-  for(int i = 0; i < points_.size(); i++) {
-    Point p = points_[i];
+  for(int i = 0; i < point_count_; i++) {
+    Point p = *points_[i];
     if(p.x > xmax)
         xmax = p.x;
     if(p.x < xmin)
@@ -47,26 +46,46 @@ void SweepContext::InitTriangulation() {
   
   // Sort points along y-axis
   double init_time = glfwGetTime();
-  std::sort(points_.begin(), points_.end());
+  std::sort(points_, points_ + point_count_, cmp);
   double dt = glfwGetTime() - init_time;
   printf("Sort time (secs) = %f\n", dt);
-
+  
+  /*
+  printf("*************************\n");
+  for(int i = 0; i < point_count_; i++) {
+    printf("%p ", points_[i]);
+    printf("%f,%f\n", points_[i]->x, points_[i]->y);
+  }
+  
+  printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+  for(int i = 0; i < edge_list.size(); i++) {
+    printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
+  }
+  */
+  
 }
 
 void SweepContext::InitEdges(Point** polyline, const int& point_count) {
 
   for(int i = 0; i < point_count; i++) {
-    int j = i < points_.size() - 1 ? i + 1 : 0;
-    edge_list.push_back(new Edge(**&polyline[i], **&polyline[j]));
+    int j = i < point_count - 1 ? i + 1 : 0;
+    edge_list.push_back(new Edge(*polyline[i], *polyline[j]));
   }
+  
+  /*
+  for(int i = 0; i < edge_list.size(); i++) {
+    printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
+  }
+  */
+  
 }
     
 Point* SweepContext::GetPoint(const int& index) { 
-	return &points_[index];
+	return points_[index];
 }
 
 void SweepContext::AddToMap(Triangle* triangle ) {
-  tri_list_.push_back(triangle);
+  map_.push_back(triangle);
 }
 
 Node& SweepContext::LocateNode(Point& point) {
@@ -77,9 +96,9 @@ Node& SweepContext::LocateNode(Point& point) {
 void SweepContext::CreateAdvancingFront() {
 	
 	// Initial triangle
-	Triangle* triangle = new Triangle(points_[0], *tail_, *head_);
+	Triangle* triangle = new Triangle(*points_[0], *tail_, *head_);
 
-	tri_list_.push_back(triangle);
+	map_.push_back(triangle);
 	
 	front_ = new AdvancingFront;
         
@@ -114,46 +133,22 @@ void SweepContext::MapTriangleToNodes(Triangle& t) {
 }
 
 void SweepContext::RemoveFromMap(Triangle* triangle) {
-  tri_list_.remove(triangle);
+  map_.remove(triangle);
 }
 
-/*
-void SweepContext::MeshClean(Triangle& triangle) {
-  pointset_.ClearTriangulation();
-  MeshCleanReq(triangle);
-}
+void SweepContext::MeshClean(Triangle& triangle ) {
 
-AFront SweepContext::front_() {
-  return front_;
-}
-    
-void SweepContext::Clear() {
-  super.clear();
-  tri_list_.Clear();
-}
-
-
-Node* SweepContext::LocateNode(Point& point) {
-  // TODO implement tree
-  return front_.Locate(point.x);
-}
-
-/*
-
-void SweepContext::MeshCleanReq(Triangle& triangle ) {
-  if(triangle != NULL && !triangle.isInterior()) {
+  if(&triangle != NULL && !triangle.IsInterior()) {
     triangle.IsInterior(true);
-    pointset_.AddTriangle(triangle);
+    triangles_.push_back(&triangle);
     for(int i = 0; i < 3; i++) {
-      if(!triangle.cEdge[i])
-        MeshCleanReq(triangle.neighbors[i]);     
-		}
-	}
+      if(!triangle.constrained_edge[i])
+        MeshClean(*triangle.GetNeighbor(i));     
+    }
+  }
 }
-*/
 
 SweepContext::~SweepContext() {
-  //delete [] points_;
   delete head_;
   delete tail_;
   delete front_;

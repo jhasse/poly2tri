@@ -45,7 +45,7 @@ public:
   /// Triangulate points
 	void Triangulate();
   /// Get Delaunay triangles
-  std::list<Triangle*> GetTriangles();
+  std::vector<Triangle*> GetTriangles();
 
 private:
 

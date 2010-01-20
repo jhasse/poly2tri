@@ -43,7 +43,7 @@ void CDT::Triangulate() {
 	sweep_->Triangulate(*sweep_context_);
 }
 
-std::list<Triangle*> CDT::GetTriangles() {
+std::vector<Triangle*> CDT::GetTriangles() {
   return sweep_context_->GetTriangles();
 }
 

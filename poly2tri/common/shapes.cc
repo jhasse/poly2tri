@@ -36,11 +36,7 @@ Triangle::Triangle(Point& a, Point& b, Point& c) {
   neighbors_[0] = NULL; neighbors_[1] = NULL; neighbors_[2] = NULL;
   constrained_edge[0] = constrained_edge[1] = constrained_edge[2] = false;
 	delaunay_edge[0] = delaunay_edge[1] = delaunay_edge[2] = false;
-  interior = false;
-}
-
-Triangle::~Triangle() {
-  printf("bye triangle\n");
+  interior_ = false;
 }
 
 // Update neighbor pointers
@@ -140,8 +136,7 @@ int Triangle::EdgeIndex(const Point* p1, const Point* p2) {
 		}	else if(points_[2] == p2){
 			return 1;                
 		}
-	}
-	else if(points_[1] == p1) {
+	} else if(points_[1] == p1) {
 		if(points_[2] == p2) {
 			return 0;
 		} else if(points_[0] == p2) {
@@ -162,16 +157,7 @@ void Triangle::MarkConstrainedEdge(const int index) {
 }
 
 void Triangle::MarkConstrainedEdge(Edge& edge) {
-
 	MarkConstrainedEdge(edge.p, edge.q);
-	if((edge.q == points_[0] && edge.p == points_[1]) || (edge.q == points_[1] && edge.p == points_[0])) {
-		constrained_edge[2] = true;
-	} else if((edge.q == points_[0] && edge.p == points_[2]) || (edge.q == points_[2] && edge.p == points_[0])) {
-		constrained_edge[1] = true;
-	}	else if(( edge.q == points_[1] && edge.p == points_[2]) || (edge.q == points_[2] && edge.p == points_[1])) {
-		constrained_edge[0] = true;
-	}
-	
 }
 
 // Mark edge as constrained

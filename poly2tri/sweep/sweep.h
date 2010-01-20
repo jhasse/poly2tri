@@ -111,6 +111,8 @@ private:
 	
 	Point& NextFlipPoint(Point& ep, Point& eq, Triangle& ot, Point& op );
 																	
-	void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_triangle, Triangle& t, Point& p);																	
+	void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_triangle, Triangle& t, Point& p);	
+
+  void FinalizationPolygon(SweepContext& tcx);
 
 };

@@ -80,7 +80,9 @@ public:
   
   AdvancingFront* front();
   
-  std::list<Triangle*> GetTriangles();
+  void MeshClean(Triangle& triangle);
+  
+  std::vector<Triangle*> GetTriangles();
   
   std::vector<Edge*> edge_list;
   
@@ -119,8 +121,11 @@ public:
 	
 private:
 
-  std::list<Triangle*> tri_list_;
-  std::vector<Point> points_;
+  std::vector<Triangle*> triangles_;
+  std::list<Triangle*> map_;
+  
+  Point** points_;
+  int point_count_;
   
   // Advancing front
   AdvancingFront* front_;
@@ -147,7 +152,7 @@ private:
 
 inline AdvancingFront* SweepContext::front() { return front_; }
 
-inline int SweepContext::point_count() { return points_.size(); }
+inline int SweepContext::point_count() { return point_count_; }
 
 inline void SweepContext::set_head(Point* p1) { head_ = p1; }
 

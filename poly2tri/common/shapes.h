@@ -91,18 +91,6 @@ struct Point {
     y /= len;
     return len;
   }
-  
-  bool operator < (Point& b) {
-    if (y < b.y) {
-      return true;
-    } else if (y == b.y) {
-      // Make sure q is point with greater x value 
-      if(x < b.x) {
-        return true;
-      } 
-    }
-    return false;
-  }
     
 };
 
@@ -128,7 +116,7 @@ struct Edge {
     }
     
     q->edge_list.push_back(*this);
-
+    //printf("%i\n", q->edge_list.size());
   }
 
 };
@@ -142,15 +130,11 @@ public:
 
   /// Constructor
   Triangle(Point& a, Point& b, Point& c);
-	// Destroctor
-	~Triangle();
 
 	/// Flags to determine if an edge is a Constrained edge 
 	bool constrained_edge[3];
 	/// Flags to determine if an edge is a Delauney edge 
 	bool delaunay_edge[3];
-	/// Has this triangle been marked as an interior triangle? 
-	bool interior;
 	
 	Point* GetPoint(const int& index);
 	Point* PointCW(Point& point);
@@ -187,6 +171,9 @@ public:
 	void ClearNeighbors();
 	void ClearDelunayEdges();
 	
+  inline bool IsInterior();
+  inline void IsInterior(bool b);
+  
 	Triangle& NeighborAcross(Point& opoint);
 
   void DebugPrint();
@@ -197,15 +184,18 @@ private:
   Point* points_[3];  
 	/// Neighbor list
   Triangle* neighbors_[3];
+  
+  /// Has this triangle been marked as an interior triangle? 
+  bool interior_;
     
 };
 
-inline bool operator < (const Point& a, const Point& b) {
-  if (a.y < b.y) {
+inline bool cmp (const Point* a, const Point* b) {
+  if (a->y < b->y) {
     return true;
-  } else if (a.y == b.y) {
+  } else if (a->y == b->y) {
     // Make sure q is point with greater x value 
-    if(a.x < b.x) {
+    if(a->x < b->x) {
       return true;
     } 
   }
@@ -233,10 +223,6 @@ inline bool operator == (const Point& a, const Point& b) {
 
 inline bool operator != (const Point& a, const Point& b) {
     return a.x != b.x && a.y != b.y;
-}
-
-inline bool operator != (const Node& a, const Node& b) {
-  return a != b;
 }
 
 /// Peform the dot product on two vectors.
@@ -279,6 +265,14 @@ inline bool Triangle::Contains(const Edge& e) {
 
 inline bool Triangle::Contains(Point* p, Point* q) {
   return Contains(p) && Contains(q);
+}
+
+inline bool Triangle::IsInterior() {
+  return interior_;
+}
+
+inline void Triangle::IsInterior(bool b) {
+  interior_ = b;        
 }
 
 #endif

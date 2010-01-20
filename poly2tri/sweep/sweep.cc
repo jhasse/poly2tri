@@ -35,31 +35,22 @@
 
  // Triangulate simple polygon with holes
 void Sweep::Triangulate(SweepContext& tcx) {
-
+  
   tcx.CreateAdvancingFront();
-
   // Sweep points; build mesh
   SweepPoints(tcx);
-  
-  /*
-  // Finalize triangulation
-  if( tcx.getTriangulationMode() ==  TriangulationMode.Polygon ) {
-      finalizationPolygon( tcx );
-  } else {
-      finalizationConvexHull( tcx );
-  }
-  */
+  // Clean up
+  FinalizationPolygon(tcx);
 
 }
 	
-void Sweep::SweepPoints(SweepContext& tcx ) {
+void Sweep::SweepPoints(SweepContext& tcx) {
 
 	for(int i = 1; i < tcx.point_count(); i++ ) {
 	
 		Point& point = *tcx.GetPoint(i);
-        
-		Node& node = PointEvent(tcx, point);
-        
+		Node& node = PointEvent(tcx, point); 
+    
 		for(int i = 0; i < point.edge_list.size(); i++) {
 			EdgeEvent(tcx, point.edge_list[i], node);
 		}
@@ -68,6 +59,19 @@ void Sweep::SweepPoints(SweepContext& tcx ) {
   
 }
 
+void Sweep::FinalizationPolygon(SweepContext& tcx) {
+
+  // Get an Internal triangle to start with
+  Triangle* t = tcx.front()->head()->next->triangle;
+  Point* p = tcx.front()->head()->next->point;
+  while(!t->GetConstrainedEdgeCW(*p)) {
+    t = t->NeighborCCW(*p);
+  }
+  
+  // Collect interior triangles constrained by edges
+  tcx.MeshClean(*t);
+}
+    
 /**
  * Find closes node to the left of the new point and
  * create a new triangle. If needed new holes and basins
@@ -102,7 +106,7 @@ void Sweep::EdgeEvent(SweepContext& tcx, Edge& edge, Node& node) {
 	if(IsEdgeSideOfTriangle(*node.triangle, *edge.p, *edge.q)){
 		return;
 	}
-
+  
 	// For now we will do all needed filling
 	// TODO: integrate with flip process might give some better performance 
 	//       but for now this avoid the issue with cases that needs both flips and fills
@@ -615,7 +619,7 @@ void Sweep::TurnAdvancingFrontConvex(SweepContext& tcx, Node& b, Node& c) {
 
   Node& first = b;
   
-  while(c != *tcx.front()->tail()) {
+  while(&c != tcx.front()->tail()) {
 
     if(Orient2d(*b.point, *c.point, *c.next->point) == CCW) {
       // [b,c,d] Concave - fill around c
@@ -623,7 +627,7 @@ void Sweep::TurnAdvancingFrontConvex(SweepContext& tcx, Node& b, Node& c) {
       c = *c.next;
     } else {
       // [b,c,d] Convex
-      if(b != first && Orient2d(*b.prev->point, *b.point, *c.point) == CCW) {
+      if(&b != &first && Orient2d(*b.prev->point, *b.point, *c.point) == CCW) {
           // [a,b,c] Concave - fill around b
           Fill(tcx, b);
           b = *b.prev;
