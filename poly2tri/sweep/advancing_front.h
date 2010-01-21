@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -34,66 +34,84 @@ struct Node;
 
 // Advancing front node
 struct Node {
-
   Point* point;
   Triangle* triangle;
-  
+
   Node* next;
   Node* prev;
-  
-  double value;
-  
-  Node(Point& p) : point(&p), triangle(NULL), value(p.x), next(NULL), prev(NULL) {}
 
-  Node(Point& p, Triangle& t) : point(&p), triangle(&t), value(p.x), 
-                                next(NULL), prev(NULL) {}
-  
-  /*
-  ~Node() {
-    printf("going... ");
-    printf("bye node");
-    printf(" ... gone!\n");
+  double value;
+
+  Node(Point& p) : point(&p), triangle(NULL), value(p.x), next(NULL), prev(NULL)
+  {
   }
-  */
-  
+
+  Node(Point& p, Triangle& t) : point(&p), triangle(&t), value(p.x),
+    next(NULL), prev(NULL)
+  {
+  }
+
+  /*
+     ~Node() {
+     printf("going... ");
+     printf("bye node");
+     printf(" ... gone!\n");
+     }
+   */
 };
 
 // Advancing front
 class AdvancingFront {
-
 public:
 
-  AdvancingFront();
-	// Destructor
-	~AdvancingFront();
-	
-	Node* head();
-	void set_head(Node* node);
-	Node* tail();
-	void set_tail(Node* node);
-	Node* search();
-	void set_search(Node* node);
-	
-	/// Locate insertion point along advancing front
-	Node* Locate(const double& x);
-	
-	Node* LocatePoint(Point* point);
-		
+AdvancingFront();
+// Destructor
+~AdvancingFront();
+
+Node* head();
+void set_head(Node* node);
+Node* tail();
+void set_tail(Node* node);
+Node* search();
+void set_search(Node* node);
+
+/// Locate insertion point along advancing front
+Node* Locate(const double& x);
+
+Node* LocatePoint(Point* point);
+
 private:
-    
-	Node* head_, *tail_, *search_node_;
-	
-	Node* FindSearchNode(const double& x);
-    
+
+Node* head_, *tail_, *search_node_;
+
+Node* FindSearchNode(const double& x);
 };
 
-inline Node* AdvancingFront::head() { return head_; }
-inline void AdvancingFront::set_head(Node* node) { head_ = node; }
+inline Node* AdvancingFront::head()
+{
+  return head_;
+}
+inline void AdvancingFront::set_head(Node* node)
+{
+  head_ = node;
+}
 
-inline Node* AdvancingFront::tail() { return tail_; }
-inline void AdvancingFront::set_tail(Node* node) { tail_ = node; }
+inline Node* AdvancingFront::tail()
+{
+  return tail_;
+}
+inline void AdvancingFront::set_tail(Node* node)
+{
+  tail_ = node;
+}
 
-inline Node* AdvancingFront::search() { return search_node_; }
+inline Node* AdvancingFront::search()
+{
+  return search_node_;
+}
 
-inline void AdvancingFront::set_search(Node* node) { search_node_ = node; }
+inline void AdvancingFront::set_search(Node* node)
+{
+  search_node_ = node;
+}
 

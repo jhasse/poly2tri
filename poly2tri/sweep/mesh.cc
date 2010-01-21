@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -34,16 +34,16 @@
 // Excludes exterior triangles outside constrained edges
 // Depth first search
 
-void Mesh::clean(Triangle& triangle) 
+void Mesh::clean(Triangle& triangle)
 {
-    /*
-    if(triangle != NULL && !triangle.interior) 
-    {
-      triangle.interior = true;
-      triangles += triangle;
-      for(i <- 0 until 3) 
-        if(!triangle.edges(i))
-          clean(triangle.neighbors(i));
-    }
-    */
+  /*
+     if(triangle != NULL && !triangle.interior)
+     {
+     triangle.interior = true;
+     triangles += triangle;
+     for(i <- 0 until 3)
+      if(!triangle.edges(i))
+        clean(triangle.neighbors(i));
+     }
+   */
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -33,18 +33,16 @@ using namespace std;
 
 class Triangle;
 
-class Mesh 
+class Mesh
 {
-  
 public:
- 
-    /// Triangles that constitute the mesh
-    vector<Triangle> map;
-    
-    // Debug triangles
-    //val debug = new ArrayBuffer[Triangle]
-    //val triangles = new ArrayBuffer[Triangle]
-    
-    void clean(Triangle& triangle);
-  
+
+/// Triangles that constitute the mesh
+vector<Triangle> map;
+
+// Debug triangles
+//val debug = new ArrayBuffer[Triangle]
+//val triangles = new ArrayBuffer[Triangle]
+
+void clean(Triangle& triangle);
 };

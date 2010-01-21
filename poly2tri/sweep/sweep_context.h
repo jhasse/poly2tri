@@ -31,7 +31,7 @@
 #include <list>
 #include <vector>
 
-// Inital triangle factor, seed triangle will extend 30% of 
+// Inital triangle factor, seed triangle will extend 30% of
 // PointSet width to both left and right.
 const double kAlpha = 0.3;
 
@@ -41,124 +41,141 @@ struct Node;
 struct Edge;
 class AdvancingFront;
 
-  
-class SweepContext {
 
+class SweepContext {
 public:
 
-  // Constructor
-  SweepContext(Point** polyline, const int& point_count);
-  // Destructor
-  ~SweepContext();
-  
-  //void MeshClean(Triangle& triangle);
-  // Get Advancing Front
-  //AdvancingFront front();
-   
-  void set_head(Point* p1);
-  Point* head();
+// Constructor
+SweepContext(Point** polyline, const int& point_count);
+// Destructor
+~SweepContext();
 
-  void set_tail(Point* p1 );
-  Point* tail();
-	
-	int point_count();
-  
-  Node& LocateNode(Point& point);
-	void RemoveNode(Node* node);
- 
-  void CreateAdvancingFront();
-  
-  // Try to map a node to all sides of this triangle that don't have a neighbor
-  void MapTriangleToNodes(Triangle& t);
-	
-	void AddToMap(Triangle* triangle);
-	
-  Point* GetPoint(const int& index);
-	Point* GetPoints();
-  
-  void RemoveFromMap(Triangle* triangle);
-  
-  AdvancingFront* front();
-  
-  void MeshClean(Triangle& triangle);
-  
-  std::vector<Triangle*> GetTriangles();
-  std::list<Triangle*> GetMap();
-  
-  std::vector<Edge*> edge_list;
-  
-  struct Basin {
-  
-    Node* left_node;
-    Node* bottom_node;
-    Node* right_node;
-    double width;
-    bool left_highest;  
-    
-    Basin() : left_node(NULL), bottom_node(NULL), right_node(NULL), 
-              width(0.0), left_highest(false) {}
-              
-    void Clear() {
-      left_node = NULL;
-      bottom_node = NULL;
-      right_node = NULL; 
-      width = 0.0;
-      left_highest = false;
-    } 
-    
-  };
-	
-	struct EdgeEvent {
-		
-		Edge* constrained_edge;
-		bool right;
-		
-		EdgeEvent() : constrained_edge(NULL), right(false) {}
-		
-	};
-  
-  Basin basin; 
-  EdgeEvent edge_event;
-	
-private:
+//void MeshClean(Triangle& triangle);
+// Get Advancing Front
+//AdvancingFront front();
 
-  std::vector<Triangle*> triangles_;
-  std::list<Triangle*> map_;
-  
-  Point** points_;
-  int point_count_;
-  
-  // Advancing front
-  AdvancingFront* front_;
-  // head point used with advancing front 
-  Point* head_;
-  // tail point used with advancing front 
-  Point* tail_;
-  
-  //EdgeEvent edgeEvent = new EdgeEvent();
-    
-  void InitTriangulation();
-  void InitEdges(Point** polyline, const int& point_count);
-  
-  //void MeshCleanReq(Triangle& triangle )
-  
-  /*  
-  class EdgeEvent {
-      Edge* constrainedEdge;
-      bool right;
-  };
-  */
-  
+void set_head(Point* p1);
+Point* head();
+
+void set_tail(Point* p1);
+Point* tail();
+
+int point_count();
+
+Node& LocateNode(Point& point);
+void RemoveNode(Node* node);
+
+void CreateAdvancingFront();
+
+// Try to map a node to all sides of this triangle that don't have a neighbor
+void MapTriangleToNodes(Triangle& t);
+
+void AddToMap(Triangle* triangle);
+
+Point* GetPoint(const int& index);
+Point* GetPoints();
+
+void RemoveFromMap(Triangle* triangle);
+
+AdvancingFront* front();
+
+void MeshClean(Triangle& triangle);
+
+std::vector<Triangle*> GetTriangles();
+std::list<Triangle*> GetMap();
+
+std::vector<Edge*> edge_list;
+
+struct Basin {
+  Node* left_node;
+  Node* bottom_node;
+  Node* right_node;
+  double width;
+  bool left_highest;
+
+  Basin() : left_node(NULL), bottom_node(NULL), right_node(NULL),
+    width(0.0), left_highest(false)
+  {
+  }
+
+  void Clear()
+  {
+    left_node = NULL;
+    bottom_node = NULL;
+    right_node = NULL;
+    width = 0.0;
+    left_highest = false;
+  }
 };
 
-inline AdvancingFront* SweepContext::front() { return front_; }
+struct EdgeEvent {
+  Edge* constrained_edge;
+  bool right;
 
-inline int SweepContext::point_count() { return point_count_; }
+  EdgeEvent() : constrained_edge(NULL), right(false)
+  {
+  }
+};
 
-inline void SweepContext::set_head(Point* p1) { head_ = p1; }
+Basin basin;
+EdgeEvent edge_event;
 
-inline Point* SweepContext::head() {	return head_; }
+private:
 
-inline void SweepContext::set_tail(Point* p1) {	tail_ = p1; }
+std::vector<Triangle*> triangles_;
+std::list<Triangle*> map_;
 
-inline Point* SweepContext::tail() { return tail_; }
+Point** points_;
+int point_count_;
+
+// Advancing front
+AdvancingFront* front_;
+// head point used with advancing front
+Point* head_;
+// tail point used with advancing front
+Point* tail_;
+
+//EdgeEvent edgeEvent = new EdgeEvent();
+
+void InitTriangulation();
+void InitEdges(Point** polyline, const int& point_count);
+
+//void MeshCleanReq(Triangle& triangle )
+
+/*
+   class EdgeEvent {
+    Edge* constrainedEdge;
+    bool right;
+   };
+ */
+};
+
+inline AdvancingFront* SweepContext::front()
+{
+  return front_;
+}
+
+inline int SweepContext::point_count()
+{
+  return point_count_;
+}
+
+inline void SweepContext::set_head(Point* p1)
+{
+  head_ = p1;
+}
+
+inline Point* SweepContext::head()
+{
+  return head_;
+}
+
+inline void SweepContext::set_tail(Point* p1)
+{
+  tail_ = p1;
+}
+
+inline Point* SweepContext::tail()
+{
+  return tail_;
+}

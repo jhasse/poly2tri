@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -35,9 +35,12 @@
 #include <math.h>
 
 template<typename T, int size>
-int array_length(T(&)[size]){return size;}
+int array_length(T(&)[size])
+{
+  return size;
+}
 
-const double PI_3div4 = 3*M_PI/4;
+const double PI_3div4 = 3 * M_PI / 4;
 const double EPSILON = 1e-12;
 
 enum Orientation { CW, CCW, COLLINEAR };
@@ -50,28 +53,27 @@ enum Orientation { CW, CCW, COLLINEAR };
  * <pre>
  * A[P1,P2,P3]  =  (x1*y2 - y1*x2) + (x2*y3 - y2*x3) + (x3*y1 - y3*x1)
  *              =  (x1-x3)*(y2-y3) - (y1-y3)*(x2-x3)
- * </pre>             
+ * </pre>
  */
-Orientation Orient2d(Point& pa, Point& pb, Point& pc ) {
-
+Orientation Orient2d(Point& pa, Point& pb, Point& pc)
+{
   double detleft = (pa.x - pc.x) * (pb.y - pc.y);
   double detright = (pa.y - pc.y) * (pb.x - pc.x);
   double val = detleft - detright;
-  if( val > -EPSILON && val < EPSILON ) {
-    return COLLINEAR;                    
-  } else if( val > 0 ) {
+  if (val > -EPSILON && val < EPSILON) {
+    return COLLINEAR;
+  } else if (val > 0) {
     return CCW;
   }
   return CW;
-  
 }
 
-bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd) {
-
+bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
+{
   double pdx = pd.x;
   double pdy = pd.y;
   double adx = pa.x - pdx;
-  double ady = pa.y - pdy;        
+  double ady = pa.y - pdy;
   double bdx = pb.x - pdx;
   double bdy = pb.y - pdy;
 
@@ -79,7 +81,7 @@ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd) {
   double bdxady = bdx * ady;
   double oabd = adxbdy - bdxady;
 
-  if(oabd <= EPSILON) {
+  if (oabd <= EPSILON) {
     return false;
   }
 
@@ -90,12 +92,11 @@ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd) {
   double adxcdy = adx * cdy;
   double ocad = cdxady - adxcdy;
 
-  if(ocad <= EPSILON) {
+  if (ocad <= EPSILON) {
     return false;
-  } 
-  
+  }
+
   return true;
-  
 }
 
 #endif

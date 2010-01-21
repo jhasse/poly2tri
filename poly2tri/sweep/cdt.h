@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -33,28 +33,26 @@
 #include "sweep_context.h"
 #include "sweep.h"
 
-class CDT 
+class CDT
 {
-
 public:
-	
-  /// Constructor
-	CDT(Point** poly_line, const int& point_count);
-  /// Add a hole
-  void AddHole(const Point poly_line[], const int point_count);
-  /// Triangulate points
-	void Triangulate();
-  /// Get Delaunay triangles
-  std::vector<Triangle*> GetTriangles();
-  /// Get triangle map
-  std::list<Triangle*> CDT::GetMap();
+
+/// Constructor
+CDT(Point** poly_line, const int& point_count);
+/// Add a hole
+void AddHole(const Point poly_line[], const int point_count);
+/// Triangulate points
+void Triangulate();
+/// Get Delaunay triangles
+std::vector<Triangle*> GetTriangles();
+/// Get triangle map
+std::list<Triangle*> CDT::GetMap();
 
 private:
 
-  SweepContext* sweep_context_;
-  Sweep* sweep_;
-	
-  /// Destructor
-	~CDT();
-	
+SweepContext* sweep_context_;
+Sweep* sweep_;
+
+/// Destructor
+~CDT();
 };

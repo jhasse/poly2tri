@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Mason Green
  * http://code.google.com/p/poly2tri/
  *
@@ -30,29 +30,34 @@
  */
 #include "cdt.h"
 
-CDT::CDT(Point** polyline, const int& point_count) {
-	sweep_context_ = new SweepContext(polyline, point_count);
-	sweep_ = new Sweep;
+CDT::CDT(Point** polyline, const int& point_count)
+{
+  sweep_context_ = new SweepContext(polyline, point_count);
+  sweep_ = new Sweep;
 }
 
-void CDT::AddHole(const Point poly_line[], const int point_count) {
-
+void CDT::AddHole(const Point poly_line[], const int point_count)
+{
 }
 
-void CDT::Triangulate() {
-	sweep_->Triangulate(*sweep_context_);
+void CDT::Triangulate()
+{
+  sweep_->Triangulate(*sweep_context_);
 }
 
-std::vector<Triangle*> CDT::GetTriangles() {
+std::vector<Triangle*> CDT::GetTriangles()
+{
   return sweep_context_->GetTriangles();
 }
 
-std::list<Triangle*> CDT::GetMap() {
+std::list<Triangle*> CDT::GetMap()
+{
   return sweep_context_->GetMap();
 }
 
-CDT::~CDT() {
-	delete sweep_context_;
-	delete sweep_;
+CDT::~CDT()
+{
+  delete sweep_context_;
+  delete sweep_;
 }
 
