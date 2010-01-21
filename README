@@ -1,0 +1,40 @@
+==================
+INSTALLATION GUIDE
+==================
+ 
+Dependencies
+------------
+
+  Core poly2tri lib:
+    - Standard Template Library
+  
+  Testbed:
+  - gcc
+  - OpenGL
+	- GLFW (http://glfw.sf.net)
+	- Python
+ 
+Waf (http://code.google.com/p/waf/) is used to compile the testbed, and  
+the Python waf script (86kb) is included in the repositoty.
+ 
+Building the testbed
+----------------------------------------------
+
+Posix/MSYS environment:
+
+  ./waf configure
+  ./waf build
+
+Windows command line:
+
+  python waf configure
+  python waf build
+  
+running the examples
+----------------------------------------------
+
+p2t <data file> <zoom>
+
+Example:
+
+  ./build/default/p2.exe testbed/data/dude.dat 1.0
