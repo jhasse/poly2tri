@@ -30,9 +30,11 @@
  */
 #include "advancing_front.h"
 
-AdvancingFront::AdvancingFront()
+AdvancingFront::AdvancingFront(Node& head, Node& tail)
 {
-  head_ = tail_ = search_node_ = NULL;
+  head_ = &head;
+  tail_ = &tail;
+  search_node_ = &head;
 }
 
 Node* AdvancingFront::Locate(const double& x)
@@ -42,17 +44,20 @@ Node* AdvancingFront::Locate(const double& x)
   if (x < node->value) {
     //printf("<: - %f,%f - %p\n", x, node->value, node->next);
     while ((node = node->prev) != NULL) {
+      //printf("%p - %p\n", node, node->prev);
       if (x >= node->value) {
         search_node_ = node;
+        //printf("\nSN1: %p - %p\n", search_node_, search_node_->next);
         return node;
       }
     }
   } else {
-    //printf("%p - %p\n", node, node->next);
     //printf(">: %f - %f\n", x, node->value);
     while ((node = node->next) != NULL) {
+      //printf("%p - %p\n", node, node->next);
       if (x < node->value) {
         search_node_ = node->prev;
+        //printf("\nSN2: %p - %p\n", search_node_, search_node_->next);
         return node->prev;
       }
     }
@@ -66,12 +71,13 @@ Node* AdvancingFront::FindSearchNode(const double& x)
   return search_node_;
 }
 
-Node* AdvancingFront::LocatePoint(Point* point)
+Node* AdvancingFront::LocatePoint(const Point* point)
 {
   const double px = point->x;
   Node* node = FindSearchNode(px);
   const double nx = node->point->x;
-
+  printf("AF: %p - %p\n", node, node->next);
+  
   if (px == nx) {
     if (point != node->point) {
       // We might have two nodes with same x value for a short time
@@ -85,17 +91,20 @@ Node* AdvancingFront::LocatePoint(Point* point)
     }
   } else if (px < nx) {
     while ((node = node->prev) != NULL) {
+      //printf("1 - %p - %p\n", node, node->next);
       if (point == node->point) {
         break;
       }
     }
   } else {
     while ((node = node->next) != NULL) {
+      //printf("2 - %p - %p\n", node, node->next);
       if (point == node->point)
         break;
     }
   }
-  if (node) search_node_ = node;
+  search_node_ = node;
+  printf("\nSN: %p - %p\n", search_node_, search_node_->next);
   return node;
 }
 

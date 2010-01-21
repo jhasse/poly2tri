@@ -46,14 +46,14 @@ void Sweep::Triangulate(SweepContext& tcx)
 void Sweep::SweepPoints(SweepContext& tcx)
 {
   for (int i = 1; i < tcx.point_count(); i++) {
-    printf("%i = ", i);
     Point& point = *tcx.GetPoint(i);
-    printf("%f,%f\n", point.x, point.y);
+    printf("%i = %f,%f ", i, point.x, point.y);
     Node& node = PointEvent(tcx, point);
-
+    printf("1...");
     for (int i = 0; i < point.edge_list.size(); i++) {
       EdgeEvent(tcx, point.edge_list[i], node);
     }
+   printf("2!\n");
   }
 }
 
@@ -174,7 +174,8 @@ Node& Sweep::NewFrontTriangle(SweepContext& tcx, Point& point, Node& node)
   new_node->prev = &node;
   node.next->prev = new_node;
   node.next = new_node;
-
+  //printf("\n%p - %p - %p | ", new_node->prev, new_node, new_node->next);
+  //printf("%p - %p - %p\n", node.prev, &node, node.next);
   if (!Legalize(tcx, *triangle)) {
     tcx.MapTriangleToNodes(*triangle);
   }
@@ -458,10 +459,10 @@ void Sweep::RotateTrianglePair(Triangle& t, Point& p, Triangle& ot, Point& op)
   //      the right side.
   t.ClearNeighbors();
   ot.ClearNeighbors();
-  if (n1 != NULL) ot.MarkNeighbor(*n1);
-  if (n2 != NULL) t.MarkNeighbor(*n2);
-  if (n3 != NULL) t.MarkNeighbor(*n3);
-  if (n4 != NULL) ot.MarkNeighbor(*n4);
+  if (n1) ot.MarkNeighbor(*n1);
+  if (n2) t.MarkNeighbor(*n2);
+  if (n3) t.MarkNeighbor(*n3);
+  if (n4) ot.MarkNeighbor(*n4);
   t.MarkNeighbor(ot);
 }
 
@@ -595,7 +596,7 @@ void Sweep::FillRightBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
     if (Orient2d(*node.point, *node.next->point, *node.next->next->point) == CCW) {
       // Concave
       FillRightConcaveEdgeEvent(tcx, edge, node);
-    }       else{
+    } else{
       // Convex
       FillRightConvexEdgeEvent(tcx, edge, node);
       // Retry this one

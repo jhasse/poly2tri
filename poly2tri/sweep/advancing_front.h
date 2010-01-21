@@ -51,20 +51,13 @@ struct Node {
   {
   }
 
-  /*
-     ~Node() {
-     printf("going... ");
-     printf("bye node");
-     printf(" ... gone!\n");
-     }
-   */
 };
 
 // Advancing front
 class AdvancingFront {
 public:
 
-AdvancingFront();
+AdvancingFront(Node& head, Node& tail);
 // Destructor
 ~AdvancingFront();
 
@@ -78,7 +71,7 @@ void set_search(Node* node);
 /// Locate insertion point along advancing front
 Node* Locate(const double& x);
 
-Node* LocatePoint(Point* point);
+Node* LocatePoint(const Point* point);
 
 private:
 

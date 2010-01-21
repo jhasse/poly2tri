@@ -55,6 +55,7 @@ void SweepContext::InitTriangulation()
   double dt = glfwGetTime() - init_time;
   printf("Sort time (secs) = %f\n", dt);
 
+  /*
   printf("*************************\n");
   for (int i = 0; i < point_count_; i++) {
     printf("%f,%f ", points_[i]->x, points_[i]->y);
@@ -103,26 +104,24 @@ Node& SweepContext::LocateNode(Point& point)
 
 void SweepContext::CreateAdvancingFront()
 {
+  Node *head, *middle, *tail;
   // Initial triangle
   Triangle* triangle = new Triangle(*points_[0], *tail_, *head_);
 
   map_.push_back(triangle);
 
-  front_ = new AdvancingFront;
+  head = new Node(*triangle->GetPoint(1), *triangle);
+  middle = new Node(*triangle->GetPoint(0), *triangle);
+  tail = new Node(*triangle->GetPoint(2));
 
-  front_->set_head(new Node(*triangle->GetPoint(1)));
-  front_->head()->triangle = triangle;
-  Node* middle = new Node(*triangle->GetPoint(0));
-  middle->triangle = triangle;
-  front_->set_tail(new Node(*triangle->GetPoint(2)));
-  front_->set_search(middle);
-
+  front_ = new AdvancingFront(*head, *tail); 
+  
   // TODO: More intuitive if head is middles next and not previous?
   //       so swap head and tail
-  front_->head()->next = middle;
-  middle->next = front_->tail();
-  middle->prev = front_->head();
-  front_->tail()->prev = middle;
+  head->next = middle;
+  middle->next = tail;
+  middle->prev = head;
+  tail->prev = middle;
 }
 
 void SweepContext::RemoveNode(Node* node)

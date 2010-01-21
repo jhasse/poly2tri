@@ -50,10 +50,6 @@ SweepContext(Point** polyline, const int& point_count);
 // Destructor
 ~SweepContext();
 
-//void MeshClean(Triangle& triangle);
-// Get Advancing Front
-//AdvancingFront front();
-
 void set_head(Point* p1);
 Point* head();
 
@@ -93,8 +89,7 @@ struct Basin {
   double width;
   bool left_highest;
 
-  Basin() : left_node(NULL), bottom_node(NULL), right_node(NULL),
-    width(0.0), left_highest(false)
+  Basin() : left_node(NULL), bottom_node(NULL), right_node(NULL), width(0.0), left_highest(false)
   {
   }
 
@@ -140,14 +135,6 @@ Point* tail_;
 void InitTriangulation();
 void InitEdges(Point** polyline, const int& point_count);
 
-//void MeshCleanReq(Triangle& triangle )
-
-/*
-   class EdgeEvent {
-    Edge* constrainedEdge;
-    bool right;
-   };
- */
 };
 
 inline AdvancingFront* SweepContext::front()

@@ -1,4 +1,4 @@
-==================
+﻿==================
 INSTALLATION GUIDE
 ==================
  
@@ -6,7 +6,7 @@ Dependencies
 ------------
 
   Core poly2tri lib:
-    - Standard Template Library
+  - Standard Template Library
   
   Testbed:
   - gcc
@@ -17,7 +17,7 @@ Dependencies
 Waf (http://code.google.com/p/waf/) is used to compile the testbed, and  
 the Python waf script (86kb) is included in the repositoty.
  
-Building the testbed
+Building the Testbed
 ----------------------------------------------
 
 Posix/MSYS environment:
@@ -37,4 +37,4 @@ p2t <data file> <zoom>
 
 Example:
 
-  ./build/default/p2.exe testbed/data/dude.dat 1.0
+  ./build/default/p2t testbed/data/dude.dat 1.0
