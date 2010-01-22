@@ -40,25 +40,18 @@ AdvancingFront::AdvancingFront(Node& head, Node& tail)
 Node* AdvancingFront::LocateNode(const double& x)
 {
   Node* node = search_node_;
-  //printf("L: %p - %p\n", node, node->next);
   
   if (x < node->value) {
-    //printf("<: - %f,%f - %p\n", x, node->value, node->next);
     while ((node = node->prev) != NULL) {
-      //printf("%p - %p\n", node, node->prev);
       if (x >= node->value) {
         search_node_ = node;
-        //printf("\nSN1: %p - %p\n", search_node_, search_node_->next);
         return node;
       }
     }
   } else {
-    //printf(">: %f - %f\n", x, node->value);
     while ((node = node->next) != NULL) {
-      //printf("%p - %p\n", node, node->next);
       if (x < node->value) {
         search_node_ = node->prev;
-        //printf("\nSN2: %p - %p\n", search_node_, search_node_->next);
         return node->prev;
       }
     }
@@ -77,7 +70,6 @@ Node* AdvancingFront::LocatePoint(const Point* point)
   const double px = point->x;
   Node* node = FindSearchNode(px);
   const double nx = node->point->x;
-  //printf("LP: %p - %p\n", node, node->next);
   
   if (px == nx) {
     if (point != node->point) {
@@ -92,19 +84,17 @@ Node* AdvancingFront::LocatePoint(const Point* point)
     }
   } else if (px < nx) {
     while ((node = node->prev) != NULL) {
-      //printf("1 - %p - %p\n", node, node->next);
       if (point == node->point) {
         break;
       }
     }
   } else {
     while ((node = node->next) != NULL) {
-      //printf("2 - %p - %p\n", node, node->next);
       if (point == node->point)
         break;
     }
   }
-  search_node_ = node;
+  if(node) search_node_ = node;
   return node;
 }
 

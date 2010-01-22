@@ -53,6 +53,11 @@ float rotate_y = 0,
       rotate_z = 0;
 const float rotations_per_tick = .2;
 
+/// Screen center x
+double cx = 0.0;
+/// Screen center y
+double cy = 0.0;
+
 /// Constrained triangles
 vector<Triangle*> triangles;
 /// Triangle map
@@ -67,12 +72,12 @@ double StringToDouble(const std::string& s)
   return x;
 }
 
-bool draw_map = true;
+bool draw_map = false;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 3) {
-    cout << "Usage: p2t filename zoom" << endl;
+  if (argc != 5) {
+    cout << "Usage: p2t filename centerX centerY zoom" << endl;
     return 1;
   }
 
@@ -91,6 +96,9 @@ int main(int argc, char* argv[])
 
    */
 
+  cx = atof(argv[2]);
+  cy = atof(argv[3]);
+  
   string line;
   ifstream myfile(argv[1]);
   vector<Point*> points;
@@ -133,7 +141,7 @@ int main(int argc, char* argv[])
   triangles = cdt->GetTriangles();
   map = cdt->GetMap();
 
-  MainLoop(atof(argv[2]));
+  MainLoop(atof(argv[4]));
 
   delete [] polyline;
   ShutDown(0);
@@ -227,7 +235,7 @@ void ResetZoom(double zoom, double cx, double cy, double width, double height)
 void Draw(const double zoom)
 {
   // reset zoom
-  Point center = Point(0, 0);
+  Point center = Point(cx, cy);
 
   ResetZoom(zoom, center.x, center.y, 800, 600);
 
@@ -251,7 +259,7 @@ void Draw(const double zoom)
 void DrawMap(const double zoom)
 {
   // reset zoom
-  Point center = Point(0, 0);
+  Point center = Point(cx, cy);
 
   ResetZoom(zoom, center.x, center.y, 800, 600);
 

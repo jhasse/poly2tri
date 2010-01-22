@@ -11,8 +11,8 @@ Dependencies
   Testbed:
   - gcc
   - OpenGL
-	- GLFW (http://glfw.sf.net)
-	- Python
+  - GLFW (http://glfw.sf.net)
+  - Python
  
 Waf (http://code.google.com/p/waf/) is used to compile the testbed, and  
 the Python waf script (86kb) is included in the repositoty.
@@ -33,8 +33,8 @@ Windows command line:
 running the examples
 ----------------------------------------------
 
-p2t <data file> <zoom>
+p2t <filename> <center-x> <center-y> <zoom>
 
 Example:
 
-  ./build/default/p2t testbed/data/dude.dat 1.0
+  ./p2t dude.dat 300 500 2.0

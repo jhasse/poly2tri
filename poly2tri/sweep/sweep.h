@@ -54,7 +54,7 @@ void SweepPoints(SweepContext& tcx);
 
 Node& PointEvent(SweepContext& tcx, Point& point);
 
-void EdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+void EdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
 
 void EdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* triangle, Point& point);
 
@@ -76,15 +76,15 @@ double BasinAngle(Node& node);
 
 void FillBasin(SweepContext& tcx, Node& node);
 
-void FillBasinReq(SweepContext& tcx, Node& node);
+void FillBasinReq(SweepContext& tcx, Node* node);
 
 bool IsShallow(SweepContext& tcx, Node& node);
 
 bool IsEdgeSideOfTriangle(Triangle& triangle, Point& ep, Point& eq);
 
-void FillEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+void FillEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
 
-void FillRightAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+void FillRightAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
 
 void FillRightBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
@@ -92,7 +92,7 @@ void FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
 void FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-void FillLeftAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
+void FillLeftAboveEdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
 
 void FillLeftBelowEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
@@ -100,7 +100,7 @@ void FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
 void FillLeftConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node);
 
-void FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, Point& p);
+void FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* t, Point& p);
 
 Triangle& NextFlipTriangle(SweepContext& tcx, int o, Triangle&  t, Triangle& ot, Point& p, Point& op);
 

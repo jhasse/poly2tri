@@ -62,7 +62,7 @@ Orientation Orient2d(Point& pa, Point& pb, Point& pc)
   double val = detleft - detright;
   if (val > -EPSILON && val < EPSILON) {
     return COLLINEAR;
-  } else if (val > EPSILON) {
+  } else if (val > 0) {
     return CCW;
   }
   return CW;
