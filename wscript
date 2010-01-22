@@ -34,8 +34,8 @@ def configure(conf):
 	print('  calling the configuration')
 	conf.check_tool('g++')
   #conf.env.CXXFLAGS = ['-O0', '-pg', '-g']
-	conf.env.CXXFLAGS = ['-O0', '-g']
-	#conf.env.CXXFLAGS = ['-O3', '-ffast-math']
+	#conf.env.CXXFLAGS = ['-O0', '-g']
+	conf.env.CXXFLAGS = ['-O3', '-ffast-math']
   
 def build(bld):
 
