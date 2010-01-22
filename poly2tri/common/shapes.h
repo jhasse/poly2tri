@@ -43,6 +43,7 @@ struct Node;
 struct Edge;
 
 struct Point {
+
   double x, y;
 
   /// Default constructor does nothing (for performance).
@@ -118,6 +119,7 @@ struct Point {
 
 // Represents a simple polygon's edge
 struct Edge {
+
   Point* p, *q;
 
   /// Constructor

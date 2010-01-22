@@ -47,13 +47,13 @@ void Sweep::SweepPoints(SweepContext& tcx)
 {
   for (int i = 1; i < tcx.point_count(); i++) {
     Point& point = *tcx.GetPoint(i);
-    printf("%i = %f,%f ", i, point.x, point.y);
+    //printf("%i = %f,%f ", i, point.x, point.y);
     Node& node = PointEvent(tcx, point);
-    printf("1...");
+    //printf("1...");
     for (int i = 0; i < point.edge_list.size(); i++) {
       EdgeEvent(tcx, point.edge_list[i], node);
     }
-   printf("2!\n");
+   //printf("2!\n");
   }
 }
 
@@ -707,7 +707,7 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, 
   Triangle& ot = t.NeighborAcross(p);
   Point& op = *ot.OppositePoint(t, p);
 
-  if (&t.NeighborAcross(p) == NULL) {
+  if (&ot == NULL) {
     // If we want to integrate the fillEdgeEvent do it here
     // With current implementation we should never get here
     //throw new RuntimeException( "[BUG:FIXME] FLIP failed due to missing triangle");
@@ -730,6 +730,7 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, 
         // XXX: I think one of the triangles should be legalized here?
       }
     } else {
+      //printf("flip again!\n");
       Orientation o = Orient2d(eq, op, ep);
       t = NextFlipTriangle(tcx, (int)o, t, ot, p, op);
       FlipEdgeEvent(tcx, ep, eq, t, p);
@@ -741,8 +742,9 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& t, 
   }
 }
 
-Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle&  t, Triangle& ot, Point& p, Point& op)
+Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle& t, Triangle& ot, Point& p, Point& op)
 {
+  //printf("enum %i,%i\n", o, CCW); 
   if (o == CCW) {
     // ot is not crossing edge after flip
     int edge_index = ot.EdgeIndex(&p, &op);
@@ -754,6 +756,7 @@ Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle&  t, Triang
 
   // t is not crossing edge after flip
   int edge_index = t.EdgeIndex(&p, &op);
+  //printf("edge_index = %i\n", edge_index);
   t.delaunay_edge[edge_index] = true;
   Legalize(tcx, t);
   t.ClearDelunayEdges();

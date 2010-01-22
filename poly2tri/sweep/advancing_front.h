@@ -69,7 +69,7 @@ Node* search();
 void set_search(Node* node);
 
 /// Locate insertion point along advancing front
-Node* Locate(const double& x);
+Node* LocateNode(const double& x);
 
 Node* LocatePoint(const Point* point);
 

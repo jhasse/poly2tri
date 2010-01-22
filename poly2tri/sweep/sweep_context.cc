@@ -99,7 +99,7 @@ void SweepContext::AddToMap(Triangle* triangle)
 Node& SweepContext::LocateNode(Point& point)
 {
   // TODO implement search tree
-  return *front_->Locate(point.x);
+  return *front_->LocateNode(point.x);
 }
 
 void SweepContext::CreateAdvancingFront()
@@ -132,7 +132,7 @@ void SweepContext::RemoveNode(Node* node)
 void SweepContext::MapTriangleToNodes(Triangle& t)
 {
   for (int i = 0; i < 3; i++) {
-    if (t.GetNeighbor(i) == NULL) {
+    if (!t.GetNeighbor(i)) {
       Node* n = front_->LocatePoint(t.PointCW(*t.GetPoint(i)));
       if (n)
         n->triangle = &t;
