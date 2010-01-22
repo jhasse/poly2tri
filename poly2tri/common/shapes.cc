@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "shapes.h"
+#include <iostream>
 
 Triangle::Triangle(Point& a, Point& b, Point& c)
 {

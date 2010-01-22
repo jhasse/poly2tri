@@ -29,7 +29,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "advancing_front.h"
-#include "mesh.h"
 #include "sweep_context.h"
 #include "sweep.h"
 

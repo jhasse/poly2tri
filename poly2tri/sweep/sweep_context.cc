@@ -79,25 +79,8 @@ void SweepContext::InitTriangulation()
   tail_ = new Point(xmin - dx, ymin - dy);
 
   // Sort points along y-axis
-  double init_time = glfwGetTime();
   std::sort(points_, points_ + point_count_, cmp);
-  double dt = glfwGetTime() - init_time;
-  printf("Sort time (secs) = %f\n", dt);
 
-  /*
-  printf("*************************\n");
-  for (int i = 0; i < point_count_; i++) {
-    printf("%f,%f ", points_[i]->x, points_[i]->y);
-    printf("%p\n", points_[i]);
-  }
-
-  /*
-     printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-     for(int i = 0; i < edge_list.size(); i++) {
-     edge_list[i]->p->DebugPrint(); edge_list[i]->q->DebugPrint();
-     printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
-     }
-   */
 }
 
 void SweepContext::InitEdges(Point** polyline, const int& point_count)
@@ -106,13 +89,6 @@ void SweepContext::InitEdges(Point** polyline, const int& point_count)
     int j = i < point_count - 1 ? i + 1 : 0;
     edge_list.push_back(new Edge(*polyline[i], *polyline[j]));
   }
-
-  /*
-     for(int i = 0; i < edge_list.size(); i++) {
-     edge_list[i]->p->DebugPrint(); edge_list[i]->q->DebugPrint();
-     printf("%p, %p\n", edge_list[i]->p, edge_list[i]->q);
-     }
-   */
 }
 
 Point* SweepContext::GetPoint(const int& index)

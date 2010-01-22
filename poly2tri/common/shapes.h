@@ -37,8 +37,6 @@
 #include <cstddef>
 #include <assert.h>
 #include <cmath>
-#include <stdio.h>
-#include <iostream>
 
 struct Node;
 struct Edge;
@@ -50,51 +48,57 @@ struct Point {
   /// Default constructor does nothing (for performance).
   Point()
   {
-    x = 0.0; y = 0.0;
+    x = 0.0; 
+    y = 0.0;
   }
 
   /// The edges this point constitutes an upper ending point
   std::vector<Edge*> edge_list;
 
   /// Construct using coordinates.
-  Point(double x, double y) : x(x), y(y)
-  {
-  }
+  Point(double x, double y) : x(x), y(y) {}
 
   /// Set this point to all zeros.
   void set_zero()
   {
-    x = 0.0f; y = 0.0f;
+    x = 0.0f; 
+    y = 0.0f;
   }
 
   /// Set this point to some specified coordinates.
   void set(double x_, double y_)
   {
-    x = x_; y = y_;
+    x = x_; 
+    y = y_;
   }
 
   /// Negate this point.
   Point operator -() const
   {
-    Point v; v.set(-x, -y); return v;
+    Point v; 
+    v.set(-x, -y); 
+    return v;
   }
 
   /// Add a point to this point.
   void operator +=(const Point& v)
   {
-    x += v.x; y += v.y;
+    x += v.x; 
+    y += v.y;
   }
 
   /// Subtract a point from this point.
   void operator -=(const Point& v)
   {
-    x -= v.x; y -= v.y;
+    x -= v.x; 
+    y -= v.y;
   }
 
   /// Multiply this point by a scalar.
   void operator *=(double a)
   {
-    x *= a; y *= a;
+    x *= a; 
+    y *= a;
   }
 
   /// Get the length of this point (the norm).
@@ -112,10 +116,6 @@ struct Point {
     return len;
   }
 
-  void DebugPrint()
-  {
-    printf("%f,%f ", x, y);
-  }
 };
 
 // Represents a simple polygon's edge
