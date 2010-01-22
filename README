@@ -1,7 +1,8 @@
 ﻿==================
 INSTALLATION GUIDE
 ==================
- 
+
+------------
 Dependencies
 ------------
 
@@ -16,7 +17,8 @@ Dependencies
  
 Waf (http://code.google.com/p/waf/) is used to compile the testbed, and  
 the Python waf script (86kb) is included in the repositoty.
- 
+
+----------------------------------------------
 Building the Testbed
 ----------------------------------------------
 
@@ -29,12 +31,14 @@ Windows command line:
 
   python waf configure
   python waf build
-  
-running the examples
+
+----------------------------------------------
+Running the Examples
 ----------------------------------------------
 
 p2t <filename> <center-x> <center-y> <zoom>
 
-Example:
+Examples:
 
-  ./p2t dude.dat 300 500 2.0
+  ./p2t dude.dat 300 500 2
+  ./p2t nazca_monkey.dat 0 0 9
