@@ -30,6 +30,8 @@
  */
 #include "cdt.h"
 
+namespace p2t {
+
 CDT::CDT(Point** polyline, const int& point_count)
 {
   sweep_context_ = new SweepContext(polyline, point_count);
@@ -45,12 +47,12 @@ void CDT::Triangulate()
   sweep_->Triangulate(*sweep_context_);
 }
 
-std::vector<Triangle*> CDT::GetTriangles()
+std::vector<p2t::Triangle*> CDT::GetTriangles()
 {
   return sweep_context_->GetTriangles();
 }
 
-std::list<Triangle*> CDT::GetMap()
+std::list<p2t::Triangle*> CDT::GetMap()
 {
   return sweep_context_->GetMap();
 }
@@ -59,5 +61,7 @@ CDT::~CDT()
 {
   delete sweep_context_;
   delete sweep_;
+}
+
 }
 

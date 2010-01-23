@@ -31,6 +31,8 @@
 #include <list>
 #include <vector>
 
+namespace p2t {
+
 // Inital triangle factor, seed triangle will extend 30% of
 // PointSet width to both left and right.
 const double kAlpha = 0.3;
@@ -40,7 +42,6 @@ class Triangle;
 struct Node;
 struct Edge;
 class AdvancingFront;
-
 
 class SweepContext {
 public:
@@ -165,4 +166,6 @@ inline void SweepContext::set_tail(Point* p1)
 inline Point* SweepContext::tail()
 {
   return tail_;
+}
+
 }

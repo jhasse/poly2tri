@@ -28,7 +28,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 // Include guard
 #ifndef SHAPES_H
 #define SHAPES_H
@@ -37,6 +37,8 @@
 #include <cstddef>
 #include <assert.h>
 #include <cmath>
+
+namespace p2t {
 
 struct Node;
 struct Edge;
@@ -312,5 +314,8 @@ inline void Triangle::IsInterior(bool b)
   interior_ = b;
 }
 
+}
+
 #endif
+
 

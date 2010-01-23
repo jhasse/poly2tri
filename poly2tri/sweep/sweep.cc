@@ -33,6 +33,8 @@
 #include "advancing_front.h"
 #include "../common/utils.h"
 
+namespace p2t {
+
 // Triangulate simple polygon with holes
 void Sweep::Triangulate(SweepContext& tcx)
 {
@@ -801,4 +803,5 @@ void Sweep::FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle&
   }
 }
 
+}
 

@@ -30,6 +30,8 @@
  */
 #include "advancing_front.h"
 
+namespace p2t {
+
 AdvancingFront::AdvancingFront(Node& head, Node& tail)
 {
   head_ = &head;
@@ -104,3 +106,6 @@ AdvancingFront::~AdvancingFront()
   delete search_node_;
   delete tail_;
 }
+
+}
+

@@ -28,18 +28,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
-#ifndef UTILS_H
-#define UTILS_H
 
 #include <exception>
 #include <math.h>
 
-template<typename T, int size>
-int array_length(T(&)[size])
-{
-  return size;
-}
+namespace p2t {
 
 const double PI_3div4 = 3 * M_PI / 4;
 const double EPSILON = 1e-12;
@@ -100,5 +93,5 @@ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
   return true;
 }
 
-#endif
+}
 

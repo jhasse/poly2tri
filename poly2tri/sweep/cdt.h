@@ -32,6 +32,8 @@
 #include "sweep_context.h"
 #include "sweep.h"
 
+namespace p2t {
+
 class CDT
 {
 public:
@@ -55,3 +57,5 @@ Sweep* sweep_;
 /// Destructor
 ~CDT();
 };
+
+}

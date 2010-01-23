@@ -40,7 +40,7 @@
 using namespace std;
 
 #include "../poly2tri/poly2tri.h"
-
+using namespace p2t;
 
 void Init();
 void ShutDown(int return_code);
@@ -76,6 +76,7 @@ bool draw_map = false;
 
 int main(int argc, char* argv[])
 {
+  
   if (argc != 5) {
     cout << "Usage: p2t filename centerX centerY zoom" << endl;
     return 1;
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
   
   string line;
   ifstream myfile(argv[1]);
-  vector<Point*> points;
+  vector<p2t::Point*> points;
   if (myfile.is_open()) {
     while (!myfile.eof()) {
       getline(myfile, line);

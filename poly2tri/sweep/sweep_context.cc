@@ -33,6 +33,8 @@
 #include <GL/glfw.h>
 #include "advancing_front.h"
 
+namespace p2t {
+
 SweepContext::SweepContext(Point** polyline, const int& point_count)
 {
   basin = Basin();
@@ -167,4 +169,6 @@ SweepContext::~SweepContext()
   delete head_;
   delete tail_;
   delete front_;
+}
+
 }

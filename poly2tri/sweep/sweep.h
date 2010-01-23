@@ -28,7 +28,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 /**
  * Sweep-line, Constrained Delauney Triangulation (CDT) See: Domiter, V. and
  * Zalik, B.(2008)'Sweep-line algorithm for constrained Delaunay triangulation',
@@ -36,6 +35,8 @@
  *
  * "FlipScan" Constrained Edge Algorithm invented by Thomas Åhlén, thahlen@gmail.com
  */
+
+namespace p2t {
 
 class SweepContext;
 struct Node;
@@ -110,3 +111,5 @@ void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_t
 
 void FinalizationPolygon(SweepContext& tcx);
 };
+
+}

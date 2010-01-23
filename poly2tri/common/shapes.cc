@@ -31,6 +31,8 @@
 #include "shapes.h"
 #include <iostream>
 
+namespace p2t {
+
 Triangle::Triangle(Point& a, Point& b, Point& c)
 {
   points_[0] = &a; points_[1] = &b; points_[2] = &c;
@@ -328,5 +330,5 @@ void Triangle::DebugPrint()
   cout << points_[2]->x << "," << points_[2]->y << endl;
 }
 
-
+}
 

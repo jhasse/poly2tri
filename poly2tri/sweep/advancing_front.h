@@ -30,6 +30,8 @@
  */
 #include "../common/shapes.h"
 
+namespace p2t {
+
 struct Node;
 
 // Advancing front node
@@ -106,5 +108,7 @@ inline Node* AdvancingFront::search()
 inline void AdvancingFront::set_search(Node* node)
 {
   search_node_ = node;
+}
+
 }
 
