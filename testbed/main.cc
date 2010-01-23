@@ -48,6 +48,7 @@ void MainLoop(const double zoom);
 void Draw(const double zoom);
 void DrawMap(const double zoom);
 void ConstrainedColor(bool constrain);
+vector<Point*> CreateHeadHole();
 
 float rotate_y = 0,
       rotate_z = 0;
@@ -129,6 +130,12 @@ int main(int argc, char* argv[])
   // Perform triangulation
   double init_time = glfwGetTime();
   CDT * cdt = new CDT(points);
+  
+  string s = argv[1];
+  if(s.rfind("dude.dat", 0) != string::npos) {
+    cout << "Dude!" << endl;
+  }
+  
   cdt->Triangulate();
   double dt = glfwGetTime() - init_time;
   cout << "Elapsed time (secs) = " << dt << endl;
@@ -293,4 +300,22 @@ void ConstrainedColor(bool constrain)
     // Red
     glColor3f(1, 0, 0);
   }
+}
+
+vector<Point*> CreateHeadHole() {
+
+  vector<Point*> head_hole;
+  head_hole.push_back(new Point(325, 437));
+  head_hole.push_back(new Point(320, 423));
+  head_hole.push_back(new Point(329, 413));
+  head_hole.push_back(new Point(332, 423));
+  
+  return head_hole;
+  
+  /*
+   val chestHole = Array(Point(320.72342f,480f), Point(338.90617f,465.96863f),
+                                Point(347.99754f,480.61584f), Point(329.8148f,510.41534f),
+                                Point(339.91632f,480.11077f), Point(334.86556f,478.09046f))
+  */
+
 }
