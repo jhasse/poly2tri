@@ -131,6 +131,7 @@ int main(int argc, char* argv[])
   /// 
   
   double init_time = glfwGetTime();
+  
   // Step 1 - Create CDT and add primary polyline
   CDT* cdt = new CDT(points);
   
@@ -152,11 +153,13 @@ int main(int argc, char* argv[])
   cdt->Triangulate();
   
   double dt = glfwGetTime() - init_time;
-  cout << "Elapsed time (secs) = " << dt << endl;
 
   triangles = cdt->GetTriangles();
   map = cdt->GetMap();
 
+  cout << "Number of triangles = " << triangles.size() << endl;
+  cout << "Elapsed time (secs) = " << dt << endl;
+  
   MainLoop(atof(argv[4]));
 
   ShutDown(0);
