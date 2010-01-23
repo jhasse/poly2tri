@@ -35,16 +35,22 @@
 
 namespace p2t {
 
-SweepContext::SweepContext(Point** polyline, const int& point_count)
+SweepContext::SweepContext(std::vector<Point*> polyline)
 {
   basin = Basin();
   edge_event = EdgeEvent();
 
   points_ = polyline;
-  point_count_ = point_count;
 
-  InitEdges(points_, point_count_);
-  InitTriangulation();
+  InitEdges(points_);
+}
+
+void SweepContext::AddHole(std::vector<Point*> polyline)
+{
+  InitEdges(polyline);
+  for(int i = 0; i < polyline.size(); i++) {
+    points_.push_back(polyline[i]);
+  }
 }
 
 std::vector<Triangle*> SweepContext::GetTriangles()
@@ -63,8 +69,8 @@ void SweepContext::InitTriangulation()
   double ymax(points_[0]->y), ymin(points_[0]->y);
 
   // Calculate bounds.
-  for (int i = 0; i < point_count_; i++) {
-    Point p = *points_[i];
+  for (int i = 0; i < points_.size(); i++) {
+    Point& p = *points_[i];
     if (p.x > xmax)
       xmax = p.x;
     if (p.x < xmin)
@@ -81,14 +87,15 @@ void SweepContext::InitTriangulation()
   tail_ = new Point(xmin - dx, ymin - dy);
 
   // Sort points along y-axis
-  std::sort(points_, points_ + point_count_, cmp);
-
+  std::sort(points_.begin(), points_.end(), cmp);
+  
 }
 
-void SweepContext::InitEdges(Point** polyline, const int& point_count)
+void SweepContext::InitEdges(std::vector<Point*> polyline)
 {
-  for (int i = 0; i < point_count; i++) {
-    int j = i < point_count - 1 ? i + 1 : 0;
+  int num_points = polyline.size();
+  for (int i = 0; i < num_points; i++) {
+    int j = i < num_points - 1 ? i + 1 : 0;
     edge_list.push_back(new Edge(*polyline[i], *polyline[j]));
   }
 }

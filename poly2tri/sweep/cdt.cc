@@ -32,14 +32,15 @@
 
 namespace p2t {
 
-CDT::CDT(Point** polyline, const int& point_count)
+CDT::CDT(std::vector<Point*> polyline)
 {
-  sweep_context_ = new SweepContext(polyline, point_count);
+  sweep_context_ = new SweepContext(polyline);
   sweep_ = new Sweep;
 }
 
-void CDT::AddHole(const Point poly_line[], const int point_count)
+void CDT::AddHole(std::vector<Point*> polyline)
 {
+  sweep_context_->AddHole(polyline);
 }
 
 void CDT::Triangulate()

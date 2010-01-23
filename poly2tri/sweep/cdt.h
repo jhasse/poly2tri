@@ -39,9 +39,9 @@ class CDT
 public:
 
 /// Constructor
-CDT(Point** poly_line, const int& point_count);
+CDT(std::vector<Point*> polyline);
 /// Add a hole
-void AddHole(const Point poly_line[], const int point_count);
+void AddHole(std::vector<Point*> polyline);
 /// Triangulate points
 void Triangulate();
 /// Get Delaunay triangles

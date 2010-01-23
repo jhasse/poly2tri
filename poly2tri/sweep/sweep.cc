@@ -38,6 +38,7 @@ namespace p2t {
 // Triangulate simple polygon with holes
 void Sweep::Triangulate(SweepContext& tcx)
 {
+  tcx.InitTriangulation();
   tcx.CreateAdvancingFront();
   // Sweep points; build mesh
   SweepPoints(tcx);

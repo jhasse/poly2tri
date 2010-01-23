@@ -47,7 +47,7 @@ class SweepContext {
 public:
 
 // Constructor
-SweepContext(Point** polyline, const int& point_count);
+SweepContext(std::vector<Point*> polyline);
 // Destructor
 ~SweepContext();
 
@@ -73,6 +73,8 @@ Point* GetPoint(const int& index);
 Point* GetPoints();
 
 void RemoveFromMap(Triangle* triangle);
+
+void AddHole(std::vector<Point*> polyline);
 
 AdvancingFront* front();
 
@@ -118,11 +120,12 @@ EdgeEvent edge_event;
 
 private:
 
+friend class Sweep;
+
 std::vector<Triangle*> triangles_;
 std::list<Triangle*> map_;
 
-Point** points_;
-int point_count_;
+std::vector<Point*> points_;
 
 // Advancing front
 AdvancingFront* front_;
@@ -134,7 +137,7 @@ Point* tail_;
 //EdgeEvent edgeEvent = new EdgeEvent();
 
 void InitTriangulation();
-void InitEdges(Point** polyline, const int& point_count);
+void InitEdges(std::vector<Point*> polyline);
 
 };
 
@@ -145,7 +148,7 @@ inline AdvancingFront* SweepContext::front()
 
 inline int SweepContext::point_count()
 {
-  return point_count_;
+  return points_.size();
 }
 
 inline void SweepContext::set_head(Point* p1)

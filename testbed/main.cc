@@ -122,19 +122,13 @@ int main(int argc, char* argv[])
     cout << "File not opened" << endl;
   }
 
-  int num_points = points.size();
-  cout << "Number of points = " << num_points << endl;
-
-  Point** polyline = new Point *[num_points];
-  for (int i = 0; i < num_points; i++) {
-    polyline[i] = points[i];
-  }
+  cout << "Number of points = " << points.size() << endl;
 
   Init();
 
   // Perform triangulation
   double init_time = glfwGetTime();
-  CDT * cdt = new CDT(polyline, num_points);
+  CDT * cdt = new CDT(points);
   cdt->Triangulate();
   double dt = glfwGetTime() - init_time;
   cout << "Elapsed time (secs) = " << dt << endl;
@@ -144,7 +138,6 @@ int main(int argc, char* argv[])
 
   MainLoop(atof(argv[4]));
 
-  delete [] polyline;
   ShutDown(0);
   return 0;
 }
