@@ -48,7 +48,11 @@ void MainLoop(const double zoom);
 void Draw(const double zoom);
 void DrawMap(const double zoom);
 void ConstrainedColor(bool constrain);
+double StringToDouble(const std::string& s);
+
+/// Dude hole examples
 vector<Point*> CreateHeadHole();
+vector<Point*> CreateChestHole();
 
 float rotate_y = 0,
       rotate_z = 0;
@@ -63,16 +67,10 @@ double cy = 0.0;
 vector<Triangle*> triangles;
 /// Triangle map
 list<Triangle*> map;
+/// Polylines
+vector< vector<Point*> > polylines;
 
-double StringToDouble(const std::string& s)
-{
-  std::istringstream i(s);
-  double x;
-  if (!(i >> x))
-    return 0;
-  return x;
-}
-
+/// Draw the entire triangle map?
 bool draw_map = false;
 
 int main(int argc, char* argv[])
@@ -84,23 +82,23 @@ int main(int argc, char* argv[])
   }
 
   /*
-     // initialize random seed:
-     srand ( time(NULL) );
+  // initialize random seed:
+  srand ( time(NULL) );
 
-     int a = 0;
-     int b = 2000;
+  int a = 0;
+  int b = 2000;
 
-     for(int i = 0; i < num_points; i++) {
-     double x = rand() % (b - a - 1) + a + 1;
-     double y = rand() % (b - a - 1) + a + 1;
-     polyline[i] = Point(x, y);
-     }
-
-   */
+  for(int i = 0; i < num_points; i++) {
+  double x = rand() % (b - a - 1) + a + 1;
+  double y = rand() % (b - a - 1) + a + 1;
+  polyline[i] = Point(x, y);
+   }
+  */
 
   cx = atof(argv[2]);
   cy = atof(argv[3]);
   
+  // Parse and tokenize data file
   string line;
   ifstream myfile(argv[1]);
   vector<p2t::Point*> points;
@@ -124,19 +122,35 @@ int main(int argc, char* argv[])
   }
 
   cout << "Number of points = " << points.size() << endl;
-
+  polylines.push_back(points);
+  
   Init();
 
-  // Perform triangulation
-  double init_time = glfwGetTime();
-  CDT * cdt = new CDT(points);
+  /// 
+  /// Perform triangulation
+  /// 
   
-  string s = argv[1];
-  if(s.rfind("dude.dat", 0) != string::npos) {
-    cout << "Dude!" << endl;
+  double init_time = glfwGetTime();
+  // Step 1 - Create CDT and add primary polyline
+  CDT* cdt = new CDT(points);
+  
+  // Step 2 - Add holes if necessary
+  string s(argv[1]);
+  if(s.find("dude.dat", 0) != string::npos) {
+    // Add head hole
+    vector<Point*> head_hole = CreateHeadHole();
+    cdt->AddHole(head_hole);
+    // Add chest hole
+    vector<Point*> chest_hole = CreateChestHole();
+    cdt->AddHole(chest_hole);
+    
+    polylines.push_back(head_hole);
+    polylines.push_back(chest_hole);
   }
   
+  // Step 3 - Triangulate!
   cdt->Triangulate();
+  
   double dt = glfwGetTime() - init_time;
   cout << "Elapsed time (secs) = " << dt << endl;
 
@@ -255,6 +269,18 @@ void Draw(const double zoom)
     glVertex2f(c.x, c.y);
     glEnd();
   }
+  
+  // green
+  glColor3f(0, 1, 0);
+    
+  for(int i = 0; i < polylines.size(); i++) {
+    vector<Point*> poly = polylines[i];
+    glBegin(GL_LINE_LOOP);
+      for(int j = 0; j < poly.size(); j++) {
+        glVertex2f(poly[j]->x, poly[j]->y);
+      }
+    glEnd();
+  }
 }
 
 void DrawMap(const double zoom)
@@ -311,11 +337,27 @@ vector<Point*> CreateHeadHole() {
   head_hole.push_back(new Point(332, 423));
   
   return head_hole;
-  
-  /*
-   val chestHole = Array(Point(320.72342f,480f), Point(338.90617f,465.96863f),
-                                Point(347.99754f,480.61584f), Point(329.8148f,510.41534f),
-                                Point(339.91632f,480.11077f), Point(334.86556f,478.09046f))
-  */
+}
 
+vector<Point*> CreateChestHole() {
+
+  vector<Point*> chest_hole;
+  chest_hole.push_back(new Point(320.72342,480));
+  chest_hole.push_back(new Point(338.90617,465.96863));
+  chest_hole.push_back(new Point(347.99754,480.61584));
+  chest_hole.push_back(new Point(329.8148,510.41534));
+  chest_hole.push_back(new Point(339.91632,480.11077));
+  chest_hole.push_back(new Point(334.86556,478.09046));
+  
+  return chest_hole;
+
+}
+
+double StringToDouble(const std::string& s)
+{
+  std::istringstream i(s);
+  double x;
+  if (!(i >> x))
+    return 0;
+  return x;
 }
