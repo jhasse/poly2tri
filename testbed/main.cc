@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
   // Step 1 - Create CDT and add primary polyline
   CDT* cdt = new CDT(points);
   
+  /*
   // Step 2 - Add holes if necessary
   string s(argv[1]);
   if(s.find("dude.dat", 0) != string::npos) {
@@ -148,6 +149,7 @@ int main(int argc, char* argv[])
     polylines.push_back(head_hole);
     polylines.push_back(chest_hole);
   }
+  */
   
   // Step 3 - Triangulate!
   cdt->Triangulate();
@@ -178,7 +180,8 @@ void Init()
     ShutDown(1);
 
   glfwSetWindowTitle("Poly2Tri - C++");
-
+  glfwSwapInterval(1);
+  
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -275,7 +278,7 @@ void Draw(const double zoom)
   
   // green
   glColor3f(0, 1, 0);
-    
+  
   for(int i = 0; i < polylines.size(); i++) {
     vector<Point*> poly = polylines[i];
     glBegin(GL_LINE_LOOP);
