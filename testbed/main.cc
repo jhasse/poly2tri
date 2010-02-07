@@ -49,7 +49,8 @@ void Draw(const double zoom);
 void DrawMap(const double zoom);
 void ConstrainedColor(bool constrain);
 double StringToDouble(const std::string& s);
-float RandomFloat(float min, float max);
+double Random(double (*fun)(double), double xmin, double xmax);
+double Fun(double x);
 
 /// Dude hole examples
 vector<Point*> CreateHeadHole();
@@ -79,7 +80,8 @@ bool random_distribution = false;
 int main(int argc, char* argv[])
 {
   
-  int num_points = 0, max, min;
+  int num_points = 0;
+  double max, min;
   double zoom;
   
   if (argc != 5) {
@@ -92,7 +94,8 @@ int main(int argc, char* argv[])
   if(string(argv[1]) == "random") {
     num_points = atoi(argv[2]);
     random_distribution = true;
-    max = atoi(argv[3]);
+    char* pEnd;
+    max = strtod(argv[3], &pEnd);
     min = -max;
     cx = cy = 0;
     zoom = atof(argv[4]);
@@ -103,7 +106,7 @@ int main(int argc, char* argv[])
   } 
   
   vector<p2t::Point*> polyline;
-    
+  
   if(random_distribution) {
     // Create a simple bounding box
     polyline.push_back(new Point(min,min));
@@ -171,12 +174,11 @@ int main(int argc, char* argv[])
     polylines.push_back(head_hole);
     polylines.push_back(chest_hole);
   } else if (random_distribution) {
-    max-=1;
-    min+=1;
-    srand (time(NULL));
+    max-=(1e-4);
+    min+=(1e-4);
     for(int i = 0; i < num_points; i++) {
-      double x = RandomFloat(min, max);
-      double y = RandomFloat(min, max);
+      double x = Random(Fun, min, max);
+      double y = Random(Fun, min, max);
       cdt->AddPoint(new Point(x, y));
     }
   }
@@ -401,7 +403,40 @@ double StringToDouble(const std::string& s)
   return x;
 }
 
-float RandomFloat(float min, float max) {
-	float r = (float)rand() / (float)RAND_MAX;
-	return min + r * (max - min);
+double Fun(double x)
+{
+  return 2.5 + sin(10 * x) / x;
+}
+
+double Random(double (*fun)(double), double xmin = 0, double xmax = 1)
+{
+  static double (*Fun)(double) = NULL, YMin, YMax;
+  static bool First = true;
+
+  // Initialises random generator for first call
+  if (First)
+  {
+    First = false;
+    srand((unsigned) time(NULL));
+  }
+
+  // Evaluates maximum of function
+  if (fun != Fun)
+  {
+    Fun = fun;
+    YMin = 0, YMax = Fun(xmin);
+    for (int iX = 1; iX < RAND_MAX; iX++)
+    {
+      double X = xmin + (xmax - xmin) * iX / RAND_MAX;
+      double Y = Fun(X);
+      YMax = Y > YMax ? Y : YMax;
+    }
+  }
+
+  // Gets random values for X & Y
+  double X = xmin + (xmax - xmin) * rand() / RAND_MAX;
+  double Y = YMin + (YMax - YMin) * rand() / RAND_MAX;
+
+  // Returns if valid and try again if not valid
+  return Y < fun(X) ? X : Random(Fun, xmin, xmax);
 }
