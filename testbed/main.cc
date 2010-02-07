@@ -49,6 +49,7 @@ void Draw(const double zoom);
 void DrawMap(const double zoom);
 void ConstrainedColor(bool constrain);
 double StringToDouble(const std::string& s);
+float RandomFloat(float min, float max);
 
 /// Dude hole examples
 vector<Point*> CreateHeadHole();
@@ -72,86 +73,117 @@ vector< vector<Point*> > polylines;
 
 /// Draw the entire triangle map?
 bool draw_map = false;
+/// Create a random distribution of points?
+bool random_distribution = false;
 
 int main(int argc, char* argv[])
 {
   
+  int num_points = 0, max, min;
+  double zoom;
+  
   if (argc != 5) {
-    cout << "Usage: p2t filename centerX centerY zoom" << endl;
+    cout << "-== USAGE ==-" << endl;
+    cout << "Load Data File: p2t filename center_x center_y zoom" << endl;
+    cout << " Random Points: p2t random num_points width zoom" << endl;
     return 1;
   }
-
-  /*
-  // initialize random seed:
-  srand ( time(NULL) );
-
-  int a = 0;
-  int b = 2000;
-
-  for(int i = 0; i < num_points; i++) {
-  double x = rand() % (b - a - 1) + a + 1;
-  double y = rand() % (b - a - 1) + a + 1;
-  polyline[i] = Point(x, y);
-   }
-  */
-
-  cx = atof(argv[2]);
-  cy = atof(argv[3]);
   
-  // Parse and tokenize data file
-  string line;
-  ifstream myfile(argv[1]);
-  vector<p2t::Point*> points;
-  if (myfile.is_open()) {
-    while (!myfile.eof()) {
-      getline(myfile, line);
-      if (line.size() == 0) {
-        break;
-      }
-      istringstream iss(line);
-      vector<string> tokens;
-      copy(istream_iterator<string>(iss), istream_iterator<string>(),
-           back_inserter<vector<string> >(tokens));
-      double x = StringToDouble(tokens[0]);
-      double y = StringToDouble(tokens[1]);
-      points.push_back(new Point(x, y));
-    }
-    myfile.close();
+  if(string(argv[1]) == "random") {
+    num_points = atoi(argv[2]);
+    random_distribution = true;
+    max = atoi(argv[3]);
+    min = -max;
+    cx = cy = 0;
+    zoom = atof(argv[4]);
   } else {
-    cout << "File not opened" << endl;
+    zoom = atof(argv[4]);
+    cx = atof(argv[2]);
+    cy = atof(argv[3]);
+  } 
+  
+  vector<p2t::Point*> polyline;
+    
+  if(random_distribution) {
+    // Create a simple bounding box
+    polyline.push_back(new Point(min,min));
+    polyline.push_back(new Point(min,max));
+    polyline.push_back(new Point(max,max));
+    polyline.push_back(new Point(max,min));
+  } else {
+    // Load pointset from file
+    
+    // Parse and tokenize data file
+    string line;
+    ifstream myfile(argv[1]);
+    if (myfile.is_open()) {
+      while (!myfile.eof()) {
+        getline(myfile, line);
+        if (line.size() == 0) {
+          break;
+        }
+        istringstream iss(line);
+        vector<string> tokens;
+        copy(istream_iterator<string>(iss), istream_iterator<string>(),
+             back_inserter<vector<string> >(tokens));
+        double x = StringToDouble(tokens[0]);
+        double y = StringToDouble(tokens[1]);
+        polyline.push_back(new Point(x, y));
+        num_points++;
+      }
+      myfile.close();
+    } else {
+      cout << "File not opened" << endl;
+    }
   }
 
-  cout << "Number of points = " << points.size() << endl;
-  polylines.push_back(points);
+  cout << "Number of constrained edges = " << polyline.size() << endl;
+  polylines.push_back(polyline);
   
   Init();
 
-  /// 
-  /// Perform triangulation
-  /// 
+  /* 
+   * Perform triangulation!
+   */ 
   
   double init_time = glfwGetTime();
   
-  // Step 1 - Create CDT and add primary polyline
-  CDT* cdt = new CDT(points);
+  /*
+   * STEP 1: Create CDT and add primary polyline
+   * NOTE: polyline must be a simple polygon. The polyline's points
+   * constitute the polygon's constrained edges!
+   */   
+  CDT* cdt = new CDT(polyline);
   
   /*
-  // Step 2 - Add holes if necessary
+   * STEP 2: Add holes or Steiner points if necessary
+   */  
   string s(argv[1]);
   if(s.find("dude.dat", 0) != string::npos) {
     // Add head hole
     vector<Point*> head_hole = CreateHeadHole();
+    num_points += head_hole.size();
     cdt->AddHole(head_hole);
     // Add chest hole
     vector<Point*> chest_hole = CreateChestHole();
+    num_points += chest_hole.size();
     cdt->AddHole(chest_hole);
-    
     polylines.push_back(head_hole);
     polylines.push_back(chest_hole);
+  } else if (random_distribution) {
+    max-=1;
+    min+=1;
+    srand (time(NULL));
+    for(int i = 0; i < num_points; i++) {
+      double x = RandomFloat(min, max);
+      double y = RandomFloat(min, max);
+      cdt->AddPoint(new Point(x, y));
+    }
   }
-  */
   
-  // Step 3 - Triangulate!
+  /*
+   * STEP 3: Triangulate!
+   */
   cdt->Triangulate();
   
   double dt = glfwGetTime() - init_time;
@@ -159,10 +191,11 @@ int main(int argc, char* argv[])
   triangles = cdt->GetTriangles();
   map = cdt->GetMap();
 
+  cout << "Number of points = " << num_points << endl;
   cout << "Number of triangles = " << triangles.size() << endl;
-  cout << "Elapsed time (secs) = " << dt << endl;
+  cout << "Elapsed time (ms) = " << dt*1000.0 << endl;
   
-  MainLoop(atof(argv[4]));
+  MainLoop(zoom);
 
   ShutDown(0);
   return 0;
@@ -366,4 +399,9 @@ double StringToDouble(const std::string& s)
   if (!(i >> x))
     return 0;
   return x;
+}
+
+float RandomFloat(float min, float max) {
+	float r = (float)rand() / (float)RAND_MAX;
+	return min + r * (max - min);
 }

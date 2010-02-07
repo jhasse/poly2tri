@@ -36,9 +36,16 @@ Windows command line:
 Running the Examples
 ----------------------------------------------
 
-p2t <filename> <center-x> <center-y> <zoom>
+Load data points from a file:
+p2t <filename> <center_x> <center_y> <zoom>
+
+Random distribution of points inside a consrained box:
+p2t random <num_points> <box_radius> <zoom>
 
 Examples:
 
   ./p2t dude.dat 300 500 2
   ./p2t nazca_monkey.dat 0 0 9
+  
+  ./p2t random 10 100 5.0
+  ./p2t random 1000 20000 0.025

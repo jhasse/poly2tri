@@ -42,6 +42,8 @@ public:
 CDT(std::vector<Point*> polyline);
 /// Add a hole
 void AddHole(std::vector<Point*> polyline);
+/// Add a single point
+void AddPoint(Point* point);
 /// Triangulate points
 void Triangulate();
 /// Get Delaunay triangles

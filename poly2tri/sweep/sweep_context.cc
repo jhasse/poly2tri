@@ -53,6 +53,10 @@ void SweepContext::AddHole(std::vector<Point*> polyline)
   }
 }
 
+void SweepContext::AddPoint(Point* point) {
+  points_.push_back(point);
+}
+
 std::vector<Triangle*> SweepContext::GetTriangles()
 {
   return triangles_;
