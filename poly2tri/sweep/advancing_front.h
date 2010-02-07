@@ -28,6 +28,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#ifndef ADVANCED_FRONT_H
+#define ADVANCED_FRONT_H
+
 #include "../common/shapes.h"
 
 namespace p2t {
@@ -112,3 +116,4 @@ inline void AdvancingFront::set_search(Node* node)
 
 }
 
+#endif

@@ -28,6 +28,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <exception>
 #include <math.h>
@@ -94,4 +97,6 @@ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 }
 
 }
+
+#endif
 

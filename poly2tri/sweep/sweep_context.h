@@ -28,6 +28,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+#ifndef SWEEP_CONTEXT_H
+#define SWEEP_CONTEXT_H
+
 #include <list>
 #include <vector>
 
@@ -177,3 +181,5 @@ inline Point* SweepContext::tail()
 }
 
 }
+
+#endif

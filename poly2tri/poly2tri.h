@@ -28,6 +28,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifndef POLY2TRI_H
+#define POLY2TRI_H
+
 #include "common/shapes.h"
 #include "sweep/cdt.h"
+
+#endif
 
