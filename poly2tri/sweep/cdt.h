@@ -44,6 +44,8 @@ public:
 
 /// Constructor
 CDT(std::vector<Point*> polyline);
+/// Destructor
+~CDT();
 /// Add a hole
 void AddHole(std::vector<Point*> polyline);
 /// Add a single point
@@ -60,8 +62,6 @@ private:
 SweepContext* sweep_context_;
 Sweep* sweep_;
 
-/// Destructor
-~CDT();
 };
 
 }
