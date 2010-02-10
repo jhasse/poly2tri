@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
   /*
    * STEP 1: Create CDT and add primary polyline
    * NOTE: polyline must be a simple polygon. The polyline's points
-   * constitute the polygon's constrained edges!
+   * constitute constrained edges. No repeat points!!!
    */   
   CDT* cdt = new CDT(polyline);
   
