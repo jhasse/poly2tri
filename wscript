@@ -40,15 +40,16 @@ def configure(conf):
 def build(bld):
 
   print('  building')
-  '''		
+	
+  '''
   # A static library
   # The extension (.a) is added automatically
   bld.new_task_gen(
-    features = 'cxx cstaticlib',
+    features = 'cxx cshlib',
     source = p2t_source_files,
     name = 'poly2tri',
     target = 'poly2tri')
-    
+ 
   # 1. A simple program
   bld.new_task_gen(
     features = 'cxx cprogram',

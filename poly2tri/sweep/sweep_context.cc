@@ -30,7 +30,6 @@
  */
 #include "sweep_context.h"
 #include <algorithm>
-#include <GL/glfw.h>
 #include "advancing_front.h"
 
 namespace p2t {
