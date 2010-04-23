@@ -64,7 +64,7 @@ void EdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* triangle, Poin
 
 Node& NewFrontTriangle(SweepContext& tcx, Point& point, Node& node);
 
-void Fill(SweepContext& tcx, Node& node, bool point_event);
+void Fill(SweepContext& tcx, Node& node);
 
 bool Legalize(SweepContext& tcx, Triangle& t);
 
