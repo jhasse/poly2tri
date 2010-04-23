@@ -39,6 +39,8 @@
 #ifndef SWEEP_H
 #define SWEEP_H
 
+#include <vector>
+
 namespace p2t {
 
 class SweepContext;
@@ -113,6 +115,9 @@ Point& NextFlipPoint(Point& ep, Point& eq, Triangle& ot, Point& op);
 void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_triangle, Triangle& t, Point& p);
 
 void FinalizationPolygon(SweepContext& tcx);
+
+std::vector<Node*> nodes_;
+
 };
 
 }

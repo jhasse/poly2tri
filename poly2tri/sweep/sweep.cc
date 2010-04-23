@@ -172,6 +172,8 @@ Node& Sweep::NewFrontTriangle(SweepContext& tcx, Point& point, Node& node)
   tcx.AddToMap(triangle);
 
   Node* new_node = new Node(point);
+  nodes_.push_back(new_node);
+  
   new_node->next = node.next;
   new_node->prev = &node;
   node.next->prev = new_node;
@@ -629,8 +631,6 @@ void Sweep::FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
     }
   }
   
-  delete &node.next;
-  
 }
 
 void Sweep::FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
@@ -711,8 +711,6 @@ void Sweep::FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       }
     }    
   } 
-  
-  delete &node.prev;
   
 }
 
