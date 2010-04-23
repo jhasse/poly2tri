@@ -32,6 +32,7 @@
 #include "sweep_context.h"
 #include "advancing_front.h"
 #include "../common/utils.h"
+#include <iostream>
 
 namespace p2t {
 
@@ -527,7 +528,8 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
   }
 
   Fill(tcx, *node);
-
+  Node *temp = node;
+  
   if (node->prev == tcx.basin.left_node && node->next == tcx.basin.right_node) {
     delete node;
     return;
@@ -537,31 +539,24 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
       delete node;
       return;
     }
-    Node *temp = node;
     node = node->next;
-    delete temp;
   } else if (node->next == tcx.basin.right_node) {
     Orientation o = Orient2d(*node->point, *node->prev->point, *node->prev->prev->point);
     if (o == CCW) {
       delete node;
       return;
     }
-    Node *temp = node;
     node = node->prev;
-    delete temp;
   } else {
     // Continue with the neighbor node with lowest Y value
     if (node->prev->point->y < node->next->point->y) {
-      Node *temp = node;
       node = node->prev;
-      delete temp;
     } else {
-      Node *temp = node;
       node = node->next;
-      delete temp;
     }
   }
 
+  delete temp;
   FillBasinReq(tcx, node);
 }
 
@@ -633,6 +628,9 @@ void Sweep::FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       }
     }
   }
+  
+  delete &node.next;
+  
 }
 
 void Sweep::FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
@@ -713,6 +711,8 @@ void Sweep::FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       }
     }    
   } 
+  
+  delete &node.prev;
   
 }
 
