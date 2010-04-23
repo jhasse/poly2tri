@@ -130,7 +130,6 @@ void SweepContext::CreateAdvancingFront()
   head = new Node(*triangle->GetPoint(1), *triangle);
   middle = new Node(*triangle->GetPoint(0), *triangle);
   tail = new Node(*triangle->GetPoint(2));
-
   front_ = new AdvancingFront(*head, *tail); 
   
   // TODO: More intuitive if head is middles next and not previous?

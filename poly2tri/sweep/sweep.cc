@@ -88,7 +88,7 @@ Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
   // x value than node due to how we fetch nodes from the front
   if (point.x <= node.point->x + EPSILON) {
     Fill(tcx, node);
-    tcx.RemoveNode(&node);
+    delete &node;
   }
 
   //tcx.AddNode(new_node);
@@ -535,19 +535,27 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
     if (o == CW) {
       return;
     }
+    Node *temp = node;
     node = node->next;
+    delete temp;
   } else if (node->next == tcx.basin.right_node) {
     Orientation o = Orient2d(*node->point, *node->prev->point, *node->prev->prev->point);
     if (o == CCW) {
       return;
     }
+    Node *temp = node;
     node = node->prev;
+    delete temp;
   } else {
     // Continue with the neighbor node with lowest Y value
     if (node->prev->point->y < node->next->point->y) {
+      Node *temp = node;
       node = node->prev;
+      delete temp;
     } else {
+      Node *temp = node;
       node = node->next;
+      delete temp;
     }
   }
 
@@ -700,8 +708,9 @@ void Sweep::FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       } else{
         // Next is convex
       }
-    }
-  }
+    }    
+  } 
+  
 }
 
 void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* t, Point& p)
