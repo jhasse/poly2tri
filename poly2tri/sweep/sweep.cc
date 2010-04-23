@@ -32,7 +32,6 @@
 #include "sweep_context.h"
 #include "advancing_front.h"
 #include "../common/utils.h"
-#include <iostream>
 
 namespace p2t {
 
@@ -40,7 +39,7 @@ namespace p2t {
 void Sweep::Triangulate(SweepContext& tcx)
 {
   tcx.InitTriangulation();
-  tcx.CreateAdvancingFront();
+  tcx.CreateAdvancingFront(nodes_);
   // Sweep points; build mesh
   SweepPoints(tcx);
   // Clean up
