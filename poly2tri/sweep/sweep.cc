@@ -534,6 +534,7 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
   } else if (node->prev == tcx.basin.left_node) {
     Orientation o = Orient2d(*node->point, *node->next->point, *node->next->next->point);
     if (o == CW) {
+      delete node;
       return;
     }
     Node *temp = node;
@@ -542,6 +543,7 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
   } else if (node->next == tcx.basin.right_node) {
     Orientation o = Orient2d(*node->point, *node->prev->point, *node->prev->prev->point);
     if (o == CCW) {
+      delete node;
       return;
     }
     Node *temp = node;
