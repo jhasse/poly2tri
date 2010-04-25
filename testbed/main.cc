@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -79,18 +79,18 @@ bool random_distribution = false;
 
 int main(int argc, char* argv[])
 {
-  
+
   int num_points = 0;
   double max, min;
   double zoom;
-  
+
   if (argc != 5) {
     cout << "-== USAGE ==-" << endl;
     cout << "Load Data File: p2t filename center_x center_y zoom" << endl;
     cout << " Random Points: p2t random num_points width zoom" << endl;
     return 1;
   }
-  
+
   if(string(argv[1]) == "random") {
     num_points = atoi(argv[2]);
     random_distribution = true;
@@ -103,10 +103,10 @@ int main(int argc, char* argv[])
     zoom = atof(argv[4]);
     cx = atof(argv[2]);
     cy = atof(argv[3]);
-  } 
-  
+  }
+
   vector<p2t::Point*> polyline;
-  
+
   if(random_distribution) {
     // Create a simple bounding box
     polyline.push_back(new Point(min,min));
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
     polyline.push_back(new Point(max,min));
   } else {
     // Load pointset from file
-    
+
     // Parse and tokenize data file
     string line;
     ifstream myfile(argv[1]);
@@ -142,25 +142,25 @@ int main(int argc, char* argv[])
 
   cout << "Number of constrained edges = " << polyline.size() << endl;
   polylines.push_back(polyline);
-  
+
   Init();
 
-  /* 
+  /*
    * Perform triangulation!
-   */ 
-  
+   */
+
   double init_time = glfwGetTime();
-  
+
   /*
    * STEP 1: Create CDT and add primary polyline
    * NOTE: polyline must be a simple polygon. The polyline's points
    * constitute constrained edges. No repeat points!!!
-   */   
+   */
   CDT* cdt = new CDT(polyline);
-  
+
   /*
    * STEP 2: Add holes or Steiner points if necessary
-   */  
+   */
   string s(argv[1]);
   if(s.find("dude.dat", 0) != string::npos) {
     // Add head hole
@@ -182,12 +182,12 @@ int main(int argc, char* argv[])
       cdt->AddPoint(new Point(x, y));
     }
   }
-  
+
   /*
    * STEP 3: Triangulate!
    */
   cdt->Triangulate();
-  
+
   double dt = glfwGetTime() - init_time;
 
   triangles = cdt->GetTriangles();
@@ -196,9 +196,10 @@ int main(int argc, char* argv[])
   cout << "Number of points = " << num_points << endl;
   cout << "Number of triangles = " << triangles.size() << endl;
   cout << "Elapsed time (ms) = " << dt*1000.0 << endl;
-  
+
   MainLoop(zoom);
 
+  delete cdt;
   ShutDown(0);
   return 0;
 }
@@ -216,7 +217,7 @@ void Init()
 
   glfwSetWindowTitle("Poly2Tri - C++");
   glfwSwapInterval(1);
-  
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -310,10 +311,10 @@ void Draw(const double zoom)
     glVertex2f(c.x, c.y);
     glEnd();
   }
-  
+
   // green
   glColor3f(0, 1, 0);
-  
+
   for(int i = 0; i < polylines.size(); i++) {
     vector<Point*> poly = polylines[i];
     glBegin(GL_LINE_LOOP);
@@ -376,7 +377,7 @@ vector<Point*> CreateHeadHole() {
   head_hole.push_back(new Point(320, 423));
   head_hole.push_back(new Point(329, 413));
   head_hole.push_back(new Point(332, 423));
-  
+
   return head_hole;
 }
 
@@ -389,7 +390,7 @@ vector<Point*> CreateChestHole() {
   chest_hole.push_back(new Point(329.8148,510.41534));
   chest_hole.push_back(new Point(339.91632,480.11077));
   chest_hole.push_back(new Point(334.86556,478.09046));
-  
+
   return chest_hole;
 
 }

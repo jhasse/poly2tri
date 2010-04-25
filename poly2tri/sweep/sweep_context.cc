@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -91,7 +91,7 @@ void SweepContext::InitTriangulation()
 
   // Sort points along y-axis
   std::sort(points_.begin(), points_.end(), cmp);
-  
+
 }
 
 void SweepContext::InitEdges(std::vector<Point*> polyline)
@@ -121,28 +121,23 @@ Node& SweepContext::LocateNode(Point& point)
 
 void SweepContext::CreateAdvancingFront(std::vector<Node*> nodes)
 {
-  Node *head, *middle, *tail;
+
   // Initial triangle
   Triangle* triangle = new Triangle(*points_[0], *tail_, *head_);
 
   map_.push_back(triangle);
 
-  head = new Node(*triangle->GetPoint(1), *triangle);
-  middle = new Node(*triangle->GetPoint(0), *triangle);
-  tail = new Node(*triangle->GetPoint(2));
-  front_ = new AdvancingFront(*head, *tail); 
-  
-  // Memory management :)
-  nodes.push_back(head);
-  nodes.push_back(middle);
-  nodes.push_back(tail);
-  
+  af_head_ = new Node(*triangle->GetPoint(1), *triangle);
+  af_middle_ = new Node(*triangle->GetPoint(0), *triangle);
+  af_tail_ = new Node(*triangle->GetPoint(2));
+  front_ = new AdvancingFront(*af_head_, *af_tail_);
+
   // TODO: More intuitive if head is middles next and not previous?
   //       so swap head and tail
-  head->next = middle;
-  middle->next = tail;
-  middle->prev = head;
-  tail->prev = middle;
+  af_head_->next = af_middle_;
+  af_middle_->next = af_tail_;
+  af_middle_->prev = af_head_;
+  af_tail_->prev = af_middle_;
 }
 
 void SweepContext::RemoveNode(Node* node)
@@ -180,9 +175,27 @@ void SweepContext::MeshClean(Triangle& triangle)
 
 SweepContext::~SweepContext()
 {
-  delete head_;
-  delete tail_;
-  delete front_;
+
+    // Clean up memory
+
+    delete head_;
+    delete tail_;
+    delete front_;
+    delete af_head_;
+    delete af_middle_;
+    delete af_tail_;
+
+    typedef std::list<Triangle*> type_list;
+
+    for(type_list::iterator iter = map_.begin(); iter != map_.end(); ++iter) {
+        Triangle* ptr = *iter;
+        delete ptr;
+    }
+
+     for(int i = 0; i < edge_list.size(); i++) {
+        delete edge_list[i];
+    }
+
 }
 
 }

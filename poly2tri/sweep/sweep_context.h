@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -28,7 +28,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #ifndef SWEEP_CONTEXT_H
 #define SWEEP_CONTEXT_H
 
@@ -92,6 +92,7 @@ void MeshClean(Triangle& triangle);
 
 std::vector<Triangle*> GetTriangles();
 std::list<Triangle*> GetMap();
+
 std::vector<Edge*> edge_list;
 
 struct Basin {
@@ -133,7 +134,6 @@ friend class Sweep;
 
 std::vector<Triangle*> triangles_;
 std::list<Triangle*> map_;
-
 std::vector<Point*> points_;
 
 // Advancing front
@@ -143,7 +143,7 @@ Point* head_;
 // tail point used with advancing front
 Point* tail_;
 
-//EdgeEvent edgeEvent = new EdgeEvent();
+Node *af_head_, *af_middle_, *af_tail_;
 
 void InitTriangulation();
 void InitEdges(std::vector<Point*> polyline);

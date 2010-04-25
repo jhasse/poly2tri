@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -35,7 +35,7 @@
  *
  * "FlipScan" Constrained Edge Algorithm invented by Thomas Åhlén, thahlen@gmail.com
  */
- 
+
 #ifndef SWEEP_H
 #define SWEEP_H
 
@@ -53,6 +53,7 @@ class Sweep {
 public:
 
 void Triangulate(SweepContext& tcx);
+~Sweep();
 
 private:
 

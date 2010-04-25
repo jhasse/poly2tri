@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -88,7 +88,6 @@ Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
   // x value than node due to how we fetch nodes from the front
   if (point.x <= node.point->x + EPSILON) {
     Fill(tcx, node);
-    delete &node;
   }
 
   //tcx.AddNode(new_node);
@@ -172,12 +171,12 @@ Node& Sweep::NewFrontTriangle(SweepContext& tcx, Point& point, Node& node)
 
   Node* new_node = new Node(point);
   nodes_.push_back(new_node);
-  
+
   new_node->next = node.next;
   new_node->prev = &node;
   node.next->prev = new_node;
   node.next = new_node;
-  
+
   if (!Legalize(tcx, *triangle)) {
     tcx.MapTriangleToNodes(*triangle);
   }
@@ -209,7 +208,7 @@ void Sweep::Fill(SweepContext& tcx, Node& node)
   if (!Legalize(tcx, *triangle)) {
     tcx.MapTriangleToNodes(*triangle);
   }
-  
+
 }
 
 /**
@@ -221,6 +220,7 @@ void Sweep::Fill(SweepContext& tcx, Node& node)
  */
 void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 {
+
   // Fill right holes
   Node* node = n.next;
 
@@ -228,9 +228,7 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
     double angle = HoleAngle(*node);
     if (angle > M_PI_2 || angle < -M_PI_2) break;
     Fill(tcx, *node);
-    Node *temp = node;
     node = node->next;
-    delete temp;
   }
 
   // Fill left holes
@@ -240,9 +238,7 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
     double angle = HoleAngle(*node);
     if (angle > M_PI_2 || angle < -M_PI_2) break;
     Fill(tcx, *node);
-    Node *temp = node;
     node = node->prev;
-    delete temp;
   }
 
   // Fill right basins
@@ -529,22 +525,18 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
   }
 
   Fill(tcx, *node);
-  Node *temp = node;
-  
+
   if (node->prev == tcx.basin.left_node && node->next == tcx.basin.right_node) {
-    delete node;
     return;
   } else if (node->prev == tcx.basin.left_node) {
     Orientation o = Orient2d(*node->point, *node->next->point, *node->next->next->point);
     if (o == CW) {
-      delete node;
       return;
     }
     node = node->next;
   } else if (node->next == tcx.basin.right_node) {
     Orientation o = Orient2d(*node->point, *node->prev->point, *node->prev->prev->point);
     if (o == CCW) {
-      delete node;
       return;
     }
     node = node->prev;
@@ -557,7 +549,6 @@ void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
     }
   }
 
-  delete temp;
   FillBasinReq(tcx, node);
 }
 
@@ -629,7 +620,7 @@ void Sweep::FillRightConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       }
     }
   }
-  
+
 }
 
 void Sweep::FillRightConvexEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
@@ -708,9 +699,9 @@ void Sweep::FillLeftConcaveEdgeEvent(SweepContext& tcx, Edge* edge, Node& node)
       } else{
         // Next is convex
       }
-    }    
-  } 
-  
+    }
+  }
+
 }
 
 void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* t, Point& p)
@@ -765,7 +756,7 @@ Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle& t, Triangl
 
   // t is not crossing edge after flip
   int edge_index = t.EdgeIndex(&p, &op);
-  
+
   t.delaunay_edge[edge_index] = true;
   Legalize(tcx, t);
   t.ClearDelunayEdges();
@@ -814,6 +805,15 @@ void Sweep::FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle&
     Point& newP = NextFlipPoint(ep, eq, ot, op);
     FlipScanEdgeEvent(tcx, ep, eq, flip_triangle, ot, newP);
   }
+}
+
+Sweep::~Sweep() {
+
+    // Clean up memory
+    for(int i = 0; i < nodes_.size(); i++) {
+        delete nodes_[i];
+    }
+
 }
 
 }

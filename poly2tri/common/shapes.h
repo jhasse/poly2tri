@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -40,7 +40,6 @@
 
 namespace p2t {
 
-struct Node;
 struct Edge;
 
 struct Point {
@@ -50,7 +49,7 @@ struct Point {
   /// Default constructor does nothing (for performance).
   Point()
   {
-    x = 0.0; 
+    x = 0.0;
     y = 0.0;
   }
 
@@ -63,43 +62,43 @@ struct Point {
   /// Set this point to all zeros.
   void set_zero()
   {
-    x = 0.0f; 
+    x = 0.0f;
     y = 0.0f;
   }
 
   /// Set this point to some specified coordinates.
   void set(double x_, double y_)
   {
-    x = x_; 
+    x = x_;
     y = y_;
   }
 
   /// Negate this point.
   Point operator -() const
   {
-    Point v; 
-    v.set(-x, -y); 
+    Point v;
+    v.set(-x, -y);
     return v;
   }
 
   /// Add a point to this point.
   void operator +=(const Point& v)
   {
-    x += v.x; 
+    x += v.x;
     y += v.y;
   }
 
   /// Subtract a point from this point.
   void operator -=(const Point& v)
   {
-    x -= v.x; 
+    x -= v.x;
     y -= v.y;
   }
 
   /// Multiply this point by a scalar.
   void operator *=(double a)
   {
-    x *= a; 
+    x *= a;
     y *= a;
   }
 

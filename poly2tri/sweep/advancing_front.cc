@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -42,7 +42,7 @@ AdvancingFront::AdvancingFront(Node& head, Node& tail)
 Node* AdvancingFront::LocateNode(const double& x)
 {
   Node* node = search_node_;
-  
+
   if (x < node->value) {
     while ((node = node->prev) != NULL) {
       if (x >= node->value) {
@@ -72,7 +72,7 @@ Node* AdvancingFront::LocatePoint(const Point* point)
   const double px = point->x;
   Node* node = FindSearchNode(px);
   const double nx = node->point->x;
-  
+
   if (px == nx) {
     if (point != node->point) {
       // We might have two nodes with same x value for a short time
@@ -102,9 +102,6 @@ Node* AdvancingFront::LocatePoint(const Point* point)
 
 AdvancingFront::~AdvancingFront()
 {
-  delete head_;
-  delete search_node_;
-  delete tail_;
 }
 
 }
