@@ -62,8 +62,8 @@ struct Point {
   /// Set this point to all zeros.
   void set_zero()
   {
-    x = 0.0f;
-    y = 0.0f;
+    x = 0.0;
+    y = 0.0;
   }
 
   /// Set this point to some specified coordinates.
