@@ -28,6 +28,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdexcept>
 #include "sweep.h"
 #include "sweep_context.h"
 #include "advancing_front.h"
@@ -121,15 +122,35 @@ void Sweep::EdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* triangl
   Point* p1 = triangle->PointCCW(point);
   Orientation o1 = Orient2d(eq, *p1, ep);
   if (o1 == COLLINEAR) {
-    //throw new RuntimeException( "EdgeEvent - Collinear not supported" );
-    assert(false);
+    if( triangle->Contains(&eq, p1)) {
+      triangle->MarkConstrainedEdge(&eq, p1 );
+      // We are modifying the constraint maybe it would be better to 
+      // not change the given constraint and just keep a variable for the new constraint
+      tcx.edge_event.constrained_edge->q = p1;
+      triangle = &triangle->NeighborAcross(point);
+      EdgeEvent( tcx, ep, *p1, triangle, *p1 );
+    } else {
+      std::runtime_error("EdgeEvent - collinear points not supported");
+      assert(0);
+    }
+    return;
   }
 
   Point* p2 = triangle->PointCW(point);
   Orientation o2 = Orient2d(eq, *p2, ep);
   if (o2 == COLLINEAR) {
-    //throw new RuntimeException( "EdgeEvent - Collinear not supported" );
-    assert(false);
+    if( triangle->Contains(&eq, p2)) {
+      triangle->MarkConstrainedEdge(&eq, p2 );
+      // We are modifying the constraint maybe it would be better to 
+      // not change the given constraint and just keep a variable for the new constraint
+      tcx.edge_event.constrained_edge->q = p2;
+      triangle = &triangle->NeighborAcross(point);
+      EdgeEvent( tcx, ep, *p2, triangle, *p2 );
+    } else {
+      std::runtime_error("EdgeEvent - collinear points not supported");
+      assert(0);
+    }
+    return;
   }
 
   if (o1 == o2) {
