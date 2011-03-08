@@ -71,15 +71,6 @@ void Sweep::FinalizationPolygon(SweepContext& tcx)
   tcx.MeshClean(*t);
 }
 
-/**
- * Find closes node to the left of the new point and
- * create a new triangle. If needed new holes and basins
- * will be filled to.
- *
- * @param tcx
- * @param point
- * @return
- */
 Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
 {
   Node& node = tcx.LocateNode(point);
@@ -205,11 +196,6 @@ Node& Sweep::NewFrontTriangle(SweepContext& tcx, Point& point, Node& node)
   return *new_node;
 }
 
-/**
- * Adds a triangle to the advancing front to fill a hole.
- * @param tcx
- * @param node - middle node, that is the bottom of the hole
- */
 void Sweep::Fill(SweepContext& tcx, Node& node)
 {
   Triangle* triangle = new Triangle(*node.prev->point, *node.point, *node.next->point);
@@ -232,13 +218,6 @@ void Sweep::Fill(SweepContext& tcx, Node& node)
 
 }
 
-/**
- * Fills holes in the Advancing Front
- *
- *
- * @param tcx
- * @param n
- */
 void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 {
 
@@ -278,11 +257,6 @@ double Sweep::BasinAngle(Node& node)
   return atan2(ay, ax);
 }
 
-/**
- *
- * @param node - middle node
- * @return the angle between 3 front nodes
- */
 double Sweep::HoleAngle(Node& node)
 {
   /* Complex plane
@@ -300,9 +274,6 @@ double Sweep::HoleAngle(Node& node)
   return atan2(ax * by - ay * bx, ax * bx + ay * by);
 }
 
-/**
- * Returns true if triangle was legalized
- */
 bool Sweep::Legalize(SweepContext& tcx, Triangle& t)
 {
   // To legalize a triangle we start by finding if any of the three edges
@@ -364,30 +335,6 @@ bool Sweep::Legalize(SweepContext& tcx, Triangle& t)
   return false;
 }
 
-/**
- * <b>Requirement</b>:<br>
- * 1. a,b and c form a triangle.<br>
- * 2. a and d is know to be on opposite side of bc<br>
- * <pre>
- *                a
- *                +
- *               / \
- *              /   \
- *            b/     \c
- *            +-------+
- *           /    d    \
- *          /           \
- * </pre>
- * <b>Fact</b>: d has to be in area B to have a chance to be inside the circle formed by
- *  a,b and c<br>
- *  d is outside B if orient2d(a,b,d) or orient2d(c,a,d) is CW<br>
- *  This preknowledge gives us a way to optimize the incircle test
- * @param a - triangle point, opposite d
- * @param b - triangle point
- * @param c - triangle point
- * @param d - point opposite a
- * @return true if d is inside circle, false if on circle edge
- */
 bool Sweep::Incircle(Point& pa, Point& pb, Point& pc, Point& pd)
 {
   double adx = pa.x - pd.x;
@@ -424,20 +371,6 @@ bool Sweep::Incircle(Point& pa, Point& pb, Point& pc, Point& pd)
   return det > 0;
 }
 
-/**
- * Rotates a triangle pair one vertex CW
- *<pre>
- *       n2                    n2
- *  P +-----+             P +-----+
- *    | t  /|               |\  t |
- *    |   / |               | \   |
- *  n1|  /  |n3           n1|  \  |n3
- *    | /   |    after CW   |   \ |
- *    |/ oT |               | oT \|
- *    +-----+ oP            +-----+
- *       n4                    n4
- * </pre>
- */
 void Sweep::RotateTrianglePair(Triangle& t, Point& p, Triangle& ot, Point& op)
 {
   Triangle* n1, *n2, *n3, *n4;
@@ -487,15 +420,6 @@ void Sweep::RotateTrianglePair(Triangle& t, Point& p, Triangle& ot, Point& op)
   t.MarkNeighbor(ot);
 }
 
-/**
- * Fills a basin that has formed on the Advancing Front to the right
- * of given node.<br>
- * First we decide a left,bottom and right node that forms the
- * boundaries of the basin. Then we do a reqursive fill.
- *
- * @param tcx
- * @param node - starting node, this or next node will be left node
- */
 void Sweep::FillBasin(SweepContext& tcx, Node& node)
 {
   if (Orient2d(*node.point, *node.next->point, *node.next->next->point) == CCW) {
@@ -531,13 +455,6 @@ void Sweep::FillBasin(SweepContext& tcx, Node& node)
   FillBasinReq(tcx, tcx.basin.bottom_node);
 }
 
-/**
- * Recursive algorithm to fill a Basin with triangles
- *
- * @param tcx
- * @param node - bottom_node
- * @param cnt - counter used to alternate on even and odd numbers
- */
 void Sweep::FillBasinReq(SweepContext& tcx, Node* node)
 {
   // if shallow stop filling
