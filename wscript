@@ -1,16 +1,22 @@
-VERSION='0.0.1'
+#! /usr/bin/env python
+# encoding: utf-8
+# waf 1.6.2
+
+VERSION='0.3.3'
 import sys
 APPNAME='p2t'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
-p2t_source_files = ['poly2tri/common/shapes.cc',
-                    'poly2tri/sweep/cdt.cc',
-                    'poly2tri/sweep/advancing_front.cc',
-                    'poly2tri/sweep/sweep_context.cc',
-                    'poly2tri/sweep/sweep.cc']
+CPP_SOURCES = ['poly2tri/common/shapes.cc',
+               'poly2tri/sweep/cdt.cc',
+               'poly2tri/sweep/advancing_front.cc',
+               'poly2tri/sweep/sweep_context.cc',
+               'poly2tri/sweep/sweep.cc',
+               'testbed/main.cc']
 
-testbed_source_files = ['testbed/main.cc']
+from waflib.Tools.compiler_cxx import cxx_compiler
+cxx_compiler['win32'] = ['g++']
 
 #Platform specific libs
 if sys.platform == 'win32':
@@ -23,47 +29,17 @@ else:
     # GNU/Linux, BSD, etc
     sys_libs = ['glfw', 'GL']
 
-def init():
-    print('  init called')
-
-def set_options(opt):
-	print('  set_options')
-	opt.tool_options('g++')
+def options(opt):
+  print('  set_options')
+  opt.load('compiler_cxx')
 
 def configure(conf):
-	print('  calling the configuration')
-	conf.check_tool('g++')
-    #conf.env.CXXFLAGS = ['-O0', '-pg', '-g']
-	#conf.env.CXXFLAGS = ['-O0', '-g']
-	conf.env.CXXFLAGS = ['-O3', '-ffast-math']
+  print('  calling the configuration')
+  conf.load('compiler_cxx')
+  conf.env.CXXFLAGS = ['-O3', '-ffast-math']
+  conf.env.DEFINES_P2T = ['P2T']
+  conf.env.LIB_P2T = sys_libs
 
 def build(bld):
-
   print('  building')
-
-  '''
-  # A static library
-  # The extension (.a) is added automatically
-  bld.new_task_gen(
-    features = 'cxx cshlib',
-    source = p2t_source_files,
-    name = 'poly2tri',
-    target = 'poly2tri')
-
-  # 1. A simple program
-  bld.new_task_gen(
-    features = 'cxx cprogram',
-    source = testbed_source_files,
-    target = 'p2t',
-    uselib_local = 'poly2tri',
-    libs = sys_libs)
-  '''
-
-  bld.new_task_gen(
-    features = 'cxx cprogram',
-    source = testbed_source_files + p2t_source_files,
-    target = 'p2t',
-    libs = sys_libs)
-
-def shutdown():
-    print('  shutdown called')
+  bld.program(features = 'cxx cxxprogram', source=CPP_SOURCES, target = 'p2t', uselib = 'P2T')

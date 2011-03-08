@@ -190,6 +190,11 @@ bool Contains(const Edge& e);
 bool Contains(Point* p, Point* q);
 void Legalize(Point& point);
 void Legalize(Point& opoint, Point& npoint);
+/**
+ * Clears all references to all other triangles and points
+ */
+void Clear();
+void ClearNeighbor(Triangle *triangle );
 void ClearNeighbors();
 void ClearDelunayEdges();
 

@@ -70,6 +70,40 @@ void Triangle::MarkNeighbor(Triangle& t)
   }
 }
 
+/**
+ * Clears all references to all other triangles and points
+ */
+void Triangle::Clear()
+{
+    Triangle *t;
+    for( int i=0; i<3; i++ )
+    {
+        t = neighbors_[i];
+        if( t != NULL )
+        {
+            t->ClearNeighbor( this );
+        }
+    }
+    ClearNeighbors();
+    points_[0]=points_[1]=points_[2] = NULL;
+}
+
+void Triangle::ClearNeighbor(Triangle *triangle )
+{
+    if( neighbors_[0] == triangle )
+    {
+        neighbors_[0] = NULL;
+    }
+    else if( neighbors_[1] == triangle )
+    {
+        neighbors_[1] = NULL;            
+    }
+    else
+    {
+        neighbors_[2] = NULL;
+    }
+}
+    
 void Triangle::ClearNeighbors()
 {
   neighbors_[0] = NULL;
