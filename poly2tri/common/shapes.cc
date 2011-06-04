@@ -123,7 +123,6 @@ Point* Triangle::OppositePoint(Triangle& t, Point& p)
   double y = cw->y;
   x = p.x;
   y = p.y;
-  Point* ham = PointCW(*cw);
   return PointCW(*cw);
 }
 
