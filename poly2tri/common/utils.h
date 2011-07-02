@@ -32,6 +32,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+// Otherwise #defines like M_PI are undeclared under Visual Studio
+#define _USE_MATH_DEFINES
+
 #include <exception>
 #include <math.h>
 
