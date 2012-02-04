@@ -77,6 +77,14 @@ bool draw_map = false;
 /// Create a random distribution of points?
 bool random_distribution = false;
 
+template <class C> void FreeClear( C & cntr ) {
+    for ( typename C::iterator it = cntr.begin(); 
+              it != cntr.end(); ++it ) {
+        delete * it;
+    }
+    cntr.clear();
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -199,7 +207,16 @@ int main(int argc, char* argv[])
 
   MainLoop(zoom);
 
+  // Cleanup
+  
   delete cdt;
+  
+  // Free points
+  for(int i = 0; i < polylines.size(); i++) {
+    vector<Point*> poly = polylines[i];
+    FreeClear(poly);
+  }
+  
   ShutDown(0);
   return 0;
 }
