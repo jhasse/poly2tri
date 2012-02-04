@@ -105,7 +105,7 @@ bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 bool InScanArea(Point& pa, Point& pb, Point& pc, Point& pd)
 {
   double oadb = (pa.x - pb.x)*(pd.y - pb.y) - (pd.x - pb.x)*(pa.y - pb.y);
-  if (oadb >= EPSILON) {
+  if (oadb >= -EPSILON) {
     return false;
   }
 
