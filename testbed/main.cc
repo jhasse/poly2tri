@@ -39,6 +39,7 @@
 #include <iostream>
 using namespace std;
 
+#include "test_shapes.h"
 #include "../poly2tri/poly2tri.h"
 using namespace p2t;
 
@@ -114,7 +115,12 @@ int main(int argc, char* argv[])
   }
 
   vector<p2t::Point*> polyline;
-
+    
+  for(int i = 0; i < 25; i++) {
+    polyline.push_back(new Point(outline[i*2],outline[i*2+1]));
+  }
+    
+  /*
   if(random_distribution) {
     // Create a simple bounding box
     polyline.push_back(new Point(min,min));
@@ -148,6 +154,8 @@ int main(int argc, char* argv[])
     }
   }
 
+  */
+  
   cout << "Number of constrained edges = " << polyline.size() << endl;
   polylines.push_back(polyline);
 
@@ -169,6 +177,27 @@ int main(int argc, char* argv[])
   /*
    * STEP 2: Add holes or Steiner points if necessary
    */
+   
+  vector<Point*> hole1_pts;
+  vector<Point*> hole2_pts;
+  
+  for(int i = 0; i < 22; i++) {
+    hole1_pts.push_back(new Point(hole1[i*2],hole1[i*2+1]));
+  }
+  
+  cdt->AddHole(hole1_pts);
+  
+  for(int i = 0; i < 10; i++) {
+    hole2_pts.push_back(new Point(hole2[i*2],hole2[i*2+1]));
+  }
+  
+  cdt->AddHole(hole2_pts);
+  
+  for(int i = 0; i < 42; i ++) {
+    cdt->AddPoint(new Point(steiner_points[i*2], steiner_points[i*2+1]));
+  }
+      
+  /*
   string s(argv[1]);
   if(s.find("dude.dat", 0) != string::npos) {
     // Add head hole
@@ -190,7 +219,8 @@ int main(int argc, char* argv[])
       cdt->AddPoint(new Point(x, y));
     }
   }
-
+  */
+  
   /*
    * STEP 3: Triangulate!
    */
@@ -411,6 +441,8 @@ vector<Point*> CreateChestHole() {
   return chest_hole;
 
 }
+
+
 
 double StringToDouble(const std::string& s)
 {
