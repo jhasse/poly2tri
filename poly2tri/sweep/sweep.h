@@ -168,6 +168,13 @@ private:
    * @param n
    */
   void FillAdvancingFront(SweepContext& tcx, Node& n);
+  
+  // Decision-making about when to Fill hole. 
+  // Contributed by ToolmakerSteve2
+  bool LargeHole_DontFill(Node* node);
+  bool AngleExceeds90Degrees(Point* origin, Point* pa, Point* pb);
+  bool AngleExceedsPlus90DegreesOrIsNegative(Point* origin, Point* pa, Point* pb);
+  double Angle(Point& origin, Point& pa, Point& pb);
 
   /**
    *

@@ -225,8 +225,8 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
   Node* node = n.next;
 
   while (node->next) {
-    double angle = HoleAngle(*node);
-    if (angle > M_PI_2 || angle < -M_PI_2) break;
+    // if HoleAngle exceeds 90 degrees then break.
+    if (LargeHole_DontFill(node)) break;
     Fill(tcx, *node);
     node = node->next;
   }
@@ -235,8 +235,8 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
   node = n.prev;
 
   while (node->prev) {
-    double angle = HoleAngle(*node);
-    if (angle > M_PI_2 || angle < -M_PI_2) break;
+    // if HoleAngle exceeds 90 degrees then break.
+    if (LargeHole_DontFill(node)) break;
     Fill(tcx, *node);
     node = node->prev;
   }
@@ -248,6 +248,61 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
       FillBasin(tcx, n);
     }
   }
+}
+
+// True if HoleAngle exceeds 90 degrees.
+bool Sweep::LargeHole_DontFill(Node* node) {
+  
+  Node* nextNode = node->next;
+  Node* prevNode = node->prev;
+  if (!AngleExceeds90Degrees(node->point, nextNode->point, prevNode->point))
+          return false;
+
+  // Check additional points on front.
+  Node* next2Node = nextNode->next;
+  // "..Plus.." because only want angles on same side as point being added.
+  if ((next2Node != NULL) && !AngleExceedsPlus90DegreesOrIsNegative(node->point, next2Node->point, prevNode->point))
+          return false;
+
+  Node* prev2Node = prevNode->prev;
+  // "..Plus.." because only want angles on same side as point being added.
+  if ((prev2Node != NULL) && !AngleExceedsPlus90DegreesOrIsNegative(node->point, nextNode->point, prev2Node->point))
+          return false;
+
+  return true;
+}
+
+bool Sweep::AngleExceeds90Degrees(Point* origin, Point* pa, Point* pb) {
+  double angle = Angle(*origin, *pa, *pb);
+  bool exceeds90Degrees = ((angle > PI_div2) || (angle < -PI_div2));
+  return exceeds90Degrees;
+}
+
+bool Sweep::AngleExceedsPlus90DegreesOrIsNegative(Point* origin, Point* pa, Point* pb) {
+  double angle = Angle(*origin, *pa, *pb);
+  bool exceedsPlus90DegreesOrIsNegative = (angle > PI_div2) || (angle < 0);
+  return exceedsPlus90DegreesOrIsNegative;
+}
+
+double Sweep::Angle(Point& origin, Point& pa, Point& pb) {
+  /* Complex plane
+   * ab = cosA +i*sinA
+   * ab = (ax + ay*i)(bx + by*i) = (ax*bx + ay*by) + i(ax*by-ay*bx)
+   * atan2(y,x) computes the principal value of the argument function
+   * applied to the complex number x+iy
+   * Where x = ax*bx + ay*by
+   *       y = ax*by - ay*bx
+   */
+  double px = origin.x;
+  double py = origin.y;
+  double ax = pa.x- px;
+  double ay = pa.y - py;
+  double bx = pb.x - px;
+  double by = pb.y - py;
+  double x = ax * by - ay * bx;
+  double y = ax * bx + ay * by;
+  double angle = atan2(x, y);
+  return angle;
 }
 
 double Sweep::BasinAngle(Node& node)
