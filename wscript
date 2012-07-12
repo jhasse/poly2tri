@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # waf 1.6.10
 
@@ -24,7 +24,7 @@ if sys.platform == 'win32':
     sys_libs = ['glfw', 'opengl32']
 elif sys.platform == 'darwin':
     # Apple OSX
-    sys_libs = ['glfw', 'OpenGL']
+    sys_libs = ['glfw']
 else:
     # GNU/Linux, BSD, etc
     sys_libs = ['glfw', 'GL']
@@ -39,6 +39,8 @@ def configure(conf):
   conf.env.CXXFLAGS = ['-O3', '-ffast-math']
   conf.env.DEFINES_P2T = ['P2T']
   conf.env.LIB_P2T = sys_libs
+  if sys.platform == 'darwin':
+    conf.env.FRAMEWORK = ['OpenGL', 'Cocoa']
 
 def build(bld):
   print('  building')
