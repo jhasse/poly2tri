@@ -1,4 +1,4 @@
-/* 
+/*
  * Poly2Tri Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -96,14 +96,14 @@ void Triangle::ClearNeighbor(Triangle *triangle )
     }
     else if( neighbors_[1] == triangle )
     {
-        neighbors_[1] = NULL;            
+        neighbors_[1] = NULL;
     }
     else
     {
         neighbors_[2] = NULL;
     }
 }
-    
+
 void Triangle::ClearNeighbors()
 {
   neighbors_[0] = NULL;
@@ -119,10 +119,6 @@ void Triangle::ClearDelunayEdges()
 Point* Triangle::OppositePoint(Triangle& t, Point& p)
 {
   Point *cw = t.PointCW(p);
-  double x = cw->x;
-  double y = cw->y;
-  x = p.x;
-  y = p.y;
   return PointCW(*cw);
 }
 
@@ -164,6 +160,7 @@ int Triangle::Index(const Point* p)
     return 2;
   }
   assert(0);
+  return -1;
 }
 
 int Triangle::EdgeIndex(const Point* p1, const Point* p2)
@@ -223,6 +220,7 @@ Point* Triangle::PointCW(Point& point)
     return points_[1];
   }
   assert(0);
+  return NULL;
 }
 
 // The point counter-clockwise to given point
@@ -236,6 +234,7 @@ Point* Triangle::PointCCW(Point& point)
     return points_[0];
   }
   assert(0);
+  return NULL;
 }
 
 // The neighbor clockwise to given point
