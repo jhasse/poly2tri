@@ -64,7 +64,7 @@ void set_tail(Point* p1);
 
 Point* tail();
 
-int point_count();
+size_t point_count();
 
 Node& LocateNode(Point& point);
 
@@ -156,7 +156,7 @@ inline AdvancingFront* SweepContext::front()
   return front_;
 }
 
-inline int SweepContext::point_count()
+inline size_t SweepContext::point_count()
 {
   return points_.size();
 }
