@@ -18,7 +18,7 @@ an issue not covered by the above, include your data-set with the problem.
 The only easy day was yesterday; have a nice day. <Mason Green>
 
 TESTBED INSTALLATION GUIDE
-===========================
+==========================
 
 Dependencies
 ------------
@@ -31,29 +31,29 @@ Testbed:
 
 * gcc
 * OpenGL
-* GLFW (http://glfw.sf.net)
+* [GLFW](http://glfw.sf.net)
 * Python
 
 [waf](http://code.google.com/p/waf/) is used to compile the testbed.
 A waf script (86kb) is included in the repositoty.
 
 Building the Testbed
-----------------------------------------------
+--------------------
 
 Posix/MSYS environment:
 ```
-  ./waf configure
-  ./waf build
+./waf configure
+./waf build
 ```
 
 Windows command line:
 ```
-  python waf configure
-  python waf build
+python waf configure
+python waf build
 ```
 
 Running the Examples
-----------------------------------------------
+--------------------
 
 Load data points from a file:
 ```
@@ -65,9 +65,9 @@ p2t random <num_points> <box_radius> <zoom>
 ```
 Examples:
 ```
-  ./p2t dude.dat 300 500 2
-  ./p2t nazca_monkey.dat 0 0 9
+./p2t dude.dat 300 500 2
+./p2t nazca_monkey.dat 0 0 9
 
-  ./p2t random 10 100 5.0
-  ./p2t random 1000 20000 0.025
+./p2t random 10 100 5.0
+./p2t random 1000 20000 0.025
 ```
