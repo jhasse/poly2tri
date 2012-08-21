@@ -77,7 +77,7 @@ void MapTriangleToNodes(Triangle& t);
 
 void AddToMap(Triangle* triangle);
 
-Point* GetPoint(const int& index);
+Point* GetPoint(size_t index);
 
 Point* GetPoints();
 

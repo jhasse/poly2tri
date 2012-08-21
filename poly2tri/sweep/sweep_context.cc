@@ -103,7 +103,7 @@ void SweepContext::InitEdges(std::vector<Point*> polyline)
   }
 }
 
-Point* SweepContext::GetPoint(const int& index)
+Point* SweepContext::GetPoint(size_t index)
 {
   return points_[index];
 }
