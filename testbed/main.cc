@@ -78,7 +78,7 @@ bool draw_map = false;
 bool random_distribution = false;
 
 template <class C> void FreeClear( C & cntr ) {
-    for ( typename C::iterator it = cntr.begin(); 
+    for ( typename C::iterator it = cntr.begin();
               it != cntr.end(); ++it ) {
         delete * it;
     }
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
   }
 
   vector<p2t::Point*> polyline;
-    
+
   if(random_distribution) {
     // Create a simple bounding box
     polyline.push_back(new Point(min,min));
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
       cout << "File not opened" << endl;
     }
   }
-  
+
   cout << "Number of constrained edges = " << polyline.size() << endl;
   polylines.push_back(polyline);
 
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
   /*
    * STEP 2: Add holes or Steiner points if necessary
    */
-      
+
   string s(argv[1]);
   if(s.find("dude.dat", 0) != string::npos) {
     // Add head hole
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
       cdt->AddPoint(new Point(x, y));
     }
   }
-  
+
   /*
    * STEP 3: Triangulate!
    */
@@ -209,15 +209,15 @@ int main(int argc, char* argv[])
   MainLoop(zoom);
 
   // Cleanup
-  
+
   delete cdt;
-  
+
   // Free points
   for(int i = 0; i < polylines.size(); i++) {
     vector<Point*> poly = polylines[i];
     FreeClear(poly);
   }
-  
+
   ShutDown(0);
   return 0;
 }

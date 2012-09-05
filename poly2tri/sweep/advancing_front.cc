@@ -106,4 +106,3 @@ AdvancingFront::~AdvancingFront()
 }
 
 }
-

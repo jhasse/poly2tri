@@ -321,5 +321,3 @@ inline void Triangle::IsInterior(bool b)
 }
 
 #endif
-
-
