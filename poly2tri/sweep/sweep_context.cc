@@ -159,12 +159,20 @@ void SweepContext::RemoveFromMap(Triangle* triangle)
 
 void SweepContext::MeshClean(Triangle& triangle)
 {
-  if (&triangle != NULL && !triangle.IsInterior()) {
-    triangle.IsInterior(true);
-    triangles_.push_back(&triangle);
-    for (int i = 0; i < 3; i++) {
-      if (!triangle.constrained_edge[i])
-        MeshClean(*triangle.GetNeighbor(i));
+  std::vector<Triangle *> triangles;
+  triangles.push_back(&triangle);
+
+  while(!triangles.empty()){
+	Triangle *t = triangles.back();
+	triangles.pop_back();
+
+    if (t != NULL && !t->IsInterior()) {
+      t->IsInterior(true);
+      triangles_.push_back(t);
+      for (int i = 0; i < 3; i++) {
+        if (!t->constrained_edge[i])
+          triangles.push_back(t->GetNeighbor(i));
+      }
     }
   }
 }
