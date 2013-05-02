@@ -254,7 +254,7 @@ inline bool operator ==(const Point& a, const Point& b)
 
 inline bool operator !=(const Point& a, const Point& b)
 {
-  return !(a == b);
+  return !(a.x == b.x) && !(a.y == b.y);
 }
 
 /// Peform the dot product on two vectors.
