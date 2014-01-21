@@ -57,7 +57,7 @@ struct Point {
   std::vector<Edge*> edge_list;
 
   /// Construct using coordinates.
-  Point(double x, double y) : x(x), y(y) {}
+  Point(const double x, const double y) : x(x), y(y) {}
 
   /// Set this point to all zeros.
   void set_zero()
@@ -67,7 +67,7 @@ struct Point {
   }
 
   /// Set this point to some specified coordinates.
-  void set(double x_, double y_)
+  void set(const double x_, const double y_)
   {
     x = x_;
     y = y_;
@@ -96,7 +96,7 @@ struct Point {
   }
 
   /// Multiply this point by a scalar.
-  void operator *=(double a)
+  void operator *=(const double a)
   {
     x *= a;
     y *= a;
@@ -111,7 +111,7 @@ struct Point {
   /// Convert this point into a unit point. Returns the Length.
   double Normalize()
   {
-    double len = Length();
+    const double len = Length();
     x /= len;
     y /= len;
     return len;
@@ -158,12 +158,12 @@ bool constrained_edge[3];
 /// Flags to determine if an edge is a Delauney edge
 bool delaunay_edge[3];
 
-Point* GetPoint(const int& index);
-Point* PointCW(Point& point);
-Point* PointCCW(Point& point);
-Point* OppositePoint(Triangle& t, Point& p);
+Point* GetPoint(const int index);
+Point* PointCW(const Point& point);
+Point* PointCCW(const Point& point);
+Point* OppositePoint(Triangle& t, const Point& p);
 
-Triangle* GetNeighbor(const int& index);
+Triangle* GetNeighbor(const int index);
 void MarkNeighbor(Point* p1, Point* p2, Triangle* t);
 void MarkNeighbor(Triangle& t);
 
@@ -174,34 +174,34 @@ void MarkConstrainedEdge(Point* p, Point* q);
 int Index(const Point* p);
 int EdgeIndex(const Point* p1, const Point* p2);
 
-Triangle* NeighborCW(Point& point);
-Triangle* NeighborCCW(Point& point);
-bool GetConstrainedEdgeCCW(Point& p);
-bool GetConstrainedEdgeCW(Point& p);
-void SetConstrainedEdgeCCW(Point& p, bool ce);
-void SetConstrainedEdgeCW(Point& p, bool ce);
-bool GetDelunayEdgeCCW(Point& p);
-bool GetDelunayEdgeCW(Point& p);
-void SetDelunayEdgeCCW(Point& p, bool e);
-void SetDelunayEdgeCW(Point& p, bool e);
+Triangle* NeighborCW(const Point& point);
+Triangle* NeighborCCW(const Point& point);
+bool GetConstrainedEdgeCCW(const Point& p);
+bool GetConstrainedEdgeCW(const Point& p);
+void SetConstrainedEdgeCCW(const Point& p, const bool ce);
+void SetConstrainedEdgeCW(const Point& p, const bool ce);
+bool GetDelunayEdgeCCW(const Point& p);
+bool GetDelunayEdgeCW(const Point& p);
+void SetDelunayEdgeCCW(const Point& p, const bool e);
+void SetDelunayEdgeCW(const Point& p, const bool e);
 
-bool Contains(Point* p);
+bool Contains(const Point* p);
 bool Contains(const Edge& e);
-bool Contains(Point* p, Point* q);
+bool Contains(const Point* p, const Point* q);
 void Legalize(Point& point);
 void Legalize(Point& opoint, Point& npoint);
 /**
  * Clears all references to all other triangles and points
  */
 void Clear();
-void ClearNeighbor(Triangle *triangle );
+void ClearNeighbor(const Triangle *triangle);
 void ClearNeighbors();
 void ClearDelunayEdges();
 
 inline bool IsInterior();
-inline void IsInterior(bool b);
+inline void IsInterior(const bool b);
 
-Triangle& NeighborAcross(Point& opoint);
+Triangle& NeighborAcross(const Point& opoint);
 
 void DebugPrint();
 
@@ -271,7 +271,7 @@ inline double Cross(const Point& a, const Point& b)
 
 /// Perform the cross product on a point and a scalar. In 2D this produces
 /// a point.
-inline Point Cross(const Point& a, double s)
+inline Point Cross(const Point& a, const double s)
 {
   return Point(s * a.y, -s * a.x);
 }
@@ -283,17 +283,17 @@ inline Point Cross(const double s, const Point& a)
   return Point(-s * a.y, s * a.x);
 }
 
-inline Point* Triangle::GetPoint(const int& index)
+inline Point* Triangle::GetPoint(const int index)
 {
   return points_[index];
 }
 
-inline Triangle* Triangle::GetNeighbor(const int& index)
+inline Triangle* Triangle::GetNeighbor(const int index)
 {
   return neighbors_[index];
 }
 
-inline bool Triangle::Contains(Point* p)
+inline bool Triangle::Contains(const Point* p)
 {
   return p == points_[0] || p == points_[1] || p == points_[2];
 }
@@ -303,7 +303,7 @@ inline bool Triangle::Contains(const Edge& e)
   return Contains(e.p) && Contains(e.q);
 }
 
-inline bool Triangle::Contains(Point* p, Point* q)
+inline bool Triangle::Contains(const Point* p, const Point* q)
 {
   return Contains(p) && Contains(q);
 }
@@ -313,7 +313,7 @@ inline bool Triangle::IsInterior()
   return interior_;
 }
 
-inline void Triangle::IsInterior(bool b)
+inline void Triangle::IsInterior(const bool b)
 {
   interior_ = b;
 }
