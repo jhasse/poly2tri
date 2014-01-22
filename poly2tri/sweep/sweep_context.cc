@@ -34,7 +34,7 @@
 
 namespace p2t {
 
-SweepContext::SweepContext(const std::vector<Point*> &polyline) : points_(polyline),
+SweepContext::SweepContext(const std::vector<Point*>& polyline) : points_(polyline),
   front_(0),
   head_(0),
   tail_(0),
@@ -45,7 +45,7 @@ SweepContext::SweepContext(const std::vector<Point*> &polyline) : points_(polyli
   InitEdges(points_);
 }
 
-void SweepContext::AddHole(const std::vector<Point*> &polyline)
+void SweepContext::AddHole(const std::vector<Point*>& polyline)
 {
   InitEdges(polyline);
   for(unsigned int i = 0; i < polyline.size(); i++) {
@@ -95,7 +95,7 @@ void SweepContext::InitTriangulation()
 
 }
 
-void SweepContext::InitEdges(std::vector<Point*> polyline)
+void SweepContext::InitEdges(const std::vector<Point*>& polyline)
 {
   size_t num_points = polyline.size();
   for (size_t i = 0; i < num_points; i++) {
@@ -120,7 +120,7 @@ Node& SweepContext::LocateNode(const Point& point)
   return *front_->LocateNode(point.x);
 }
 
-void SweepContext::CreateAdvancingFront(const std::vector<Node*> &nodes)
+void SweepContext::CreateAdvancingFront(const std::vector<Node*>& nodes)
 {
 
   (void) nodes;

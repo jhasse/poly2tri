@@ -187,7 +187,7 @@ int Triangle::EdgeIndex(const Point* p1, const Point* p2)
   return -1;
 }
 
-void Triangle::MarkConstrainedEdge(const int index)
+void Triangle::MarkConstrainedEdge(int index)
 {
   constrained_edge[index] = true;
 }
@@ -279,7 +279,7 @@ bool Triangle::GetConstrainedEdgeCW(const Point& p)
   return constrained_edge[0];
 }
 
-void Triangle::SetConstrainedEdgeCCW(const Point& p, const bool ce)
+void Triangle::SetConstrainedEdgeCCW(const Point& p, bool ce)
 {
   if (&p == points_[0]) {
     constrained_edge[2] = ce;
@@ -290,7 +290,7 @@ void Triangle::SetConstrainedEdgeCCW(const Point& p, const bool ce)
   }
 }
 
-void Triangle::SetConstrainedEdgeCW(const Point& p, const bool ce)
+void Triangle::SetConstrainedEdgeCW(const Point& p, bool ce)
 {
   if (&p == points_[0]) {
     constrained_edge[1] = ce;
@@ -321,7 +321,7 @@ bool Triangle::GetDelunayEdgeCW(const Point& p)
   return delaunay_edge[0];
 }
 
-void Triangle::SetDelunayEdgeCCW(const Point& p, const bool e)
+void Triangle::SetDelunayEdgeCCW(const Point& p, bool e)
 {
   if (&p == points_[0]) {
     delaunay_edge[2] = e;
@@ -332,7 +332,7 @@ void Triangle::SetDelunayEdgeCCW(const Point& p, const bool e)
   }
 }
 
-void Triangle::SetDelunayEdgeCW(const Point& p, const bool e)
+void Triangle::SetDelunayEdgeCW(const Point& p, bool e)
 {
   if (&p == points_[0]) {
     delaunay_edge[1] = e;
