@@ -34,7 +34,7 @@
 
 namespace p2t {
 
-SweepContext::SweepContext(std::vector<Point*> polyline) : points_(polyline),
+SweepContext::SweepContext(const std::vector<Point*>& polyline) : points_(polyline),
   front_(0),
   head_(0),
   tail_(0),
@@ -45,7 +45,7 @@ SweepContext::SweepContext(std::vector<Point*> polyline) : points_(polyline),
   InitEdges(points_);
 }
 
-void SweepContext::AddHole(std::vector<Point*> polyline)
+void SweepContext::AddHole(const std::vector<Point*>& polyline)
 {
   InitEdges(polyline);
   for(unsigned int i = 0; i < polyline.size(); i++) {
@@ -57,12 +57,12 @@ void SweepContext::AddPoint(Point* point) {
   points_.push_back(point);
 }
 
-std::vector<Triangle*> SweepContext::GetTriangles()
+std::vector<Triangle*> &SweepContext::GetTriangles()
 {
   return triangles_;
 }
 
-std::list<Triangle*> SweepContext::GetMap()
+std::list<Triangle*> &SweepContext::GetMap()
 {
   return map_;
 }
@@ -95,7 +95,7 @@ void SweepContext::InitTriangulation()
 
 }
 
-void SweepContext::InitEdges(std::vector<Point*> polyline)
+void SweepContext::InitEdges(const std::vector<Point*>& polyline)
 {
   size_t num_points = polyline.size();
   for (size_t i = 0; i < num_points; i++) {
@@ -114,13 +114,13 @@ void SweepContext::AddToMap(Triangle* triangle)
   map_.push_back(triangle);
 }
 
-Node& SweepContext::LocateNode(Point& point)
+Node& SweepContext::LocateNode(const Point& point)
 {
   // TODO implement search tree
   return *front_->LocateNode(point.x);
 }
 
-void SweepContext::CreateAdvancingFront(std::vector<Node*> nodes)
+void SweepContext::CreateAdvancingFront(const std::vector<Node*>& nodes)
 {
 
   (void) nodes;

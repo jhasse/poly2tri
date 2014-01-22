@@ -53,7 +53,7 @@ public:
    *
    * @param polyline
    */
-  CDT(std::vector<Point*> polyline);
+  CDT(const std::vector<Point*>& polyline);
 
    /**
    * Destructor - clean up memory
@@ -65,7 +65,7 @@ public:
    *
    * @param polyline
    */
-  void AddHole(std::vector<Point*> polyline);
+  void AddHole(const std::vector<Point*>& polyline);
 
   /**
    * Add a steiner point
