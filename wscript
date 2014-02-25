@@ -40,7 +40,7 @@ def configure(conf):
   conf.env.DEFINES_P2T = ['P2T']
   conf.env.LIB_P2T = sys_libs
   if sys.platform == 'darwin':
-    conf.env.FRAMEWORK = ['OpenGL', 'Cocoa']
+    conf.env.FRAMEWORK = ['OpenGL', 'Cocoa', 'IOKit']
 
 def build(bld):
   print('  building')
