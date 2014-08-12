@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cstdlib>
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include <time.h>
 #include <fstream>
 #include <string>
@@ -76,6 +76,8 @@ vector< vector<Point*> > polylines;
 bool draw_map = false;
 /// Create a random distribution of points?
 bool random_distribution = false;
+
+GLFWwindow* window = NULL;
 
 template <class C> void FreeClear( C & cntr ) {
     for ( typename C::iterator it = cntr.begin();
@@ -230,10 +232,11 @@ void Init()
   if (glfwInit() != GL_TRUE)
     ShutDown(1);
   // 800 x 600, 16 bit color, no depth, alpha or stencil buffers, windowed
-  if (glfwOpenWindow(window_width, window_height, 5, 6, 5, 0, 0, 0, GLFW_WINDOW) != GL_TRUE)
+  window = glfwCreateWindow(window_width, window_height, "Poly2Tri - C++", NULL, NULL);
+  if (!window)
     ShutDown(1);
 
-  glfwSetWindowTitle("Poly2Tri - C++");
+  glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
 
   glEnable(GL_BLEND);
@@ -256,6 +259,8 @@ void MainLoop(const double zoom)
   bool running = true;
 
   while (running) {
+    glfwPollEvents();
+
     // calculate time elapsed, and the amount by which stuff rotates
     double current_time = glfwGetTime(),
            delta_rotate = (current_time - old_time) * rotations_per_tick * 360;
@@ -263,11 +268,11 @@ void MainLoop(const double zoom)
 
     // escape to quit, arrow keys to rotate view
     // Check if ESC key was pressed or window was closed
-    running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+    running = !glfwGetKey(window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(window);
 
-    if (glfwGetKey(GLFW_KEY_LEFT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
       rotate_y += delta_rotate;
-    if (glfwGetKey(GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
       rotate_y -= delta_rotate;
     // z axis always rotates
     rotate_z += delta_rotate;
@@ -280,7 +285,7 @@ void MainLoop(const double zoom)
     }
 
     // swap back and front buffers
-    glfwSwapBuffers();
+    glfwSwapBuffers(window);
   }
 }
 

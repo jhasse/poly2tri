@@ -19,9 +19,9 @@ from waflib.Tools.compiler_cxx import cxx_compiler
 cxx_compiler['win32'] = ['g++']
 
 #Platform specific libs
-if sys.platform == 'win32':
+if sys.platform in ['win32', 'msys']:
     # MS Windows
-    sys_libs = ['glfw', 'opengl32']
+    sys_libs = ['glfw3', 'opengl32']
 elif sys.platform == 'darwin':
     # Apple OSX
     sys_libs = ['glfw']
