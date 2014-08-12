@@ -38,6 +38,11 @@
 #include <exception>
 #include <math.h>
 
+// C99 removes M_PI from math.h
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327
+#endif
+
 namespace p2t {
 
 const double PI_3div4 = 3 * M_PI / 4;
