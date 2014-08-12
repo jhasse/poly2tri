@@ -65,9 +65,9 @@ p2t random <num_points> <box_radius> <zoom>
 ```
 Examples:
 ```
-./p2t dude.dat 300 500 2
-./p2t nazca_monkey.dat 0 0 9
+./build/p2t testbed/data/dude.dat 300 500 2
+./build/p2t testbed/data/nazca_monkey.dat 0 0 9
 
-./p2t random 10 100 5.0
-./p2t random 1000 20000 0.025
+./build/p2t random 10 100 5.0
+./build/p2t random 1000 20000 0.025
 ```
