@@ -1,4 +1,11 @@
+# Mac
 .DS_Store
-.lock-wafbuild
+
+# Waf
+.lock-waf*
 .waf-*
+waf3-*/
 build/
+
+# Visual Studio Code
+browse.VC.db
