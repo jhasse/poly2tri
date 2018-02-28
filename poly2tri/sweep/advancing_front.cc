@@ -30,6 +30,8 @@
  */
 #include "advancing_front.h"
 
+#include <cassert>
+
 namespace p2t {
 
 AdvancingFront::AdvancingFront(Node& head, Node& tail)

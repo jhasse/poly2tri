@@ -33,10 +33,10 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-#include <vector>
-#include <cstddef>
-#include <assert.h>
 #include <cmath>
+#include <cstddef>
+#include <stdexcept>
+#include <vector>
 
 namespace p2t {
 
@@ -136,7 +136,7 @@ struct Edge {
         p = &p2;
       } else if (p1.x == p2.x) {
         // Repeat points
-        assert(false);
+        throw std::runtime_error("Edge::Edge: p1 == p2");
       }
     }
 
