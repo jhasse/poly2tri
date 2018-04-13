@@ -8,4 +8,4 @@ waf3-*/
 build/
 
 # Visual Studio Code
-browse.VC.db
+/.vscode/*cache*
