@@ -42,7 +42,7 @@ namespace p2t {
 void Sweep::Triangulate(SweepContext& tcx)
 {
   tcx.InitTriangulation();
-  tcx.CreateAdvancingFront(nodes_);
+  tcx.CreateAdvancingFront();
   // Sweep points; build mesh
   SweepPoints(tcx);
   // Clean up

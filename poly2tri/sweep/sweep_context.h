@@ -70,7 +70,7 @@ Node& LocateNode(const Point& point);
 
 void RemoveNode(Node* node);
 
-void CreateAdvancingFront(const std::vector<Node*>& nodes);
+void CreateAdvancingFront();
 
 /// Try to map a node to all sides of this triangle that don't have a neighbor
 void MapTriangleToNodes(Triangle& t);

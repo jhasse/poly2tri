@@ -120,10 +120,9 @@ Node& SweepContext::LocateNode(const Point& point)
   return *front_->LocateNode(point.x);
 }
 
-void SweepContext::CreateAdvancingFront(const std::vector<Node*>& nodes)
+void SweepContext::CreateAdvancingFront()
 {
 
-  (void) nodes;
   // Initial triangle
   Triangle* triangle = new Triangle(*points_[0], *tail_, *head_);
 
