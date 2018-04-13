@@ -35,8 +35,10 @@
 // Otherwise #defines like M_PI are undeclared under Visual Studio
 #define _USE_MATH_DEFINES
 
+#include "shapes.h"
+
+#include <cmath>
 #include <exception>
-#include <math.h>
 
 // C99 removes M_PI from math.h
 #ifndef M_PI
