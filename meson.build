@@ -8,3 +8,11 @@ lib = static_library('poly2tri', sources : [
 	'poly2tri/sweep/sweep.cc',
 	'poly2tri/sweep/sweep_context.cc',
 ])
+
+thread_dep = dependency('threads')
+boost_test_dep = dependency('boost', modules : [ 'unit_test_framework' ], required : false)
+if boost_test_dep.found()
+	test('Unit Test', executable('unittest', [
+		'unittest/main.cpp',
+	], dependencies : [boost_test_dep, thread_dep], link_with : lib))
+endif
