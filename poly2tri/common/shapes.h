@@ -119,6 +119,8 @@ struct Point {
 
 };
 
+std::ostream& operator<<(std::ostream&, const Point&);
+
 // Represents a simple polygon's edge
 struct Edge {
 

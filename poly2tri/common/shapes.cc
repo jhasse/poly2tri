@@ -35,6 +35,10 @@
 
 namespace p2t {
 
+std::ostream& operator<<(std::ostream& out, const Point& point) {
+  return out << point.x << "," << point.y;
+}
+
 Triangle::Triangle(Point& a, Point& b, Point& c)
 {
   points_[0] = &a; points_[1] = &b; points_[2] = &c;
@@ -358,10 +362,7 @@ Triangle& Triangle::NeighborAcross(const Point& opoint)
 
 void Triangle::DebugPrint()
 {
-  using namespace std;
-  cout << points_[0]->x << "," << points_[0]->y << " ";
-  cout << points_[1]->x << "," << points_[1]->y << " ";
-  cout << points_[2]->x << "," << points_[2]->y << endl;
+  std::cout << *points_[0] << " " << *points_[1] << " " << *points_[2] << std::endl;
 }
 
 }
