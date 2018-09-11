@@ -1,0 +1,72 @@
+{
+	"version": "2.0.0",
+	"windows": {
+		"command": "C:\\msys64\\usr\\bin\\bash.exe",
+		"args": ["-lc", "([ -f build/build.ninja ] || meson build) && ninja -C build | cat"]
+	},
+	"linux": {
+		"args": ["-lc", "cd \"\"${workspaceRoot}\"\" && ([ -f build/build.ninja ] || meson build) && ninja -C build && cd build && $@"],
+		"command": "/bin/bash"
+	},
+	"osx": {
+		"args": ["-lc", "cd \"\"${workspaceRoot}\"\" && ([ -f build/build.ninja ] || meson build) && ninja -C build && cd build && $@"],
+		"command": "/bin/bash"
+	},
+	"options": {
+		"env": {
+			"LANG": "C.UTF-8",
+			"PYTHONUNBUFFERD": "1",
+			"MSYSTEM": "MINGW64",
+			"CHERE_INVOKING": "1"
+		}
+	},
+	"tasks": [
+		{
+			"label": "build",
+			"problemMatcher": {
+				"owner": "cpp",
+				"fileLocation": [
+					"relative",
+					"${workspaceRoot}/build"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error|fatal error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "test",
+			"args": [
+				"./unittest"
+			],
+			"problemMatcher": {
+				"owner": "cpp",
+				"fileLocation": [
+					"relative",
+					"${workspaceRoot}/build/"
+				],
+				"pattern": {
+					"regexp": "^(.*?)[:\\(](\\d+)(:(\\d+))?\\)?:\\s+(warning|error|fatal error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 4,
+					"severity": 5,
+					"message": 6
+				}
+			},
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}
