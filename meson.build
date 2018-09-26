@@ -16,3 +16,5 @@ if boost_test_dep.found()
 		'unittest/main.cpp',
 	], dependencies : [boost_test_dep, thread_dep], link_with : lib))
 endif
+
+poly2tri_dep = declare_dependency(include_directories : include, link_with : lib)
