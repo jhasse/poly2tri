@@ -6,7 +6,6 @@ pool:
 
 steps:
 - script: |
-    brew install cmake
     cmake .
     make
   env:
