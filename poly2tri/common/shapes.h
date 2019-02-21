@@ -207,7 +207,11 @@ Triangle& NeighborAcross(const Point& opoint);
 
 void DebugPrint();
 
+bool CircumcicleContains(const Point&) const;
+
 private:
+
+bool IsCounterClockwise() const;
 
 /// Triangle points
 Point* points_[3];

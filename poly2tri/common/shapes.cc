@@ -365,4 +365,28 @@ void Triangle::DebugPrint()
   std::cout << *points_[0] << " " << *points_[1] << " " << *points_[2] << std::endl;
 }
 
+bool Triangle::CircumcicleContains(const Point& point) const
+{
+  assert(IsCounterClockwise());
+  const double dx = points_[0]->x - point.x;
+  const double dy = points_[0]->y - point.y;
+  const double ex = points_[1]->x - point.x;
+  const double ey = points_[1]->y - point.y;
+  const double fx = points_[2]->x - point.x;
+  const double fy = points_[2]->y - point.y;
+
+  const double ap = dx * dx + dy * dy;
+  const double bp = ex * ex + ey * ey;
+  const double cp = fx * fx + fy * fy;
+
+  return (dx * (fy * bp - cp * ey) - dy * (fx * bp - cp * ex) + ap * (fx * ey - fy * ex)) < 0;
+}
+
+bool Triangle::IsCounterClockwise() const
+{
+  return (points_[1]->x - points_[0]->x) * (points_[2]->y - points_[0]->y) -
+             (points_[2]->x - points_[0]->x) * (points_[1]->y - points_[0]->y) >
+         0;
+}
+
 }
