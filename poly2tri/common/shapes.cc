@@ -389,4 +389,21 @@ bool Triangle::IsCounterClockwise() const
          0;
 }
 
+bool IsDelaunay(const std::vector<p2t::Triangle*>& triangles)
+{
+  for (const auto triangle : triangles) {
+    for (const auto other : triangles) {
+      if (triangle == other) {
+        continue;
+      }
+      for (int i = 0; i < 3; ++i) {
+        if (triangle->CircumcicleContains(*other->GetPoint(i))) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
 }
