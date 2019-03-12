@@ -46,10 +46,9 @@ BOOST_AUTO_TEST_CASE(TestbedFilesTest)
     // Load pointset from file
     // Parse and tokenize data file
     std::string line;
-    std::ifstream myfile(std::string("../testbed/data/") + filename);
-    if (!myfile.is_open()) {
-      myfile.open(std::string("testbed/data/") + filename);
-    }
+    const std::string src(__FILE__); // ../unittest/main.cpp
+    auto folder = src.substr(0, src.find_last_of('/')) + "/../testbed/data/";
+    std::ifstream myfile(folder + filename);
     BOOST_REQUIRE(myfile.is_open());
     while (!myfile.eof()) {
       getline(myfile, line);
