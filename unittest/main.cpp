@@ -4,6 +4,7 @@
 #include <poly2tri/poly2tri.h>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 
 BOOST_AUTO_TEST_CASE(BasicTest)
 {
