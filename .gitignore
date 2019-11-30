@@ -4,6 +4,7 @@
 # Waf
 .lock-waf*
 .waf-*
+.waf3-*/
 waf3-*/
 build/
 
