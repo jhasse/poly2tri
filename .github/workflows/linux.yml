@@ -1,0 +1,30 @@
+name: Linux
+
+on:
+  pull_request:
+  push:
+  release:
+    types: published
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    container:
+      image: fedora:32
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: dnf install -yq cmake ninja-build clang-tools-extra python3-PyYAML
+
+    - name: Build with GCC
+      run: |
+        cmake -Bbuild -GNinja
+        cmake --build build
+
+    - name: Build with Clang
+      run: |
+        CXX=clang++ cmake -Bbuild-clang -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+        cmake --build build-clang
+
+    - name: Lint with clang-tidy
+      run: python3 /usr/share/clang/run-clang-tidy.py -header-filter=poly2tri -p=build-clang
