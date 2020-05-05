@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: microdnf install cmake ninja-build clang-tools-extra python3-PyYAML
+      run: dnf install -yq cmake ninja-build clang-tools-extra python3-PyYAML
 
     - name: Configure
       run: cmake -Bbuild -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=1
