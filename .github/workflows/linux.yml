@@ -10,11 +10,11 @@ jobs:
   build:
     runs-on: [ubuntu-latest]
     container:
-      image: registry.fedoraproject.org/fedora-minimal:32
+      image: fedora:32
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: microdnf install cmake ninja-build clang-tools-extra python3-PyYAML tar
+      run: microdnf install cmake ninja-build clang-tools-extra python3-PyYAML
 
     - name: Configure
       run: cmake -Bbuild -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=1
