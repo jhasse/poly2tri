@@ -35,12 +35,12 @@
 namespace p2t {
 
 SweepContext::SweepContext(const std::vector<Point*>& polyline) : points_(polyline),
-  front_(0),
-  head_(0),
-  tail_(0),
-  af_head_(0),
-  af_middle_(0),
-  af_tail_(0)
+  front_(nullptr),
+  head_(nullptr),
+  tail_(nullptr),
+  af_head_(nullptr),
+  af_middle_(nullptr),
+  af_tail_(nullptr)
 {
   InitEdges(points_);
 }
@@ -171,7 +171,7 @@ void SweepContext::MeshClean(Triangle& triangle)
 	Triangle *t = triangles.back();
 	triangles.pop_back();
 
-    if (t != NULL && !t->IsInterior()) {
+    if (t != nullptr && !t->IsInterior()) {
       t->IsInterior(true);
       triangles_.push_back(t);
       for (int i = 0; i < 3; i++) {
