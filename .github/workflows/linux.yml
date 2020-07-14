@@ -13,12 +13,13 @@ jobs:
       image: fedora:32
     steps:
     - uses: actions/checkout@v2
+
     - name: Install dependencies
-      run: dnf install -yq cmake ninja-build gcc-c++ clang-tools-extra python3-PyYAML
+      run: dnf install -yq cmake ninja-build gcc-c++ clang-tools-extra python3-PyYAML boost-devel
 
     - name: Build with GCC
       run: |
-        cmake -Bbuild -GNinja
+        cmake -Bbuild -GNinja -DP2T_BUILD_TESTS=ON
         cmake --build build
 
     - name: Build with Clang
@@ -28,3 +29,6 @@ jobs:
 
     - name: Lint with clang-tidy
       run: python3 /usr/share/clang/run-clang-tidy.py -header-filter=poly2tri -p=build-clang
+
+    - name: Unit tests
+      run: cd build && ctest --output-on-failure

@@ -1,5 +1,9 @@
+#ifndef WIN32
 #define BOOST_TEST_DYN_LINK
+#endif
 #define BOOST_TEST_MODULE Poly2triTest
+
+#include <boost/filesystem/path.hpp>
 #include <boost/test/unit_test.hpp>
 #include <poly2tri/poly2tri.h>
 #include <fstream>
@@ -64,9 +68,13 @@ BOOST_AUTO_TEST_CASE(TestbedFilesTest)
     // Load pointset from file
     // Parse and tokenize data file
     std::string line;
-    const std::string src(__FILE__); // ../unittest/main.cpp
-    auto folder = src.substr(0, src.find_last_of('/')) + "/../testbed/data/";
-    std::ifstream myfile(folder + filename);
+#ifndef P2T_BASE_DIR
+    const auto basedir = boost::filesystem::path(__FILE__).remove_filename().parent_path();
+#else
+    const auto basedir = boost::filesystem::path(P2T_BASE_DIR);
+#endif
+    const auto datafile = basedir / boost::filesystem::path("testbed/data") / boost::filesystem::path(filename);
+    std::ifstream myfile(datafile.string());
     BOOST_REQUIRE(myfile.is_open());
     while (!myfile.eof()) {
       getline(myfile, line);
