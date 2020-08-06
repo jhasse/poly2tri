@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <stdexcept>
 
 BOOST_AUTO_TEST_CASE(BasicTest)
 {
@@ -35,6 +36,22 @@ BOOST_AUTO_TEST_CASE(QuadTest)
   const auto result = cdt.GetTriangles();
   BOOST_REQUIRE_EQUAL(result.size(), 2);
   BOOST_CHECK(p2t::IsDelaunay(result));
+  for (const auto p : polyline) {
+    delete p;
+  }
+}
+
+BOOST_AUTO_TEST_CASE(QuadTestThrow)
+{
+  // Very narrow quad that demonstrates a failure case during triangulation
+  std::vector<p2t::Point*> polyline {
+    new p2t::Point(0.0,     0.0),
+    new p2t::Point(1.0e-05, 0.0),
+    new p2t::Point(1.1e-04, 3.0e-07),
+    new p2t::Point(1.0e-04, 3.0e-07)
+  };
+  p2t::CDT cdt{ polyline };
+  BOOST_CHECK_THROW(cdt.Triangulate(), std::runtime_error);
   for (const auto p : polyline) {
     delete p;
   }
