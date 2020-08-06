@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: dnf install -yq cmake ninja-build clang-tools-extra python3-PyYAML
+      run: dnf install -yq cmake ninja-build gcc-c++ clang-tools-extra python3-PyYAML
 
     - name: Build with GCC
       run: |
