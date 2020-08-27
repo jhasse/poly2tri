@@ -4,6 +4,7 @@ project(poly2tri LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
 option(P2T_BUILD_TESTS "Build tests" OFF)
+option(P2T_BUILD_TESTBED "Build the testbed application" OFF)
 
 file(GLOB SOURCES poly2tri/common/*.cc poly2tri/sweep/*.cc)
 add_library(poly2tri ${SOURCES})
@@ -12,4 +13,8 @@ target_include_directories(poly2tri INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 if(P2T_BUILD_TESTS)
     enable_testing()
     add_subdirectory(unittest)
+endif()
+
+if(P2T_BUILD_TESTBED)
+    add_subdirectory(testbed)
 endif()
