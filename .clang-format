@@ -1,0 +1,12 @@
+BasedOnStyle: LLVM
+ColumnLimit: 100
+ConstructorInitializerIndentWidth: 0
+AllowShortFunctionsOnASingleLine: None
+PointerAlignment: Left
+SortIncludes: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+SpaceBeforeParens: ControlStatements
+SpacesInContainerLiterals: true
+Cpp11BracedListStyle: false
+IndentCaseLabels: true
+BreakBeforeBraces: WebKit
