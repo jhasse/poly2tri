@@ -87,8 +87,8 @@ void SweepContext::InitTriangulation()
 
   double dx = kAlpha * (xmax - xmin);
   double dy = kAlpha * (ymax - ymin);
-  head_ = new Point(xmax + dx, ymin - dy);
-  tail_ = new Point(xmin - dx, ymin - dy);
+  head_ = new Point(xmin - dx, ymin - dy);
+  tail_ = new Point(xmax + dx, ymin - dy);
 
   // Sort points along y-axis
   std::sort(points_.begin(), points_.end(), cmp);
@@ -124,7 +124,7 @@ void SweepContext::CreateAdvancingFront()
 {
 
   // Initial triangle
-  Triangle* triangle = new Triangle(*points_[0], *tail_, *head_);
+  Triangle* triangle = new Triangle(*points_[0], *head_, *tail_);
 
   map_.push_back(triangle);
 
