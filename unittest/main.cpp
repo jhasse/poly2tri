@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(BasicTest)
     new p2t::Point(1, 1),
   };
   p2t::CDT cdt{ polyline };
-  cdt.Triangulate();
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
   const auto result = cdt.GetTriangles();
   BOOST_REQUIRE_EQUAL(result.size(), 1);
   BOOST_CHECK_EQUAL(*result[0]->GetPoint(0), *polyline[0]);
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(QuadTest)
   std::vector<p2t::Point*> polyline{ new p2t::Point(0, 0), new p2t::Point(0, 1),
                                      new p2t::Point(1, 1), new p2t::Point(1, 0) };
   p2t::CDT cdt{ polyline };
-  cdt.Triangulate();
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
   const auto result = cdt.GetTriangles();
   BOOST_REQUIRE_EQUAL(result.size(), 2);
   BOOST_CHECK(p2t::IsDelaunay(result));
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(QuadTest)
   }
 }
 
-BOOST_AUTO_TEST_CASE(QuadTestThrow)
+BOOST_AUTO_TEST_CASE(NarrowQuadTest)
 {
   // Very narrow quad that demonstrates a failure case during triangulation
   std::vector<p2t::Point*> polyline {
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(TestbedFilesTest)
       polyline.push_back(new p2t::Point(x, y));
     }
     p2t::CDT cdt{ polyline };
-    cdt.Triangulate();
+    BOOST_CHECK_NO_THROW(cdt.Triangulate());
     const auto result = cdt.GetTriangles();
     BOOST_REQUIRE(result.size() * 3 > polyline.size());
     BOOST_CHECK_MESSAGE(p2t::IsDelaunay(result), filename + std::to_string(polyline.size()));
