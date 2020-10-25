@@ -28,18 +28,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cstdlib>
-#include <GLFW/glfw3.h>
-#include <time.h>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <iterator>
-#include <iostream>
-using namespace std;
+#include <poly2tri/poly2tri.h>
 
-#include "../poly2tri/poly2tri.h"
+#include <GLFW/glfw3.h>
+
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <list>
+#include <sstream>
+#include <string>
+#include <vector>
+
+using namespace std;
 using namespace p2t;
 
 void Init();

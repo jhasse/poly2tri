@@ -3,9 +3,11 @@
 #endif
 #define BOOST_TEST_MODULE Poly2triTest
 
+#include <poly2tri/poly2tri.h>
+
 #include <boost/filesystem/path.hpp>
 #include <boost/test/unit_test.hpp>
-#include <poly2tri/poly2tri.h>
+
 #include <fstream>
 #include <iostream>
 #include <iterator>

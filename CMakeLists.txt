@@ -7,7 +7,8 @@ option(P2T_BUILD_TESTS "Build tests" OFF)
 option(P2T_BUILD_TESTBED "Build the testbed application" OFF)
 
 file(GLOB SOURCES poly2tri/common/*.cc poly2tri/sweep/*.cc)
-add_library(poly2tri ${SOURCES})
+file(GLOB HEADERS poly2tri/*.h poly2tri/common/*.h poly2tri/sweep/*.h)
+add_library(poly2tri ${SOURCES} ${HEADERS})
 target_include_directories(poly2tri INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(P2T_BUILD_TESTS)
