@@ -1,4 +1,4 @@
-#ifndef WIN32
+#if !defined(_WIN32) && !defined(BOOST_TEST_DYN_LINK)
 #define BOOST_TEST_DYN_LINK
 #endif
 #include <boost/test/unit_test.hpp>
