@@ -104,3 +104,11 @@ mkdir build && cd build
 cmake -GNinja -DP2T_BUILD_TESTBED=ON
 cmake --build .
 ```
+
+References
+==========
+
+- Domiter V. and Zalik B. (2008) Sweep‐line algorithm for constrained Delaunay triangulation
+- FlipScan by library author Thomas Åhlén
+
+![FlipScan](doc/FlipScan.png)
