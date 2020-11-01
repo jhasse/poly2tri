@@ -113,6 +113,81 @@ BOOST_AUTO_TEST_CASE(ConcaveBoundaryTest)
 }
 
 
+BOOST_AUTO_TEST_CASE(PolygonTest01)
+{
+  // Reported in issue #10
+  std::vector<p2t::Point*> polyline = {
+    new p2t::Point(-0.388419120000000006598384061363, 0.0368141516905975269002837535481),
+    new p2t::Point(-0.388419120000000006598384061363, 0.0104235565411950892311665484158),
+    new p2t::Point(-0.611580879999999993401615938637, 0.0104235565411950892311665484158),
+    new p2t::Point(-0.611580879999999993401615938637, 0.1483950316905975341796875),
+    new p2t::Point(-0.578899596898762469621146919962, 0.227294628589359948289683188705),
+    new p2t::Point(-0.500000000000000000000000000000, 0.259975911690597527581303438637),
+    new p2t::Point(+0.500000000000000000000000000000, 0.259975911690597527581303438637),
+    new p2t::Point(+0.578899596898762469621146919962, 0.227294628589359948289683188705),
+    new p2t::Point(+0.611580879999999993401615938637, 0.1483950316905975341796875),
+    new p2t::Point(+0.611580879999999993401615938637, 0.0104235565411950614755909327869),
+    new p2t::Point(+0.388419120000000006598384061363, 0.0104235565411950892311665484158),
+    new p2t::Point(+0.388419120000000006598384061363, 0.0368141516905975130224959457337)
+  };
+  p2t::CDT cdt{ polyline };
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 10);
+  for (const auto p : polyline) {
+     delete p;
+  }
+}
+
+
+BOOST_AUTO_TEST_CASE(PolygonTest02)
+{
+  // Reported in issue #10
+  std::vector<p2t::Point*> polyline = {
+    new p2t::Point(0.9636984967276516, 0.7676550649687783),
+    new p2t::Point(0.9636984967276516, -0.7676550649687641),
+    new p2t::Point(-0.3074475690811459, -0.7676550649687641),
+    new p2t::Point(0.09401654924378076, -0.2590574983578904),
+    new p2t::Point(0.10567230819363671, -0.09864698028880525),
+    new p2t::Point(-0.03901177977841874, -0.028405214140875046),
+    new p2t::Point(-0.428964921810446, -0.08483619470406722),
+    new p2t::Point(-0.5128305980156834, -0.12847817634298053),
+    new p2t::Point(-0.5512747518916774, -0.2148501697175078),
+    new p2t::Point(-0.5917836778064418, -0.7037530067555622),
+    new p2t::Point(-0.5520451065921502, -0.7676550649687641),
+    new p2t::Point(-0.9636984967276516, -0.7676550649687641),
+    new p2t::Point(-0.9636984967276516, 0.767655064968778)
+  };
+  p2t::CDT cdt{ polyline };
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 11);
+  for (const auto p : polyline) {
+    delete p;
+  }
+}
+
+BOOST_AUTO_TEST_CASE(PolygonTest03)
+{
+  // Reported in issue #10
+  std::vector<p2t::Point*> polyline = {
+    new p2t::Point(0.9776422201600001, 0.9776422201599928),
+    new p2t::Point(0.9776422201599999, -0.977642220160007),
+    new p2t::Point(-0.12788518519240472, -0.9776422201599928),
+    new p2t::Point(-0.3913394510746002, -0.33861494064331055),
+    new p2t::Point(-0.47812835166211676, -0.9776422201599928),
+    new p2t::Point(-0.9776422201600001, -0.9776422201599928),
+    new p2t::Point(-0.9776422201600001, 0.977642220160007)
+  };
+  p2t::CDT cdt{ polyline };
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 5);
+  for (const auto p : polyline) {
+    delete p;
+  }
+}
+
 BOOST_AUTO_TEST_CASE(TestbedFilesTest)
 {
   for (const auto& filename : { "custom.dat", "diamond.dat", "star.dat", "test.dat" }) {
