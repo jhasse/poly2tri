@@ -29,53 +29,8 @@ Core poly2tri lib:
 
 Testbed:
 
-* gcc
 * OpenGL
 * [GLFW](http://glfw.sf.net)
-* Python
-
-[waf](http://code.google.com/p/waf/) is used to compile the testbed.
-A waf script (86kb) is included in the repositoty.
-
-Building the Testbed
---------------------
-
-Posix/MSYS environment:
-```
-./waf configure
-./waf build
-```
-
-Windows command line:
-```
-python waf configure
-python waf build
-```
-
-Alternatively, the testbed can be built using cmake. See below.
-
-Running the Examples
---------------------
-
-Load data points from a file:
-```
-p2t <filename> <center_x> <center_y> <zoom>
-```
-Random distribution of points inside a constrained box:
-```
-p2t random <num_points> <box_radius> <zoom>
-```
-Examples:
-```
-./build/p2t testbed/data/dude.dat 300 500 2
-./build/p2t testbed/data/nazca_monkey.dat 0 0 9
-
-./build/p2t random 10 100 5.0
-./build/p2t random 1000 20000 0.025
-```
-
-BUILD WITH CMAKE
-================
 
 Build the library
 -----------------
@@ -103,6 +58,26 @@ Build the testbed
 mkdir build && cd build
 cmake -GNinja -DP2T_BUILD_TESTBED=ON
 cmake --build .
+```
+
+Running the Examples
+--------------------
+
+Load data points from a file:
+```
+p2t <filename> <center_x> <center_y> <zoom>
+```
+Random distribution of points inside a constrained box:
+```
+p2t random <num_points> <box_radius> <zoom>
+```
+Examples:
+```
+./build/p2t testbed/data/dude.dat 300 500 2
+./build/p2t testbed/data/nazca_monkey.dat 0 0 9
+
+./build/p2t random 10 100 5.0
+./build/p2t random 1000 20000 0.025
 ```
 
 References
