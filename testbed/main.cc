@@ -60,9 +60,9 @@ double Fun(double x);
 vector<Point*> CreateHeadHole();
 vector<Point*> CreateChestHole();
 
-float rotate_y = 0,
-      rotate_z = 0;
-const float rotations_per_tick = .2;
+double rotate_y = 0.0,
+       rotate_z = 0.0;
+const double rotations_per_tick = 0.2;
 
 /// Screen center x
 double cx = 0.0;
@@ -94,7 +94,7 @@ template <class C> void FreeClear( C & cntr ) {
 int main(int argc, char* argv[])
 {
 
-  int num_points = 0;
+  size_t num_points = 0u;
   double max, min;
   double zoom;
 
@@ -267,7 +267,7 @@ void MainLoop(const double zoom)
 
     // calculate time elapsed, and the amount by which stuff rotates
     double current_time = glfwGetTime(),
-           delta_rotate = (current_time - old_time) * rotations_per_tick * 360;
+           delta_rotate = (current_time - old_time) * rotations_per_tick * 360.0;
     old_time = current_time;
 
     // escape to quit, arrow keys to rotate view
@@ -306,8 +306,8 @@ void ResetZoom(double zoom, double cx, double cy, double width, double height)
   glLoadIdentity();
 
   // Reset ortho view
-  glOrtho(left, right, bottom, top, 1, -1);
-  glTranslatef(-cx, -cy, 0);
+  glOrtho(left, right, bottom, top, 1.0, -1.0);
+  glTranslated(-cx, -cy, 0.0);
   glMatrixMode(GL_MODELVIEW);
   glDisable(GL_DEPTH_TEST);
   glLoadIdentity();
@@ -333,9 +333,9 @@ void Draw(const double zoom)
     glColor3f(1, 0, 0);
 
     glBegin(GL_LINE_LOOP);
-    glVertex2f(a.x, a.y);
-    glVertex2f(b.x, b.y);
-    glVertex2f(c.x, c.y);
+    glVertex2d(a.x, a.y);
+    glVertex2d(b.x, b.y);
+    glVertex2d(c.x, c.y);
     glEnd();
   }
 
@@ -346,7 +346,7 @@ void Draw(const double zoom)
     vector<Point*> poly = polylines[i];
     glBegin(GL_LINE_LOOP);
       for(int j = 0; j < poly.size(); j++) {
-        glVertex2f(poly[j]->x, poly[j]->y);
+        glVertex2d(poly[j]->x, poly[j]->y);
       }
     glEnd();
   }
@@ -368,20 +368,20 @@ void DrawMap(const double zoom)
 
     ConstrainedColor(t.constrained_edge[2]);
     glBegin(GL_LINES);
-    glVertex2f(a.x, a.y);
-    glVertex2f(b.x, b.y);
+    glVertex2d(a.x, a.y);
+    glVertex2d(b.x, b.y);
     glEnd( );
 
     ConstrainedColor(t.constrained_edge[0]);
     glBegin(GL_LINES);
-    glVertex2f(b.x, b.y);
-    glVertex2f(c.x, c.y);
+    glVertex2d(b.x, b.y);
+    glVertex2d(c.x, c.y);
     glEnd( );
 
     ConstrainedColor(t.constrained_edge[1]);
     glBegin(GL_LINES);
-    glVertex2f(c.x, c.y);
-    glVertex2f(a.x, a.y);
+    glVertex2d(c.x, c.y);
+    glVertex2d(a.x, a.y);
     glEnd( );
   }
 }
