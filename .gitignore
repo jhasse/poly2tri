@@ -13,3 +13,4 @@ build/
 /.vscode/ipch/
 /.ccls-cache/
 /compile_commands.json
+/.cache/
