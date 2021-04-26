@@ -65,12 +65,14 @@ void Sweep::FinalizationPolygon(SweepContext& tcx)
   // Get an Internal triangle to start with
   Triangle* t = tcx.front()->head()->next->triangle;
   Point* p = tcx.front()->head()->next->point;
-  while (!t->GetConstrainedEdgeCW(*p)) {
+  while (t && !t->GetConstrainedEdgeCW(*p)) {
     t = t->NeighborCCW(*p);
   }
 
   // Collect interior triangles constrained by edges
-  tcx.MeshClean(*t);
+  if (t) {
+    tcx.MeshClean(*t);
+  }
 }
 
 Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
@@ -227,7 +229,7 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
   // Fill right holes
   Node* node = n.next;
 
-  while (node->next) {
+  while (node && node->next) {
     // if HoleAngle exceeds 90 degrees then break.
     if (LargeHole_DontFill(node)) break;
     Fill(tcx, *node);
@@ -237,7 +239,7 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
   // Fill left holes
   node = n.prev;
 
-  while (node->prev) {
+  while (node && node->prev) {
     // if HoleAngle exceeds 90 degrees then break.
     if (LargeHole_DontFill(node)) break;
     Fill(tcx, *node);
