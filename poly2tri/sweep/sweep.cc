@@ -77,7 +77,13 @@ void Sweep::FinalizationPolygon(SweepContext& tcx)
 
 Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
 {
-  Node& node = tcx.LocateNode(point);
+  Node* node_ptr = tcx.LocateNode(point);
+  if (!node_ptr || !node_ptr->point || !node_ptr->next || !node_ptr->next->point)
+  {
+    throw std::runtime_error("PointEvent - null node");
+  }
+
+  Node& node = *node_ptr;
   Node& new_node = NewFrontTriangle(tcx, point, node);
 
   // Only need to check +epsilon since point never have smaller
@@ -775,10 +781,22 @@ void Sweep::FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle&
   if (ot_ptr == nullptr) {
     throw std::runtime_error("FlipScanEdgeEvent - null neighbor across");
   }
-  Triangle& ot = *ot_ptr;
-  Point& op = *ot.OppositePoint(t, p);
 
-  if (InScanArea(eq, *flip_triangle.PointCCW(eq), *flip_triangle.PointCW(eq), op)) {
+  Point* op_ptr = ot_ptr->OppositePoint(t, p);
+  if (op_ptr == nullptr) {
+    throw std::runtime_error("FlipScanEdgeEvent - null opposing point");
+  }
+
+  Point* p1 = flip_triangle.PointCCW(eq);
+  Point* p2 = flip_triangle.PointCW(eq);
+  if (p1 == nullptr || p2 == nullptr) {
+    throw std::runtime_error("FlipScanEdgeEvent - null on either of points");
+  }
+
+  Triangle& ot = *ot_ptr;
+  Point& op = *op_ptr;
+
+  if (InScanArea(eq, *p1, *p2, op)) {
     // flip with new edge op->eq
     FlipEdgeEvent(tcx, eq, op, &ot, op);
     // TODO: Actually I just figured out that it should be possible to
