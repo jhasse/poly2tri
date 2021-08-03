@@ -32,6 +32,26 @@
 #ifndef CDT_H
 #define CDT_H
 
+#if defined(_WIN32)
+# define COMPILER_DLLEXPORT __declspec(dllexport)
+# define COMPILER_DLLIMPORT __declspec(dllimport)
+#else
+# define COMPILER_DLLEXPORT __attribute__ ((visibility ("default")))
+# define COMPILER_DLLIMPORT __attribute__ ((visibility ("default")))
+#endif
+
+#ifndef P2T_EXPORT
+#  if defined(P2T_DLL_EXPORTS) && defined(P2T_DLL_IMPORTS)
+#    error "Only P2T_DLL_EXPORTS or P2T_DLL_IMPORTS can be defined, not both."
+#  elif defined(P2T_DLL_EXPORTS)
+#    define P2T_EXPORT COMPILER_DLLEXPORT
+#  elif defined(P2T_DLL_IMPORTS)
+#    define P2T_EXPORT COMPILER_DLLIMPORT
+#  else
+#    define P2T_EXPORT
+#  endif
+#endif
+
 #include "advancing_front.h"
 #include "sweep_context.h"
 #include "sweep.h"
@@ -53,41 +73,41 @@ public:
    *
    * @param polyline
    */
-  CDT(const std::vector<Point*>& polyline);
+  P2T_EXPORT CDT(const std::vector<Point*>& polyline);
 
    /**
    * Destructor - clean up memory
    */
-  ~CDT();
+  P2T_EXPORT ~CDT();
 
   /**
    * Add a hole
    *
    * @param polyline
    */
-  void AddHole(const std::vector<Point*>& polyline);
+  P2T_EXPORT void AddHole(const std::vector<Point*>& polyline);
 
   /**
    * Add a steiner point
    *
    * @param point
    */
-  void AddPoint(Point* point);
+  P2T_EXPORT void AddPoint(Point* point);
 
   /**
    * Triangulate - do this AFTER you've added the polyline, holes, and Steiner points
    */
-  void Triangulate();
+  P2T_EXPORT void Triangulate();
 
   /**
    * Get CDT triangles
    */
-  std::vector<Triangle*> GetTriangles();
+  P2T_EXPORT std::vector<Triangle*> GetTriangles();
 
   /**
    * Get triangle map
    */
-  std::list<Triangle*> GetMap();
+  P2T_EXPORT std::list<Triangle*> GetMap();
 
   private:
 

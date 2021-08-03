@@ -33,6 +33,26 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
+#if defined(_WIN32)
+# define COMPILER_DLLEXPORT __declspec(dllexport)
+# define COMPILER_DLLIMPORT __declspec(dllimport)
+#else
+# define COMPILER_DLLEXPORT __attribute__ ((visibility ("default")))
+# define COMPILER_DLLIMPORT __attribute__ ((visibility ("default")))
+#endif
+
+#ifndef P2T_EXPORT
+#  if defined(P2T_DLL_EXPORTS) && defined(P2T_DLL_IMPORTS)
+#    error "Only P2T_DLL_EXPORTS or P2T_DLL_IMPORTS can be defined, not both."
+#  elif defined(P2T_DLL_EXPORTS)
+#    define P2T_EXPORT COMPILER_DLLEXPORT
+#  elif defined(P2T_DLL_IMPORTS)
+#    define P2T_EXPORT COMPILER_DLLIMPORT
+#  else
+#    define P2T_EXPORT
+#  endif
+#endif
+
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
@@ -47,7 +67,7 @@ struct Point {
   double x, y;
 
   /// Default constructor does nothing (for performance).
-  Point()
+  P2T_EXPORT Point()
   {
     x = 0.0;
     y = 0.0;
@@ -60,21 +80,21 @@ struct Point {
   Point(double x, double y);
 
   /// Set this point to all zeros.
-  void set_zero()
+  P2T_EXPORT void set_zero()
   {
     x = 0.0;
     y = 0.0;
   }
 
   /// Set this point to some specified coordinates.
-  void set(double x_, double y_)
+  P2T_EXPORT void set(double x_, double y_)
   {
     x = x_;
     y = y_;
   }
 
   /// Negate this point.
-  Point operator -() const
+  P2T_EXPORT Point operator -() const
   {
     Point v;
     v.set(-x, -y);
@@ -82,34 +102,34 @@ struct Point {
   }
 
   /// Add a point to this point.
-  void operator +=(const Point& v)
+  P2T_EXPORT void operator +=(const Point& v)
   {
     x += v.x;
     y += v.y;
   }
 
   /// Subtract a point from this point.
-  void operator -=(const Point& v)
+  P2T_EXPORT void operator -=(const Point& v)
   {
     x -= v.x;
     y -= v.y;
   }
 
   /// Multiply this point by a scalar.
-  void operator *=(double a)
+  P2T_EXPORT void operator *=(double a)
   {
     x *= a;
     y *= a;
   }
 
   /// Get the length of this point (the norm).
-  double Length() const
+  P2T_EXPORT double Length() const
   {
     return sqrt(x * x + y * y);
   }
 
   /// Convert this point into a unit point. Returns the Length.
-  double Normalize()
+  P2T_EXPORT double Normalize()
   {
     const double len = Length();
     x /= len;
@@ -127,7 +147,7 @@ struct Edge {
   Point* p, *q;
 
   /// Constructor
-  Edge(Point& p1, Point& p2) : p(&p1), q(&p2)
+  P2T_EXPORT Edge(Point& p1, Point& p2) : p(&p1), q(&p2)
   {
     if (p1.y > p2.y) {
       q = &p1;
@@ -153,64 +173,64 @@ class Triangle {
 public:
 
 /// Constructor
-Triangle(Point& a, Point& b, Point& c);
+P2T_EXPORT Triangle(Point& a, Point& b, Point& c);
 
 /// Flags to determine if an edge is a Constrained edge
 bool constrained_edge[3];
 /// Flags to determine if an edge is a Delauney edge
 bool delaunay_edge[3];
 
-Point* GetPoint(int index);
-Point* PointCW(const Point& point);
-Point* PointCCW(const Point& point);
-Point* OppositePoint(Triangle& t, const Point& p);
+P2T_EXPORT Point* GetPoint(int index);
+P2T_EXPORT Point* PointCW(const Point& point);
+P2T_EXPORT Point* PointCCW(const Point& point);
+P2T_EXPORT Point* OppositePoint(Triangle& t, const Point& p);
 
-Triangle* GetNeighbor(int index);
-void MarkNeighbor(Point* p1, Point* p2, Triangle* t);
-void MarkNeighbor(Triangle& t);
+P2T_EXPORT Triangle* GetNeighbor(int index);
+P2T_EXPORT void MarkNeighbor(Point* p1, Point* p2, Triangle* t);
+P2T_EXPORT void MarkNeighbor(Triangle& t);
 
-void MarkConstrainedEdge(int index);
-void MarkConstrainedEdge(Edge& edge);
-void MarkConstrainedEdge(Point* p, Point* q);
+P2T_EXPORT void MarkConstrainedEdge(int index);
+P2T_EXPORT void MarkConstrainedEdge(Edge& edge);
+P2T_EXPORT void MarkConstrainedEdge(Point* p, Point* q);
 
-int Index(const Point* p);
-int EdgeIndex(const Point* p1, const Point* p2);
+P2T_EXPORT int Index(const Point* p);
+P2T_EXPORT int EdgeIndex(const Point* p1, const Point* p2);
 
-Triangle* NeighborAcross(const Point& point);
-Triangle* NeighborCW(const Point& point);
-Triangle* NeighborCCW(const Point& point);
-bool GetConstrainedEdgeCCW(const Point& p);
-bool GetConstrainedEdgeCW(const Point& p);
-void SetConstrainedEdgeCCW(const Point& p, bool ce);
-void SetConstrainedEdgeCW(const Point& p, bool ce);
-bool GetDelunayEdgeCCW(const Point& p);
-bool GetDelunayEdgeCW(const Point& p);
-void SetDelunayEdgeCCW(const Point& p, bool e);
-void SetDelunayEdgeCW(const Point& p, bool e);
+P2T_EXPORT Triangle* NeighborAcross(const Point& point);
+P2T_EXPORT Triangle* NeighborCW(const Point& point);
+P2T_EXPORT Triangle* NeighborCCW(const Point& point);
+P2T_EXPORT bool GetConstrainedEdgeCCW(const Point& p);
+P2T_EXPORT bool GetConstrainedEdgeCW(const Point& p);
+P2T_EXPORT void SetConstrainedEdgeCCW(const Point& p, bool ce);
+P2T_EXPORT void SetConstrainedEdgeCW(const Point& p, bool ce);
+P2T_EXPORT bool GetDelunayEdgeCCW(const Point& p);
+P2T_EXPORT bool GetDelunayEdgeCW(const Point& p);
+P2T_EXPORT void SetDelunayEdgeCCW(const Point& p, bool e);
+P2T_EXPORT void SetDelunayEdgeCW(const Point& p, bool e);
 
-bool Contains(const Point* p);
-bool Contains(const Edge& e);
-bool Contains(const Point* p, const Point* q);
-void Legalize(Point& point);
-void Legalize(Point& opoint, Point& npoint);
+P2T_EXPORT bool Contains(const Point* p);
+P2T_EXPORT bool Contains(const Edge& e);
+P2T_EXPORT bool Contains(const Point* p, const Point* q);
+P2T_EXPORT void Legalize(Point& point);
+P2T_EXPORT void Legalize(Point& opoint, Point& npoint);
 /**
  * Clears all references to all other triangles and points
  */
-void Clear();
-void ClearNeighbor(const Triangle *triangle);
-void ClearNeighbors();
-void ClearDelunayEdges();
+P2T_EXPORT void Clear();
+P2T_EXPORT void ClearNeighbor(const Triangle *triangle);
+P2T_EXPORT void ClearNeighbors();
+P2T_EXPORT void ClearDelunayEdges();
 
-inline bool IsInterior();
-inline void IsInterior(bool b);
+P2T_EXPORT inline bool IsInterior();
+P2T_EXPORT inline void IsInterior(bool b);
 
-void DebugPrint();
+P2T_EXPORT void DebugPrint();
 
-bool CircumcicleContains(const Point&) const;
+P2T_EXPORT bool CircumcicleContains(const Point&) const;
 
 private:
 
-bool IsCounterClockwise() const;
+P2T_EXPORT bool IsCounterClockwise() const;
 
 /// Triangle points
 Point* points_[3];
