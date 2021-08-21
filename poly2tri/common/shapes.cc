@@ -35,6 +35,10 @@
 
 namespace p2t {
 
+Point::Point(double x, double y) : x(x), y(y)
+{
+}
+
 std::ostream& operator<<(std::ostream& out, const Point& point) {
   return out << point.x << "," << point.y;
 }
