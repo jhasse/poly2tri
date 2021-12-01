@@ -38,28 +38,32 @@ Testbed:
 Build the library
 -----------------
 
+With the ninja build system installed:
+
 ```
 mkdir build && cd build
-cmake -GNinja
+cmake -GNinja ..
 cmake --build .
 ```
 
-Build and run the unit tests
+Build and run with unit tests
 ----------------------------
+
+With the ninja build system:
 
 ```
 mkdir build && cd build
-cmake -GNinja -DP2T_BUILD_TESTS=ON
+cmake -GNinja -DP2T_BUILD_TESTS=ON ..
 cmake --build .
 ctest --output-on-failure
 ```
 
-Build the testbed
+Build with the testbed
 -----------------
 
 ```
 mkdir build && cd build
-cmake -GNinja -DP2T_BUILD_TESTBED=ON
+cmake -GNinja -DP2T_BUILD_TESTBED=ON ..
 cmake --build .
 ```
 
