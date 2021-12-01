@@ -27,6 +27,9 @@ Core poly2tri lib:
 
 * Standard Template Library (STL)
 
+Unit tests:
+* Boost (filesystem, test framework)
+
 Testbed:
 
 * OpenGL
