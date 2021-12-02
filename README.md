@@ -27,6 +27,9 @@ Core poly2tri lib:
 
 * Standard Template Library (STL)
 
+Unit tests:
+* Boost (filesystem, test framework)
+
 Testbed:
 
 * OpenGL
@@ -35,28 +38,32 @@ Testbed:
 Build the library
 -----------------
 
+With the ninja build system installed:
+
 ```
 mkdir build && cd build
-cmake -GNinja
+cmake -GNinja ..
 cmake --build .
 ```
 
-Build and run the unit tests
+Build and run with unit tests
 ----------------------------
+
+With the ninja build system:
 
 ```
 mkdir build && cd build
-cmake -GNinja -DP2T_BUILD_TESTS=ON
+cmake -GNinja -DP2T_BUILD_TESTS=ON ..
 cmake --build .
 ctest --output-on-failure
 ```
 
-Build the testbed
+Build with the testbed
 -----------------
 
 ```
 mkdir build && cd build
-cmake -GNinja -DP2T_BUILD_TESTBED=ON
+cmake -GNinja -DP2T_BUILD_TESTBED=ON ..
 cmake --build .
 ```
 
@@ -65,19 +72,19 @@ Running the Examples
 
 Load data points from a file:
 ```
-p2t <filename> <center_x> <center_y> <zoom>
+build/testbed/p2t <filename> <center_x> <center_y> <zoom>
 ```
 Random distribution of points inside a constrained box:
 ```
-p2t random <num_points> <box_radius> <zoom>
+build/testbed/p2t random <num_points> <box_radius> <zoom>
 ```
 Examples:
 ```
-./build/p2t testbed/data/dude.dat 300 500 2
-./build/p2t testbed/data/nazca_monkey.dat 0 0 9
+build/testbed/p2t testbed/data/dude.dat 300 500 2
+build/testbed/p2t testbed/data/nazca_monkey.dat 0 0 9
 
-./build/p2t random 10 100 5.0
-./build/p2t random 1000 20000 0.025
+build/testbed/p2t random 10 100 5.0
+build/testbed/p2t random 1000 20000 0.025
 ```
 
 References
