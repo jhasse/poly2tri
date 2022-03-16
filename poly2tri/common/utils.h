@@ -71,7 +71,8 @@ Orientation Orient2d(const Point& pa, const Point& pb, const Point& pc)
 
 // Using a tolerance here fails on concave-by-subepsilon boundaries
 //   if (val > -EPSILON && val < EPSILON) {
-  if (val == 0) {
+// Using == on double makes -Wfloat-equal warnings yell at us
+  if (std::fpclassify(val) == FP_ZERO) {
     return COLLINEAR;
   } else if (val > 0) {
     return CCW;
