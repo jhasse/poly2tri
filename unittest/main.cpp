@@ -67,6 +67,52 @@ BOOST_AUTO_TEST_CASE(NarrowQuadTest)
   }
 }
 
+BOOST_AUTO_TEST_CASE(ConcaveBoundaryTest)
+{
+  // Concave-by-less-than-epsilon boundaries used to potentially fail
+  // during triangulation
+  const double eps = 1e-15; // This gave EdgeEvent - null triangle
+  std::vector<p2t::Point*> polyline {
+    new p2t::Point(0,0),
+    new p2t::Point(0.5,eps),
+    new p2t::Point(1,0),
+    new p2t::Point(1-eps,0.836541),
+    new p2t::Point(1,2),
+    new p2t::Point(.46,1.46+eps),
+    new p2t::Point(0,1),
+    new p2t::Point(eps,0.5)
+  };
+
+  const double r2o4 = std::sqrt(2.)/4;
+  std::vector<p2t::Point*> hole {
+    new p2t::Point(0.5+r2o4,0.5),
+    new p2t::Point(0.5,0.5+r2o4),
+    new p2t::Point(0.5-r2o4,0.5),
+    new p2t::Point(0.5-eps,0.5-r2o4)
+  };
+
+  std::vector<p2t::Point> interior_points
+    {{0.21,0.79},{0.21,0.21},{0.79,0.21}};
+
+  p2t::CDT cdt{ polyline };
+  cdt.AddHole(hole);
+
+  for (auto & p : interior_points)
+    cdt.AddPoint(&p);
+
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 18);
+  BOOST_CHECK(p2t::IsDelaunay(result));
+  for (const auto p : polyline) {
+    delete p;
+  }
+  for (const auto p : hole) {
+    delete p;
+  }
+}
+
+
 BOOST_AUTO_TEST_CASE(TestbedFilesTest)
 {
   for (const auto& filename : { "custom.dat", "diamond.dat", "star.dat", "test.dat" }) {
