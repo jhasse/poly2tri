@@ -49,7 +49,8 @@ BOOST_AUTO_TEST_CASE(QuadTest)
 
 BOOST_AUTO_TEST_CASE(NarrowQuadTest)
 {
-  // Very narrow quad that demonstrates a failure case during triangulation
+  // Very narrow quad that used to demonstrate a failure case during
+  // triangulation
   std::vector<p2t::Point*> polyline {
     new p2t::Point(0.0,     0.0),
     new p2t::Point(1.0e-05, 0.0),
@@ -57,7 +58,10 @@ BOOST_AUTO_TEST_CASE(NarrowQuadTest)
     new p2t::Point(1.0e-04, 3.0e-07)
   };
   p2t::CDT cdt{ polyline };
-  BOOST_CHECK_THROW(cdt.Triangulate(), std::runtime_error);
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 2);
+  BOOST_CHECK(p2t::IsDelaunay(result));
   for (const auto p : polyline) {
     delete p;
   }
