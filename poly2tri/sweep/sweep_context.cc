@@ -194,17 +194,13 @@ SweepContext::~SweepContext()
     delete af_middle_;
     delete af_tail_;
 
-    typedef std::list<Triangle*> type_list;
-
-    for(type_list::iterator iter = map_.begin(); iter != map_.end(); ++iter) {
-        Triangle* ptr = *iter;
-        delete ptr;
+    for (auto ptr : map_) {
+      delete ptr;
     }
 
-     for(unsigned int i = 0; i < edge_list.size(); i++) {
-        delete edge_list[i];
+    for (auto& i : edge_list) {
+      delete i;
     }
-
 }
 
 } // namespace p2t

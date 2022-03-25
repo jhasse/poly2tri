@@ -815,10 +815,9 @@ void Sweep::FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle&
 Sweep::~Sweep() {
 
     // Clean up memory
-    for(size_t i = 0; i < nodes_.size(); i++) {
-        delete nodes_[i];
+    for (auto& node : nodes_) {
+      delete node;
     }
-
 }
 
 } // namespace p2t
