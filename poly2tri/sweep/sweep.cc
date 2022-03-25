@@ -54,8 +54,8 @@ void Sweep::SweepPoints(SweepContext& tcx)
   for (size_t i = 1; i < tcx.point_count(); i++) {
     Point& point = *tcx.GetPoint(i);
     Node* node = &PointEvent(tcx, point);
-    for (unsigned int j = 0; j < point.edge_list.size(); j++) {
-      EdgeEvent(tcx, point.edge_list[j], node);
+    for (auto& j : point.edge_list) {
+      EdgeEvent(tcx, j, node);
     }
   }
 }
