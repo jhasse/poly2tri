@@ -1,5 +1,5 @@
 /*
- * Poly2Tri Copyright (c) 2009-2018, Poly2Tri Contributors
+ * Poly2Tri Copyright (c) 2009-2022, Poly2Tri Contributors
  * https://github.com/jhasse/poly2tri
  *
  * All rights reserved.
@@ -29,79 +29,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CDT_H
-#define CDT_H
+#ifndef DLL_SYMBOL_H
+#define DLL_SYMBOL_H
 
-#include "advancing_front.h"
-#include "sweep_context.h"
-#include "sweep.h"
+#if defined(_WIN32)
+#  define P2T_COMPILER_DLLEXPORT __declspec(dllexport)
+#  define P2T_COMPILER_DLLIMPORT __declspec(dllimport)
+#elif defined(__GNUC__)
+#  define P2T_COMPILER_DLLEXPORT __attribute__ ((visibility ("default")))
+#  define P2T_COMPILER_DLLIMPORT __attribute__ ((visibility ("default")))
+#else
+#  define P2T_COMPILER_DLLEXPORT
+#  define P2T_COMPILER_DLLIMPORT
+#endif
 
-#include "../common/dll_symbol.h"
-
-/**
- *
- * @author Mason Green <mason.green@gmail.com>
- *
- */
-
-namespace p2t {
-
-class P2T_DLL_SYMBOL CDT
-{
-public:
-
-  /**
-   * Constructor - add polyline with non repeating points
-   *
-   * @param polyline
-   */
-  CDT(const std::vector<Point*>& polyline);
-
-   /**
-   * Destructor - clean up memory
-   */
-  ~CDT();
-
-  /**
-   * Add a hole
-   *
-   * @param polyline
-   */
-  void AddHole(const std::vector<Point*>& polyline);
-
-  /**
-   * Add a steiner point
-   *
-   * @param point
-   */
-  void AddPoint(Point* point);
-
-  /**
-   * Triangulate - do this AFTER you've added the polyline, holes, and Steiner points
-   */
-  void Triangulate();
-
-  /**
-   * Get CDT triangles
-   */
-  std::vector<Triangle*> GetTriangles();
-
-  /**
-   * Get triangle map
-   */
-  std::list<Triangle*> GetMap();
-
-  private:
-
-  /**
-   * Internals
-   */
-
-  SweepContext* sweep_context_;
-  Sweep* sweep_;
-
-};
-
-}
+#ifndef P2T_DLL_SYMBOL
+#  if defined(P2T_STATIC_EXPORTS)
+#    define P2T_DLL_SYMBOL
+#  elif defined(P2T_SHARED_EXPORTS)
+#    define P2T_DLL_SYMBOL P2T_COMPILER_DLLEXPORT
+#  else
+#    define P2T_DLL_SYMBOL P2T_COMPILER_DLLIMPORT
+#  endif
+#endif
 
 #endif
