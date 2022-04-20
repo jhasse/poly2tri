@@ -182,6 +182,7 @@ int main(int argc, char* argv[])
   cout << "Total number of points = " << (polyline.size() + points_in_holes + steiner.size())
        << endl;
   cout << "Number of triangles = " << triangles.size() << endl;
+  cout << "Is Delaunay = " << (IsDelaunay(triangles) ? "true" : "false") << endl;
   cout << "Elapsed time (ms) = " << dt * 1000.0 << endl;
 
   MainLoop(zoom);
