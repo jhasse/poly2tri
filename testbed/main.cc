@@ -40,10 +40,12 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <list>
 #include <numeric>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -51,6 +53,7 @@ using namespace p2t;
 
 bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Point*>>& out_holes,
                vector<Point*>& out_steiner);
+std::pair<Point, Point> BoundingBox(const std::vector<Point*>& polyline);
 void GenerateRandomPointDistribution(size_t num_points, double min, double max,
                                      vector<Point*>& out_polyline,
                                      vector<vector<Point*>>& out_holes,
@@ -72,6 +75,9 @@ const double rotations_per_tick = 0.2;
 /// Default window size
 constexpr int default_window_width = 800;
 constexpr int default_window_height = 600;
+
+/// Autozoom border (percentage)
+const double autozoom_border = 0.05;
 
 /// Screen center x
 double cx = 0.0;
@@ -109,16 +115,21 @@ int main(int argc, char* argv[])
   double max, min;
   double zoom;
 
-  if (argc != 5) {
+  if (argc != 2 && argc != 5) {
     cout << "-== USAGE ==-" << endl;
     cout << "Load Data File: p2t <filename> <center_x> <center_y> <zoom>" << endl;
     cout << "  Example: build/testbed/p2t testbed/data/dude.dat 350 500 3" << endl;
+    cout << "Load Data File with Auto-Zoom: p2t <filename>" << endl;
+    cout << "  Example: build/testbed/p2t testbed/data/nazca_monkey.dat" << endl;
     cout << "Generate Random Polygon: p2t random <num_points> <box_radius> <zoom>" << endl;
     cout << "  Example: build/testbed/p2t random 100 1 500" << endl;
     return 1;
   }
 
-  if (string(argv[1]) == "random") {
+  // If true, adjust the zoom settings to fit the input geometry to the window
+  const bool autozoom = (argc == 2);
+
+  if (!autozoom && string(argv[1]) == "random") {
     num_points = atoi(argv[2]);
     random_distribution = true;
     char* pEnd;
@@ -128,9 +139,11 @@ int main(int argc, char* argv[])
     zoom = atof(argv[4]);
   } else {
     filename = string(argv[1]);
-    cx = atof(argv[2]);
-    cy = atof(argv[3]);
-    zoom = atof(argv[4]);
+    if (!autozoom) {
+      cx = atof(argv[2]);
+      cy = atof(argv[3]);
+      zoom = atof(argv[4]);
+    }
   }
 
   if (random_distribution) {
@@ -140,6 +153,20 @@ int main(int argc, char* argv[])
     if (!ParseFile(filename, polyline, holes, steiner)) {
       return 2;
     }
+  }
+
+  if (autozoom) {
+    assert(0.0 <= autozoom_border && autozoom_border < 1.0);
+    const auto bbox = BoundingBox(polyline);
+    Point center = bbox.first + bbox.second;
+    center *= 0.5;
+    cx = center.x;
+    cy = center.y;
+    Point sides = bbox.second - bbox.first;
+    zoom = 2.0 * (1.0 - autozoom_border) * std::min((double)default_window_width / sides.x, (double)default_window_height / sides.y);
+    std::cout << "center_x = " << cx << std::endl;
+    std::cout << "center_y = " << cy << std::endl;
+    std::cout << "zoom = " << zoom << std::endl;
   }
 
   Init(default_window_width, default_window_height);
@@ -267,6 +294,21 @@ bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Poin
     return false;
   }
   return true;
+}
+
+std::pair<Point, Point> BoundingBox(const std::vector<Point*>& polyline)
+{
+  assert(polyline.size() > 0);
+  using Scalar = decltype(p2t::Point::x);
+  Point min(std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
+  Point max(std::numeric_limits<Scalar>::min(), std::numeric_limits<Scalar>::min());
+  for (const Point* point : polyline) {
+    min.x = std::min(min.x, point->x);
+    min.y = std::min(min.y, point->y);
+    max.x = std::max(max.x, point->x);
+    max.y = std::max(max.y, point->y);
+  }
+  return std::make_pair(min, max);
 }
 
 void GenerateRandomPointDistribution(size_t num_points, double min, double max,

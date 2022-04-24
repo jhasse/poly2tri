@@ -74,6 +74,10 @@ Load data points from a file:
 ```
 build/testbed/p2t <filename> <center_x> <center_y> <zoom>
 ```
+Load data points from a file and automatically fit the geometry to the window:
+```
+build/testbed/p2t <filename>
+```
 Random distribution of points inside a constrained box:
 ```
 build/testbed/p2t random <num_points> <box_radius> <zoom>
@@ -81,7 +85,8 @@ build/testbed/p2t random <num_points> <box_radius> <zoom>
 Examples:
 ```
 build/testbed/p2t testbed/data/dude.dat 350 500 3
-build/testbed/p2t testbed/data/nazca_monkey.dat 0 0 9
+
+build/testbed/p2t testbed/data/nazca_monkey.dat
 
 build/testbed/p2t random 10 100 5.0
 build/testbed/p2t random 1000 20000 0.025
