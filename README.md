@@ -80,7 +80,7 @@ build/testbed/p2t random <num_points> <box_radius> <zoom>
 ```
 Examples:
 ```
-build/testbed/p2t testbed/data/dude.dat 300 500 2
+build/testbed/p2t testbed/data/dude.dat 350 500 3
 build/testbed/p2t testbed/data/nazca_monkey.dat 0 0 9
 
 build/testbed/p2t random 10 100 5.0
