@@ -1,5 +1,5 @@
 /*
- * Poly2Tri Copyright (c) 2009-2018, Poly2Tri Contributors
+ * Poly2Tri Copyright (c) 2009-2022, Poly2Tri Contributors
  * https://github.com/jhasse/poly2tri
  *
  * All rights reserved.
@@ -55,7 +55,7 @@ void GenerateRandomPointDistribution(size_t num_points, double min, double max,
                                      vector<Point*>& out_polyline,
                                      vector<vector<Point*>>& out_holes,
                                      vector<Point*>& out_steiner);
-void Init();
+void Init(int window_width, int window_height);
 void ShutDown(int return_code);
 void MainLoop(const double zoom);
 void Draw(const double zoom);
@@ -68,6 +68,10 @@ double Fun(double x);
 double rotate_y = 0.0,
        rotate_z = 0.0;
 const double rotations_per_tick = 0.2;
+
+/// Default window size
+constexpr int default_window_width = 800;
+constexpr int default_window_height = 600;
 
 /// Screen center x
 double cx = 0.0;
@@ -136,7 +140,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  Init();
+  Init(default_window_width, default_window_height);
 
   /*
    * Perform triangulation!
@@ -281,14 +285,11 @@ void GenerateRandomPointDistribution(size_t num_points, double min, double max,
   }
 }
 
-void Init()
+void Init(int window_width, int window_height)
 {
-  const int window_width = 800,
-            window_height = 600;
-
   if (glfwInit() != GL_TRUE)
     ShutDown(1);
-  // 800 x 600, 16 bit color, no depth, alpha or stencil buffers, windowed
+  // width x height, 16 bit color, no depth, alpha or stencil buffers, windowed
   window = glfwCreateWindow(window_width, window_height, "Poly2Tri - C++", NULL, NULL);
   if (!window)
     ShutDown(1);
@@ -374,7 +375,7 @@ void Draw(const double zoom)
   // reset zoom
   Point center = Point(cx, cy);
 
-  ResetZoom(zoom, center.x, center.y, 800, 600);
+  ResetZoom(zoom, center.x, center.y, (double)default_window_width, (double)default_window_height);
 
   for (int i = 0; i < triangles.size(); i++) {
     Triangle& t = *triangles[i];
@@ -415,7 +416,7 @@ void DrawMap(const double zoom)
   // reset zoom
   Point center = Point(cx, cy);
 
-  ResetZoom(zoom, center.x, center.y, 800, 600);
+  ResetZoom(zoom, center.x, center.y, (double)default_window_width, (double)default_window_height);
 
   list<Triangle*>::iterator it;
   for (it = map.begin(); it != map.end(); it++) {
