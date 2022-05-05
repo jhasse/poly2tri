@@ -188,6 +188,41 @@ BOOST_AUTO_TEST_CASE(PolygonTest03)
   }
 }
 
+BOOST_AUTO_TEST_CASE(PolygonTest04)
+{
+  std::vector<p2t::Point*> polyline {
+    new p2t::Point(450, 2250),
+    new p2t::Point(450, 1750),
+    new p2t::Point(400, 1700),
+    new p2t::Point(350, 1650),
+    new p2t::Point(350, 500),
+    new p2t::Point(1050, 1700)
+  };
+
+  std::vector<p2t::Point*> hole {
+    new p2t::Point(980, 1636),
+    new p2t::Point(950, 1600),
+    new p2t::Point(650, 1230),
+    new p2t::Point(625, 1247),
+    new p2t::Point(600, 1250),
+    new p2t::Point(591, 1350),
+    new p2t::Point(550, 2050)
+  };
+
+  p2t::CDT cdt{ polyline };
+  cdt.AddHole(hole);
+
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 13);
+  for (const auto p : polyline) {
+    delete p;
+  }
+  for (const auto p : hole) {
+    delete p;
+  }
+}
+
 BOOST_AUTO_TEST_CASE(TestbedFilesTest)
 {
   for (const auto& filename : { "custom.dat", "diamond.dat", "star.dat", "test.dat" }) {
