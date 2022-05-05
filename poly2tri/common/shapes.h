@@ -33,6 +33,8 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
+#include "dll_symbol.h"
+
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
@@ -42,7 +44,7 @@ namespace p2t {
 
 struct Edge;
 
-struct Point {
+struct P2T_DLL_SYMBOL Point {
 
   double x, y;
 
@@ -119,10 +121,10 @@ struct Point {
 
 };
 
-std::ostream& operator<<(std::ostream&, const Point&);
+P2T_DLL_SYMBOL std::ostream& operator<<(std::ostream&, const Point&);
 
 // Represents a simple polygon's edge
-struct Edge {
+struct P2T_DLL_SYMBOL Edge {
 
   Point* p, *q;
 
@@ -149,7 +151,7 @@ struct Edge {
 // Triangle-based data structures are know to have better performance than quad-edge structures
 // See: J. Shewchuk, "Triangle: Engineering a 2D Quality Mesh Generator and Delaunay Triangulator"
 //      "Triangulations in CGAL"
-class Triangle {
+class P2T_DLL_SYMBOL Triangle {
 public:
 
 /// Constructor
@@ -324,7 +326,7 @@ inline void Triangle::IsInterior(bool b)
 }
 
 /// Is this set a valid delaunay triangulation?
-bool IsDelaunay(const std::vector<p2t::Triangle*>&);
+P2T_DLL_SYMBOL bool IsDelaunay(const std::vector<p2t::Triangle*>&);
 
 }
 
