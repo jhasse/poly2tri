@@ -29,8 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DLL_SYMBOL_H
-#define DLL_SYMBOL_H
+#pragma once
 
 #if defined(_WIN32)
 #  define P2T_COMPILER_DLLEXPORT __declspec(dllexport)
@@ -51,6 +50,4 @@
 #  else
 #    define P2T_DLL_SYMBOL P2T_COMPILER_DLLIMPORT
 #  endif
-#endif
-
 #endif

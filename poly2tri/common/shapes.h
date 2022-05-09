@@ -29,9 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Include guard
-#ifndef SHAPES_H
-#define SHAPES_H
+#pragma once
 
 #include "dll_symbol.h"
 
@@ -329,5 +327,3 @@ inline void Triangle::IsInterior(bool b)
 P2T_DLL_SYMBOL bool IsDelaunay(const std::vector<p2t::Triangle*>&);
 
 }
-
-#endif

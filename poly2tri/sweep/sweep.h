@@ -36,8 +36,7 @@
  * "FlipScan" Constrained Edge Algorithm invented by Thomas Åhlén, thahlen@gmail.com
  */
 
-#ifndef SWEEP_H
-#define SWEEP_H
+#pragma once
 
 #include <vector>
 
@@ -281,5 +280,3 @@ private:
 };
 
 }
-
-#endif

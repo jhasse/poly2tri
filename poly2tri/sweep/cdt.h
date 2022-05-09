@@ -29,8 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CDT_H
-#define CDT_H
+#pragma once
 
 #include "advancing_front.h"
 #include "sweep_context.h"
@@ -103,5 +102,3 @@ public:
 };
 
 }
-
-#endif
