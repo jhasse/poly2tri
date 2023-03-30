@@ -83,12 +83,12 @@ public:
   /**
    * Get CDT triangles
    */
-  std::vector<Triangle*> GetTriangles();
+  const std::vector<Triangle*>& GetTriangles() const;
 
   /**
    * Get triangle map
    */
-  std::list<Triangle*> GetMap();
+  const std::list<Triangle*>& GetMap() const;
 
   private:
 
