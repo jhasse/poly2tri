@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 project(poly2tri LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
