@@ -48,10 +48,8 @@ struct Point;
 struct Edge;
 class Triangle;
 
-class Sweep
-{
+class Sweep {
 public:
-
   /**
    * Triangulate
    *
@@ -65,7 +63,6 @@ public:
   ~Sweep();
 
 private:
-
   /**
    * Start sweeping the Y-sorted point set from bottom to top
    *
@@ -84,13 +81,13 @@ private:
    */
   Node& PointEvent(SweepContext& tcx, Point& point);
 
-   /**
-     *
-     *
-     * @param tcx
-     * @param edge
-     * @param node
-     */
+  /**
+   *
+   *
+   * @param tcx
+   * @param edge
+   * @param node
+   */
   void EdgeEvent(SweepContext& tcx, Edge* edge, Node* node);
 
   void EdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* triangle, Point& point);
@@ -173,7 +170,8 @@ private:
   bool LargeHole_DontFill(const Node* node) const;
   bool AngleIsNegative(const Point* origin, const Point* pa, const Point* pb) const;
   bool AngleExceeds90Degrees(const Point* origin, const Point* pa, const Point* pb) const;
-  bool AngleExceedsPlus90DegreesOrIsNegative(const Point* origin, const Point* pa, const Point* pb) const;
+  bool AngleExceedsPlus90DegreesOrIsNegative(const Point* origin, const Point* pa,
+                                             const Point* pb) const;
   double Angle(const Point* origin, const Point* pa, const Point* pb) const;
 
   /**
@@ -244,40 +242,41 @@ private:
    * @param op - another point shared by both triangles
    * @return returns the triangle still intersecting the edge
    */
-  Triangle& NextFlipTriangle(SweepContext& tcx, int o, Triangle&  t, Triangle& ot, Point& p, Point& op);
+  Triangle& NextFlipTriangle(SweepContext& tcx, int o, Triangle& t, Triangle& ot, Point& p,
+                             Point& op);
 
-   /**
-     * When we need to traverse from one triangle to the next we need
-     * the point in current triangle that is the opposite point to the next
-     * triangle.
-     *
-     * @param ep
-     * @param eq
-     * @param ot
-     * @param op
-     * @return
-     */
+  /**
+   * When we need to traverse from one triangle to the next we need
+   * the point in current triangle that is the opposite point to the next
+   * triangle.
+   *
+   * @param ep
+   * @param eq
+   * @param ot
+   * @param op
+   * @return
+   */
   Point& NextFlipPoint(Point& ep, Point& eq, Triangle& ot, Point& op);
 
-   /**
-     * Scan part of the FlipScan algorithm<br>
-     * When a triangle pair isn't flippable we will scan for the next
-     * point that is inside the flip triangle scan area. When found
-     * we generate a new flipEdgeEvent
-     *
-     * @param tcx
-     * @param ep - last point on the edge we are traversing
-     * @param eq - first point on the edge we are traversing
-     * @param flipTriangle - the current triangle sharing the point eq with edge
-     * @param t
-     * @param p
-     */
-  void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_triangle, Triangle& t, Point& p);
+  /**
+   * Scan part of the FlipScan algorithm<br>
+   * When a triangle pair isn't flippable we will scan for the next
+   * point that is inside the flip triangle scan area. When found
+   * we generate a new flipEdgeEvent
+   *
+   * @param tcx
+   * @param ep - last point on the edge we are traversing
+   * @param eq - first point on the edge we are traversing
+   * @param flipTriangle - the current triangle sharing the point eq with edge
+   * @param t
+   * @param p
+   */
+  void FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle& flip_triangle,
+                         Triangle& t, Point& p);
 
   void FinalizationPolygon(SweepContext& tcx);
 
   std::vector<Node*> nodes_;
-
 };
 
-}
+} // namespace p2t

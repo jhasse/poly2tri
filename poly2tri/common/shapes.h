@@ -74,7 +74,7 @@ struct P2T_DLL_SYMBOL Point {
   }
 
   /// Negate this point.
-  Point operator -() const
+  Point operator-() const
   {
     Point v;
     v.set(-x, -y);
@@ -82,21 +82,21 @@ struct P2T_DLL_SYMBOL Point {
   }
 
   /// Add a point to this point.
-  void operator +=(const Point& v)
+  void operator+=(const Point& v)
   {
     x += v.x;
     y += v.y;
   }
 
   /// Subtract a point from this point.
-  void operator -=(const Point& v)
+  void operator-=(const Point& v)
   {
     x -= v.x;
     y -= v.y;
   }
 
   /// Multiply this point by a scalar.
-  void operator *=(double a)
+  void operator*=(double a)
   {
     x *= a;
     y *= a;
@@ -116,7 +116,6 @@ struct P2T_DLL_SYMBOL Point {
     y /= len;
     return len;
   }
-
 };
 
 P2T_DLL_SYMBOL std::ostream& operator<<(std::ostream&, const Point&);
@@ -124,7 +123,7 @@ P2T_DLL_SYMBOL std::ostream& operator<<(std::ostream&, const Point&);
 // Represents a simple polygon's edge
 struct P2T_DLL_SYMBOL Edge {
 
-  Point* p, *q;
+  Point *p, *q;
 
   /// Constructor
   Edge(Point& p1, Point& p2) : p(&p1), q(&p2)
@@ -151,74 +150,72 @@ struct P2T_DLL_SYMBOL Edge {
 //      "Triangulations in CGAL"
 class P2T_DLL_SYMBOL Triangle {
 public:
+  /// Constructor
+  Triangle(Point& a, Point& b, Point& c);
 
-/// Constructor
-Triangle(Point& a, Point& b, Point& c);
+  /// Flags to determine if an edge is a Constrained edge
+  bool constrained_edge[3];
+  /// Flags to determine if an edge is a Delauney edge
+  bool delaunay_edge[3];
 
-/// Flags to determine if an edge is a Constrained edge
-bool constrained_edge[3];
-/// Flags to determine if an edge is a Delauney edge
-bool delaunay_edge[3];
+  Point* GetPoint(int index);
+  Point* PointCW(const Point& point);
+  Point* PointCCW(const Point& point);
+  Point* OppositePoint(Triangle& t, const Point& p);
 
-Point* GetPoint(int index);
-Point* PointCW(const Point& point);
-Point* PointCCW(const Point& point);
-Point* OppositePoint(Triangle& t, const Point& p);
+  Triangle* GetNeighbor(int index);
+  void MarkNeighbor(Point* p1, Point* p2, Triangle* t);
+  void MarkNeighbor(Triangle& t);
 
-Triangle* GetNeighbor(int index);
-void MarkNeighbor(Point* p1, Point* p2, Triangle* t);
-void MarkNeighbor(Triangle& t);
+  void MarkConstrainedEdge(int index);
+  void MarkConstrainedEdge(Edge& edge);
+  void MarkConstrainedEdge(Point* p, Point* q);
 
-void MarkConstrainedEdge(int index);
-void MarkConstrainedEdge(Edge& edge);
-void MarkConstrainedEdge(Point* p, Point* q);
+  int Index(const Point* p);
+  int EdgeIndex(const Point* p1, const Point* p2);
 
-int Index(const Point* p);
-int EdgeIndex(const Point* p1, const Point* p2);
+  Triangle* NeighborAcross(const Point& point);
+  Triangle* NeighborCW(const Point& point);
+  Triangle* NeighborCCW(const Point& point);
+  bool GetConstrainedEdgeCCW(const Point& p);
+  bool GetConstrainedEdgeCW(const Point& p);
+  void SetConstrainedEdgeCCW(const Point& p, bool ce);
+  void SetConstrainedEdgeCW(const Point& p, bool ce);
+  bool GetDelunayEdgeCCW(const Point& p);
+  bool GetDelunayEdgeCW(const Point& p);
+  void SetDelunayEdgeCCW(const Point& p, bool e);
+  void SetDelunayEdgeCW(const Point& p, bool e);
 
-Triangle* NeighborAcross(const Point& point);
-Triangle* NeighborCW(const Point& point);
-Triangle* NeighborCCW(const Point& point);
-bool GetConstrainedEdgeCCW(const Point& p);
-bool GetConstrainedEdgeCW(const Point& p);
-void SetConstrainedEdgeCCW(const Point& p, bool ce);
-void SetConstrainedEdgeCW(const Point& p, bool ce);
-bool GetDelunayEdgeCCW(const Point& p);
-bool GetDelunayEdgeCW(const Point& p);
-void SetDelunayEdgeCCW(const Point& p, bool e);
-void SetDelunayEdgeCW(const Point& p, bool e);
+  bool Contains(const Point* p);
+  bool Contains(const Edge& e);
+  bool Contains(const Point* p, const Point* q);
+  void Legalize(Point& point);
+  void Legalize(Point& opoint, Point& npoint);
+  /**
+   * Clears all references to all other triangles and points
+   */
+  void Clear();
+  void ClearNeighbor(const Triangle* triangle);
+  void ClearNeighbors();
+  void ClearDelunayEdges();
 
-bool Contains(const Point* p);
-bool Contains(const Edge& e);
-bool Contains(const Point* p, const Point* q);
-void Legalize(Point& point);
-void Legalize(Point& opoint, Point& npoint);
-/**
- * Clears all references to all other triangles and points
- */
-void Clear();
-void ClearNeighbor(const Triangle *triangle);
-void ClearNeighbors();
-void ClearDelunayEdges();
+  inline bool IsInterior();
+  inline void IsInterior(bool b);
 
-inline bool IsInterior();
-inline void IsInterior(bool b);
+  void DebugPrint();
 
-void DebugPrint();
-
-bool CircumcicleContains(const Point&) const;
+  bool CircumcicleContains(const Point&) const;
 
 private:
+  bool IsCounterClockwise() const;
 
-bool IsCounterClockwise() const;
+  /// Triangle points
+  Point* points_[3];
+  /// Neighbor list
+  Triangle* neighbors_[3];
 
-/// Triangle points
-Point* points_[3];
-/// Neighbor list
-Triangle* neighbors_[3];
-
-/// Has this triangle been marked as an interior triangle?
-bool interior_;
+  /// Has this triangle been marked as an interior triangle?
+  bool interior_;
 };
 
 inline bool cmp(const Point* a, const Point* b)
@@ -235,29 +232,29 @@ inline bool cmp(const Point* a, const Point* b)
 }
 
 /// Add two points_ component-wise.
-inline Point operator +(const Point& a, const Point& b)
+inline Point operator+(const Point& a, const Point& b)
 {
   return Point(a.x + b.x, a.y + b.y);
 }
 
 /// Subtract two points_ component-wise.
-inline Point operator -(const Point& a, const Point& b)
+inline Point operator-(const Point& a, const Point& b)
 {
   return Point(a.x - b.x, a.y - b.y);
 }
 
 /// Multiply point by scalar
-inline Point operator *(double s, const Point& a)
+inline Point operator*(double s, const Point& a)
 {
   return Point(s * a.x, s * a.y);
 }
 
-inline bool operator ==(const Point& a, const Point& b)
+inline bool operator==(const Point& a, const Point& b)
 {
   return a.x == b.x && a.y == b.y;
 }
 
-inline bool operator !=(const Point& a, const Point& b)
+inline bool operator!=(const Point& a, const Point& b)
 {
   return !(a.x == b.x) || !(a.y == b.y);
 }
@@ -326,4 +323,4 @@ inline void Triangle::IsInterior(bool b)
 /// Is this set a valid delaunay triangulation?
 P2T_DLL_SYMBOL bool IsDelaunay(const std::vector<p2t::Triangle*>&);
 
-}
+} // namespace p2t

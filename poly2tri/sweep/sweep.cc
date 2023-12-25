@@ -78,8 +78,7 @@ void Sweep::FinalizationPolygon(SweepContext& tcx)
 Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
 {
   Node* node_ptr = tcx.LocateNode(point);
-  if (!node_ptr || !node_ptr->point || !node_ptr->next || !node_ptr->next->point)
-  {
+  if (!node_ptr || !node_ptr->point || !node_ptr->next || !node_ptr->next->point) {
     throw std::runtime_error("PointEvent - null node");
   }
 
@@ -92,7 +91,7 @@ Node& Sweep::PointEvent(SweepContext& tcx, Point& point)
     Fill(tcx, node);
   }
 
-  //tcx.AddNode(new_node);
+  // tcx.AddNode(new_node);
 
   FillAdvancingFront(tcx, new_node);
   return new_node;
@@ -237,7 +236,8 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 
   while (node && node->next) {
     // if HoleAngle exceeds 90 degrees then break.
-    if (LargeHole_DontFill(node)) break;
+    if (LargeHole_DontFill(node))
+      break;
     Fill(tcx, *node);
     node = node->next;
   }
@@ -247,7 +247,8 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 
   while (node && node->prev) {
     // if HoleAngle exceeds 90 degrees then break.
-    if (LargeHole_DontFill(node)) break;
+    if (LargeHole_DontFill(node))
+      break;
     Fill(tcx, *node);
     node = node->prev;
   }
@@ -291,46 +292,54 @@ void Sweep::FillAdvancingFront(SweepContext& tcx, Node& n)
 //           | /
 //           |/
 //           C
-bool Sweep::LargeHole_DontFill(const Node* node) const {
+bool Sweep::LargeHole_DontFill(const Node* node) const
+{
 
   const Node* nextNode = node->next;
   const Node* prevNode = node->prev;
   if (!AngleExceeds90Degrees(node->point, nextNode->point, prevNode->point))
-          return false;
+    return false;
 
   if (AngleIsNegative(node->point, nextNode->point, prevNode->point))
-          return true;
+    return true;
 
   // Check additional points on front.
   const Node* next2Node = nextNode->next;
   // "..Plus.." because only want angles on same side as point being added.
-  if ((next2Node != nullptr) && !AngleExceedsPlus90DegreesOrIsNegative(node->point, next2Node->point, prevNode->point))
-          return false;
+  if ((next2Node != nullptr) &&
+      !AngleExceedsPlus90DegreesOrIsNegative(node->point, next2Node->point, prevNode->point))
+    return false;
 
   const Node* prev2Node = prevNode->prev;
   // "..Plus.." because only want angles on same side as point being added.
-  if ((prev2Node != nullptr) && !AngleExceedsPlus90DegreesOrIsNegative(node->point, nextNode->point, prev2Node->point))
-          return false;
+  if ((prev2Node != nullptr) &&
+      !AngleExceedsPlus90DegreesOrIsNegative(node->point, nextNode->point, prev2Node->point))
+    return false;
 
   return true;
 }
 
-bool Sweep::AngleIsNegative(const Point* origin, const Point* pa, const Point* pb) const {
-    const double angle = Angle(origin, pa, pb);
-    return angle < 0;
+bool Sweep::AngleIsNegative(const Point* origin, const Point* pa, const Point* pb) const
+{
+  const double angle = Angle(origin, pa, pb);
+  return angle < 0;
 }
 
-bool Sweep::AngleExceeds90Degrees(const Point* origin, const Point* pa, const Point* pb) const {
+bool Sweep::AngleExceeds90Degrees(const Point* origin, const Point* pa, const Point* pb) const
+{
   const double angle = Angle(origin, pa, pb);
   return ((angle > PI_div2) || (angle < -PI_div2));
 }
 
-bool Sweep::AngleExceedsPlus90DegreesOrIsNegative(const Point* origin, const Point* pa, const Point* pb) const {
+bool Sweep::AngleExceedsPlus90DegreesOrIsNegative(const Point* origin, const Point* pa,
+                                                  const Point* pb) const
+{
   const double angle = Angle(origin, pa, pb);
   return (angle > PI_div2) || (angle < 0);
 }
 
-double Sweep::Angle(const Point* origin, const Point* pa, const Point* pb) const {
+double Sweep::Angle(const Point* origin, const Point* pa, const Point* pb) const
+{
   /* Complex plane
    * ab = cosA +i*sinA
    * ab = (ax + ay*i)(bx + by*i) = (ax*bx + ay*by) + i(ax*by-ay*bx)
@@ -473,7 +482,7 @@ bool Sweep::Incircle(const Point& pa, const Point& pb, const Point& pc, const Po
 
 void Sweep::RotateTrianglePair(Triangle& t, Point& p, Triangle& ot, Point& op) const
 {
-  Triangle* n1, *n2, *n3, *n4;
+  Triangle *n1, *n2, *n3, *n4;
   n1 = t.NeighborCCW(p);
   n2 = t.NeighborCW(p);
   n3 = ot.NeighborCCW(op);
@@ -513,10 +522,14 @@ void Sweep::RotateTrianglePair(Triangle& t, Point& p, Triangle& ot, Point& op) c
   //      the right side.
   t.ClearNeighbors();
   ot.ClearNeighbors();
-  if (n1) ot.MarkNeighbor(*n1);
-  if (n2) t.MarkNeighbor(*n2);
-  if (n3) t.MarkNeighbor(*n3);
-  if (n4) ot.MarkNeighbor(*n4);
+  if (n1)
+    ot.MarkNeighbor(*n1);
+  if (n2)
+    t.MarkNeighbor(*n2);
+  if (n3)
+    t.MarkNeighbor(*n3);
+  if (n4)
+    ot.MarkNeighbor(*n4);
   t.MarkNeighbor(ot);
 }
 
@@ -530,8 +543,8 @@ void Sweep::FillBasin(SweepContext& tcx, Node& node)
 
   // Find the bottom and right node
   tcx.basin.bottom_node = tcx.basin.left_node;
-  while (tcx.basin.bottom_node->next
-         && tcx.basin.bottom_node->point->y >= tcx.basin.bottom_node->next->point->y) {
+  while (tcx.basin.bottom_node->next &&
+         tcx.basin.bottom_node->point->y >= tcx.basin.bottom_node->next->point->y) {
     tcx.basin.bottom_node = tcx.basin.bottom_node->next;
   }
   if (tcx.basin.bottom_node == tcx.basin.left_node) {
@@ -540,8 +553,8 @@ void Sweep::FillBasin(SweepContext& tcx, Node& node)
   }
 
   tcx.basin.right_node = tcx.basin.bottom_node;
-  while (tcx.basin.right_node->next
-         && tcx.basin.right_node->point->y < tcx.basin.right_node->next->point->y) {
+  while (tcx.basin.right_node->next &&
+         tcx.basin.right_node->point->y < tcx.basin.right_node->next->point->y) {
     tcx.basin.right_node = tcx.basin.right_node->next;
   }
   if (tcx.basin.right_node == tcx.basin.bottom_node) {
@@ -744,8 +757,7 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* t, 
 {
   assert(t);
   Triangle* ot_ptr = t->NeighborAcross(p);
-  if (ot_ptr == nullptr)
-  {
+  if (ot_ptr == nullptr) {
     throw std::runtime_error("FlipEdgeEvent - null neighbor across");
   }
   Triangle& ot = *ot_ptr;
@@ -778,7 +790,8 @@ void Sweep::FlipEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle* t, 
   }
 }
 
-Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle& t, Triangle& ot, Point& p, Point& op)
+Triangle& Sweep::NextFlipTriangle(SweepContext& tcx, int o, Triangle& t, Triangle& ot, Point& p,
+                                  Point& op)
 {
   if (o == CCW) {
     // ot is not crossing edge after flip
@@ -849,12 +862,13 @@ void Sweep::FlipScanEdgeEvent(SweepContext& tcx, Point& ep, Point& eq, Triangle&
   }
 }
 
-Sweep::~Sweep() {
+Sweep::~Sweep()
+{
 
-    // Clean up memory
-    for (auto& node : nodes_) {
-      delete node;
-    }
+  // Clean up memory
+  for (auto& node : nodes_) {
+    delete node;
+  }
 }
 
 } // namespace p2t

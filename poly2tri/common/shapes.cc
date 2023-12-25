@@ -39,14 +39,19 @@ Point::Point(double x, double y) : x(x), y(y)
 {
 }
 
-std::ostream& operator<<(std::ostream& out, const Point& point) {
+std::ostream& operator<<(std::ostream& out, const Point& point)
+{
   return out << point.x << "," << point.y;
 }
 
 Triangle::Triangle(Point& a, Point& b, Point& c)
 {
-  points_[0] = &a; points_[1] = &b; points_[2] = &c;
-  neighbors_[0] = nullptr; neighbors_[1] = nullptr; neighbors_[2] = nullptr;
+  points_[0] = &a;
+  points_[1] = &b;
+  points_[2] = &c;
+  neighbors_[0] = nullptr;
+  neighbors_[1] = nullptr;
+  neighbors_[2] = nullptr;
   constrained_edge[0] = constrained_edge[1] = constrained_edge[2] = false;
   delaunay_edge[0] = delaunay_edge[1] = delaunay_edge[2] = false;
   interior_ = false;
@@ -85,31 +90,26 @@ void Triangle::MarkNeighbor(Triangle& t)
  */
 void Triangle::Clear()
 {
-    Triangle *t;
-    for (auto& neighbor : neighbors_) {
-      t = neighbor;
-      if (t != nullptr) {
-        t->ClearNeighbor(this);
-      }
+  Triangle* t;
+  for (auto& neighbor : neighbors_) {
+    t = neighbor;
+    if (t != nullptr) {
+      t->ClearNeighbor(this);
     }
-    ClearNeighbors();
-    points_[0]=points_[1]=points_[2] = nullptr;
+  }
+  ClearNeighbors();
+  points_[0] = points_[1] = points_[2] = nullptr;
 }
 
-void Triangle::ClearNeighbor(const Triangle *triangle )
+void Triangle::ClearNeighbor(const Triangle* triangle)
 {
-    if( neighbors_[0] == triangle )
-    {
-        neighbors_[0] = nullptr;
-    }
-    else if( neighbors_[1] == triangle )
-    {
-        neighbors_[1] = nullptr;
-    }
-    else
-    {
-        neighbors_[2] = nullptr;
-    }
+  if (neighbors_[0] == triangle) {
+    neighbors_[0] = nullptr;
+  } else if (neighbors_[1] == triangle) {
+    neighbors_[1] = nullptr;
+  } else {
+    neighbors_[2] = nullptr;
+  }
 }
 
 void Triangle::ClearNeighbors()
@@ -126,7 +126,7 @@ void Triangle::ClearDelunayEdges()
 
 Point* Triangle::OppositePoint(Triangle& t, const Point& p)
 {
-  Point *cw = t.PointCW(p);
+  Point* cw = t.PointCW(p);
   return PointCW(*cw);
 }
 

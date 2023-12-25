@@ -34,13 +34,9 @@
 
 namespace p2t {
 
-SweepContext::SweepContext(std::vector<Point*> polyline) : points_(std::move(polyline)),
-  front_(nullptr),
-  head_(nullptr),
-  tail_(nullptr),
-  af_head_(nullptr),
-  af_middle_(nullptr),
-  af_tail_(nullptr)
+SweepContext::SweepContext(std::vector<Point*> polyline)
+: points_(std::move(polyline)), front_(nullptr), head_(nullptr), tail_(nullptr), af_head_(nullptr),
+  af_middle_(nullptr), af_tail_(nullptr)
 {
   InitEdges(points_);
 }
@@ -53,16 +49,17 @@ void SweepContext::AddHole(const std::vector<Point*>& polyline)
   }
 }
 
-void SweepContext::AddPoint(Point* point) {
+void SweepContext::AddPoint(Point* point)
+{
   points_.push_back(point);
 }
 
-std::vector<Triangle*> &SweepContext::GetTriangles()
+std::vector<Triangle*>& SweepContext::GetTriangles()
 {
   return triangles_;
 }
 
-std::list<Triangle*> &SweepContext::GetMap()
+std::list<Triangle*>& SweepContext::GetMap()
 {
   return map_;
 }
@@ -92,7 +89,6 @@ void SweepContext::InitTriangulation()
 
   // Sort points along y-axis
   std::sort(points_.begin(), points_.end(), cmp);
-
 }
 
 void SweepContext::InitEdges(const std::vector<Point*>& polyline)
@@ -164,12 +160,12 @@ void SweepContext::RemoveFromMap(Triangle* triangle)
 
 void SweepContext::MeshClean(Triangle& triangle)
 {
-  std::vector<Triangle *> triangles;
+  std::vector<Triangle*> triangles;
   triangles.push_back(&triangle);
 
-  while(!triangles.empty()){
-	Triangle *t = triangles.back();
-	triangles.pop_back();
+  while (!triangles.empty()) {
+    Triangle* t = triangles.back();
+    triangles.pop_back();
 
     if (t != nullptr && !t->IsInterior()) {
       t->IsInterior(true);
@@ -185,22 +181,22 @@ void SweepContext::MeshClean(Triangle& triangle)
 SweepContext::~SweepContext()
 {
 
-    // Clean up memory
+  // Clean up memory
 
-    delete head_;
-    delete tail_;
-    delete front_;
-    delete af_head_;
-    delete af_middle_;
-    delete af_tail_;
+  delete head_;
+  delete tail_;
+  delete front_;
+  delete af_head_;
+  delete af_middle_;
+  delete af_tail_;
 
-    for (auto ptr : map_) {
-      delete ptr;
-    }
+  for (auto ptr : map_) {
+    delete ptr;
+  }
 
-    for (auto& i : edge_list) {
-      delete i;
-    }
+  for (auto& i : edge_list) {
+    delete i;
+  }
 }
 
 } // namespace p2t

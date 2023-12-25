@@ -68,8 +68,7 @@ double StringToDouble(const std::string& s);
 double Random(double (*fun)(double), double xmin, double xmax);
 double Fun(double x);
 
-double rotate_y = 0.0,
-       rotate_z = 0.0;
+double rotate_y = 0.0, rotate_z = 0.0;
 const double rotations_per_tick = 0.2;
 
 /// Default window size
@@ -163,7 +162,9 @@ int main(int argc, char* argv[])
     cx = center.x;
     cy = center.y;
     Point sides = bbox.second - bbox.first;
-    zoom = 2.0 * (1.0 - autozoom_border) * std::min((double)default_window_width / sides.x, (double)default_window_height / sides.y);
+    zoom =
+        2.0 * (1.0 - autozoom_border) *
+        std::min((double)default_window_width / sides.x, (double)default_window_height / sides.y);
     std::cout << "center_x = " << cx << std::endl;
     std::cout << "center_y = " << cy << std::endl;
     std::cout << "zoom = " << zoom << std::endl;
@@ -443,14 +444,14 @@ void Draw(const double zoom)
   vector<vector<Point*>*> polylines;
   polylines.push_back(&polyline);
   for (vector<Point*>& hole : holes) {
-      polylines.push_back(&hole);
+    polylines.push_back(&hole);
   }
-  for(int i = 0; i < polylines.size(); i++) {
+  for (int i = 0; i < polylines.size(); i++) {
     const vector<Point*>& poly = *polylines[i];
     glBegin(GL_LINE_LOOP);
-      for(int j = 0; j < poly.size(); j++) {
-        glVertex2d(poly[j]->x, poly[j]->y);
-      }
+    for (int j = 0; j < poly.size(); j++) {
+      glVertex2d(poly[j]->x, poly[j]->y);
+    }
     glEnd();
   }
 }
@@ -473,19 +474,19 @@ void DrawMap(const double zoom)
     glBegin(GL_LINES);
     glVertex2d(a.x, a.y);
     glVertex2d(b.x, b.y);
-    glEnd( );
+    glEnd();
 
     ConstrainedColor(t.constrained_edge[0]);
     glBegin(GL_LINES);
     glVertex2d(b.x, b.y);
     glVertex2d(c.x, c.y);
-    glEnd( );
+    glEnd();
 
     ConstrainedColor(t.constrained_edge[1]);
     glBegin(GL_LINES);
     glVertex2d(c.x, c.y);
     glVertex2d(a.x, a.y);
-    glEnd( );
+    glEnd();
   }
 }
 
@@ -520,19 +521,16 @@ double Random(double (*fun)(double), double xmin = 0, double xmax = 1)
   static bool First = true;
 
   // Initialises random generator for first call
-  if (First)
-  {
+  if (First) {
     First = false;
-    srand((unsigned) time(NULL));
+    srand((unsigned)time(NULL));
   }
 
   // Evaluates maximum of function
-  if (fun != Fun)
-  {
+  if (fun != Fun) {
     Fun = fun;
     YMin = 0, YMax = Fun(xmin);
-    for (int iX = 1; iX < RAND_MAX; iX++)
-    {
+    for (int iX = 1; iX < RAND_MAX; iX++) {
       double X = xmin + (xmax - xmin) * iX / RAND_MAX;
       double Y = Fun(X);
       YMax = Y > YMax ? Y : YMax;

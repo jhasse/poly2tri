@@ -43,7 +43,8 @@ void CDT::AddHole(const std::vector<Point*>& polyline)
   sweep_context_->AddHole(polyline);
 }
 
-void CDT::AddPoint(Point* point) {
+void CDT::AddPoint(Point* point)
+{
   sweep_context_->AddPoint(point);
 }
 

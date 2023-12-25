@@ -32,22 +32,22 @@
 #pragma once
 
 #if defined(_WIN32)
-#  define P2T_COMPILER_DLLEXPORT __declspec(dllexport)
-#  define P2T_COMPILER_DLLIMPORT __declspec(dllimport)
+#define P2T_COMPILER_DLLEXPORT __declspec(dllexport)
+#define P2T_COMPILER_DLLIMPORT __declspec(dllimport)
 #elif defined(__GNUC__)
-#  define P2T_COMPILER_DLLEXPORT __attribute__ ((visibility ("default")))
-#  define P2T_COMPILER_DLLIMPORT __attribute__ ((visibility ("default")))
+#define P2T_COMPILER_DLLEXPORT __attribute__((visibility("default")))
+#define P2T_COMPILER_DLLIMPORT __attribute__((visibility("default")))
 #else
-#  define P2T_COMPILER_DLLEXPORT
-#  define P2T_COMPILER_DLLIMPORT
+#define P2T_COMPILER_DLLEXPORT
+#define P2T_COMPILER_DLLIMPORT
 #endif
 
 #ifndef P2T_DLL_SYMBOL
-#  if defined(P2T_STATIC_EXPORTS)
-#    define P2T_DLL_SYMBOL
-#  elif defined(P2T_SHARED_EXPORTS)
-#    define P2T_DLL_SYMBOL P2T_COMPILER_DLLEXPORT
-#  else
-#    define P2T_DLL_SYMBOL P2T_COMPILER_DLLIMPORT
-#  endif
+#if defined(P2T_STATIC_EXPORTS)
+#define P2T_DLL_SYMBOL
+#elif defined(P2T_SHARED_EXPORTS)
+#define P2T_DLL_SYMBOL P2T_COMPILER_DLLEXPORT
+#else
+#define P2T_DLL_SYMBOL P2T_COMPILER_DLLIMPORT
+#endif
 #endif

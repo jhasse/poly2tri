@@ -45,10 +45,8 @@
 
 namespace p2t {
 
-class P2T_DLL_SYMBOL CDT
-{
+class P2T_DLL_SYMBOL CDT {
 public:
-
   /**
    * Constructor - add polyline with non repeating points
    *
@@ -56,7 +54,7 @@ public:
    */
   CDT(const std::vector<Point*>& polyline);
 
-   /**
+  /**
    * Destructor - clean up memory
    */
   ~CDT();
@@ -90,15 +88,13 @@ public:
    */
   std::list<Triangle*> GetMap();
 
-  private:
-
+private:
   /**
    * Internals
    */
 
   SweepContext* sweep_context_;
   Sweep* sweep_;
-
 };
 
-}
+} // namespace p2t
