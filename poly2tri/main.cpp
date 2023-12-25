@@ -1,7 +1,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 
 #include <poly2tri/poly2tri.h>
+#include <Eigen/Dense>
 
 #include <algorithm>
 #include <cassert>
@@ -96,66 +98,83 @@ template <class C> void FreeClear(C& cntr)
   cntr.clear();
 }
 
+using RowVectors = Eigen::Matrix<double, Eigen::Dynamic, 2, Eigen::RowMajor>;
+
+inline std::vector<p2t::Point*> from_eigen(const RowVectors& xys)
+{
+  std::vector<p2t::Point*> ret;
+  ret.reserve(xys.size());
+  for (int i = 0, N = xys.size(); i < N; ++i) {
+    ret.push_back(new Point(xys(i, 0), xys(i, 1)));
+  }
+  return ret;
+}
+
 PYBIND11_MODULE(_core, m)
 {
-  m.def("good", []() {
-    using namespace std;
-    using namespace p2t;
-    /// Constrained triangles
-    vector<Triangle*> triangles;
-    /// Triangle map
-    list<Triangle*> map;
-    /// Polylines
-    vector<Point*> polyline;
-    vector<vector<Point*>> holes;
-    vector<Point*> steiner;
+  m.def(
+      "cdt",
+      [](const RowVectors& polyline_,           //
+         const std::vector<RowVectors>& holes_, //
+         const RowVectors& steiner_) {
+        using namespace std;
+        using namespace p2t;
 
-    /*
-     * STEP 1: Create CDT and add primary polyline
-     * NOTE: polyline must be a simple polygon. The polyline's points
-     * constitute constrained edges. No repeat points!!!
-     */
-    CDT* cdt = new CDT(polyline);
+        vector<Point*> polyline = from_eigen(polyline_);
+        vector<vector<Point*>> holes;
+        holes.reserve(holes_.size());
+        for (auto& hole : holes_) {
+          holes.push_back(from_eigen(hole));
+        }
+        vector<Point*> steiner = from_eigen(steiner_);
 
-    /*
-     * STEP 2: Add holes or Steiner points
-     */
-    for (const auto& hole : holes) {
-      assert(!hole.empty());
-      cdt->AddHole(hole);
-    }
-    for (const auto& s : steiner) {
-      cdt->AddPoint(s);
-    }
+        /*
+         * STEP 1: Create CDT and add primary polyline
+         * NOTE: polyline must be a simple polygon. The polyline's points
+         * constitute constrained edges. No repeat points!!!
+         */
+        auto cdt = new CDT(polyline);
 
-    /*
-     * STEP 3: Triangulate!
-     */
-    cdt->Triangulate();
+        /*
+         * STEP 2: Add holes or Steiner points
+         */
+        for (const auto& hole : holes) {
+          assert(!hole.empty());
+          cdt->AddHole(hole);
+        }
+        for (const auto& s : steiner) {
+          cdt->AddPoint(s);
+        }
 
-    triangles = cdt->GetTriangles();
-    map = cdt->GetMap();
-    const size_t points_in_holes = std::accumulate(
-        holes.cbegin(), holes.cend(), size_t(0),
-        [](size_t cumul, const vector<Point*>& hole) { return cumul + hole.size(); });
+        /*
+         * STEP 3: Triangulate!
+         */
+        cdt->Triangulate();
 
-    cout << "Number of primary constrained edges = " << polyline.size() << endl;
-    cout << "Number of holes = " << holes.size() << endl;
-    cout << "Number of constrained edges in holes = " << points_in_holes << endl;
-    cout << "Number of Steiner points = " << steiner.size() << endl;
-    cout << "Total number of points = " << (polyline.size() + points_in_holes + steiner.size())
-         << endl;
-    cout << "Number of triangles = " << triangles.size() << endl;
-    cout << "Is Delaunay = " << (IsDelaunay(triangles) ? "true" : "false") << endl;
+        auto triangles = cdt->GetTriangles();
+        auto map = cdt->GetMap();
+        const size_t points_in_holes = std::accumulate(
+            holes.cbegin(), holes.cend(), size_t(0),
+            [](size_t cumul, const vector<Point*>& hole) { return cumul + hole.size(); });
 
-    // Cleanup
-    delete cdt;
-    FreeClear(polyline);
-    for (vector<Point*>& hole : holes) {
-      FreeClear(hole);
-    }
-    FreeClear(steiner);
-  });
+        cout << "Number of primary constrained edges = " << polyline.size() << endl;
+        cout << "Number of holes = " << holes.size() << endl;
+        cout << "Number of constrained edges in holes = " << points_in_holes << endl;
+        cout << "Number of Steiner points = " << steiner.size() << endl;
+        cout << "Total number of points = " << (polyline.size() + points_in_holes + steiner.size())
+             << endl;
+        cout << "Number of triangles = " << triangles.size() << endl;
+        cout << "Is Delaunay = " << (IsDelaunay(triangles) ? "true" : "false") << endl;
+
+        // Cleanup
+        delete cdt;
+        FreeClear(polyline);
+        for (vector<Point*>& hole : holes) {
+          FreeClear(hole);
+        }
+        FreeClear(steiner);
+      },
+      py::kw_only(), "polyline"_a, "holes"_a, "steiner"_a);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

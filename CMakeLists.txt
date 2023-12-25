@@ -34,6 +34,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 
+include_directories(headers/include)
 file(GLOB SOURCES poly2tri/common/*.cc poly2tri/sweep/*.cc poly2tri/main.cpp)
 file(GLOB HEADERS poly2tri/*.h poly2tri/common/*.h poly2tri/sweep/*.h)
 
