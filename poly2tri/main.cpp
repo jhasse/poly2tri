@@ -105,7 +105,7 @@ inline std::vector<p2t::Point*> from_eigen(const RowVectors& xys)
   std::vector<p2t::Point*> ret;
   ret.reserve(xys.size());
   for (int i = 0, N = xys.size(); i < N; ++i) {
-    ret.push_back(new Point(xys(i, 0), xys(i, 1)));
+    ret.push_back(new p2t::Point(xys(i, 0), xys(i, 1)));
   }
   return ret;
 }
