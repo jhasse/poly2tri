@@ -1,6 +1,7 @@
 #pragma once
 
 // https://github.com/abellgithub/delaunator-cpp
+// https://github.com/delfrrr/delaunator-cpp
 
 #ifdef DELAUNATOR_HEADER_ONLY
 #define INLINE inline
