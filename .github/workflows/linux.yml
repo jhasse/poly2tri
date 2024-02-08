@@ -12,7 +12,7 @@ jobs:
     container:
       image: fedora:32
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: dnf install -yq cmake ninja-build gcc-c++ clang-tools-extra python3-PyYAML boost-devel
