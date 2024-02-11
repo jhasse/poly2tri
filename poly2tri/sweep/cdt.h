@@ -35,6 +35,8 @@
 #include "sweep_context.h"
 #include "sweep.h"
 
+#include <gsl/span>
+
 #include "../common/dll_symbol.h"
 
 /**
@@ -54,7 +56,7 @@ public:
    *
    * @param polyline
    */
-  CDT(const std::vector<Point*>& polyline);
+  explicit CDT(gsl::span<Point> polyline);
 
    /**
    * Destructor - clean up memory
@@ -66,7 +68,7 @@ public:
    *
    * @param polyline
    */
-  void AddHole(const std::vector<Point*>& polyline);
+  void AddHole(gsl::span<Point> polyline);
 
   /**
    * Add a steiner point
