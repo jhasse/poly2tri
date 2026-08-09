@@ -91,7 +91,9 @@ AdvancingFront* front() const;
 void MeshClean(Triangle& triangle);
 
 std::vector<Triangle*> &GetTriangles();
+const std::vector<Triangle*> &GetTriangles() const;
 std::list<Triangle*> &GetMap();
+const std::list<Triangle*> &GetMap() const;
 
 std::vector<Edge*> edge_list;
 

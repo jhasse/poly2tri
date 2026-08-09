@@ -162,6 +162,7 @@ bool constrained_edge[3];
 bool delaunay_edge[3];
 
 Point* GetPoint(int index);
+const Point* GetPoint(int index) const;
 Point* PointCW(const Point& point);
 Point* PointCCW(const Point& point);
 Point* OppositePoint(Triangle& t, const Point& p);
@@ -289,9 +290,15 @@ inline Point Cross(double s, const Point& a)
   return Point(-s * a.y, s * a.x);
 }
 
-inline Point* Triangle::GetPoint(int index)
+inline const Point* Triangle::GetPoint(int index) const
 {
   return points_[index];
+}
+
+inline Point* Triangle::GetPoint(int index)
+{
+  return const_cast<Point*>(
+      static_cast<const Triangle&>(*this).GetPoint(index));
 }
 
 inline Triangle* Triangle::GetNeighbor(int index)

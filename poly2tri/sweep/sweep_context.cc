@@ -57,12 +57,24 @@ void SweepContext::AddPoint(Point* point) {
   points_.push_back(point);
 }
 
-std::vector<Triangle*> &SweepContext::GetTriangles()
+std::vector<Triangle*>& SweepContext::GetTriangles()
+{
+  return const_cast<std::vector<Triangle*>&>(
+      static_cast<const SweepContext&>(*this).GetTriangles());
+}
+
+const std::vector<Triangle*>& SweepContext::GetTriangles() const
 {
   return triangles_;
 }
 
-std::list<Triangle*> &SweepContext::GetMap()
+std::list<Triangle*>& SweepContext::GetMap()
+{
+  return const_cast<std::list<Triangle*>&>(
+    static_cast<const SweepContext&>(*this).GetMap());
+}
+
+const std::list<Triangle*>& SweepContext::GetMap() const
 {
   return map_;
 }
