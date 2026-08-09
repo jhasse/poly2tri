@@ -34,10 +34,14 @@
 #include "dll_symbol.h"
 
 #include <cmath>
+#include <cfloat>
 #include <cstddef>
 #include <iosfwd>
 #include <stdexcept>
 #include <vector>
+
+/* Avoid Werror=float-equal warnings */
+#define EQ(v1, v2) ((v1 - v2 > -DBL_MIN) && (v1 - v2 < DBL_MIN))
 
 namespace p2t {
 
@@ -133,11 +137,11 @@ struct P2T_DLL_SYMBOL Edge {
     if (p1.y > p2.y) {
       q = &p1;
       p = &p2;
-    } else if (p1.y == p2.y) {
+    } else if (EQ(p1.y, p2.y)) {
       if (p1.x > p2.x) {
         q = &p1;
         p = &p2;
-      } else if (p1.x == p2.x) {
+      } else if (EQ(p1.x, p2.x)) {
         // Repeat points
         throw std::runtime_error("Edge::Edge: p1 == p2");
       }
@@ -226,7 +230,7 @@ inline bool cmp(const Point* a, const Point* b)
 {
   if (a->y < b->y) {
     return true;
-  } else if (a->y == b->y) {
+  } else if (EQ(a->y, b->y)) {
     // Make sure q is point with greater x value
     if (a->x < b->x) {
       return true;
@@ -255,12 +259,12 @@ inline Point operator *(double s, const Point& a)
 
 inline bool operator ==(const Point& a, const Point& b)
 {
-  return a.x == b.x && a.y == b.y;
+  return EQ(a.x, b.x) && EQ(a.y, b.y);
 }
 
 inline bool operator !=(const Point& a, const Point& b)
 {
-  return !(a.x == b.x) || !(a.y == b.y);
+  return !(EQ(a.x, b.x)) || !(EQ(a.y, b.y));
 }
 
 /// Peform the dot product on two vectors.
