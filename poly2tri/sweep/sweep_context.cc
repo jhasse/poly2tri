@@ -34,7 +34,7 @@
 
 namespace p2t {
 
-SweepContext::SweepContext(std::vector<Point*> polyline) : points_(std::move(polyline)),
+SweepContext::SweepContext(gsl::span<Point> polyline) :
   front_(nullptr),
   head_(nullptr),
   tail_(nullptr),
@@ -42,14 +42,17 @@ SweepContext::SweepContext(std::vector<Point*> polyline) : points_(std::move(pol
   af_middle_(nullptr),
   af_tail_(nullptr)
 {
-  InitEdges(points_);
+  for (auto& point : polyline) {
+    points_.push_back(&point);
+  }
+  InitEdges(polyline);
 }
 
-void SweepContext::AddHole(const std::vector<Point*>& polyline)
+void SweepContext::AddHole(gsl::span<Point> polyline)
 {
   InitEdges(polyline);
-  for (auto i : polyline) {
-    points_.push_back(i);
+  for (auto& point : polyline) {
+    points_.push_back(&point);
   }
 }
 
@@ -95,12 +98,12 @@ void SweepContext::InitTriangulation()
 
 }
 
-void SweepContext::InitEdges(const std::vector<Point*>& polyline)
+void SweepContext::InitEdges(gsl::span<Point> polyline)
 {
   size_t num_points = polyline.size();
   for (size_t i = 0; i < num_points; i++) {
     size_t j = i < num_points - 1 ? i + 1 : 0;
-    edge_list.push_back(new Edge(*polyline[i], *polyline[j]));
+    edge_list.push_back(new Edge(polyline[i], polyline[j]));
   }
 }
 

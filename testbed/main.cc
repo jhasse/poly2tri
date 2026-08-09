@@ -51,13 +51,13 @@
 using namespace std;
 using namespace p2t;
 
-bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Point*>>& out_holes,
-               vector<Point*>& out_steiner);
-std::pair<Point, Point> BoundingBox(const std::vector<Point*>& polyline);
+bool ParseFile(string filename, vector<Point>& out_polyline, vector<vector<Point>>& out_holes,
+               vector<Point>& out_steiner);
+std::pair<Point, Point> BoundingBox(gsl::span<const Point> polyline);
 void GenerateRandomPointDistribution(size_t num_points, double min, double max,
-                                     vector<Point*>& out_polyline,
-                                     vector<vector<Point*>>& out_holes,
-                                     vector<Point*>& out_steiner);
+                                     vector<Point>& out_polyline,
+                                     vector<vector<Point>>& out_holes,
+                                     vector<Point>& out_steiner);
 void Init(int window_width, int window_height);
 void ShutDown(int return_code);
 void MainLoop(const double zoom);
@@ -89,24 +89,16 @@ vector<Triangle*> triangles;
 /// Triangle map
 list<Triangle*> map;
 /// Polylines
-vector<Point*> polyline;
-vector<vector<Point*>> holes;
-vector<Point*> steiner;
+vector<Point> polyline;
+vector<vector<Point>> holes;
+vector<Point> steiner;
 
 /// Draw the entire triangle map?
 bool draw_map = false;
 /// Create a random distribution of points?
 bool random_distribution = false;
 
-GLFWwindow* window = NULL;
-
-template <class C> void FreeClear(C& cntr)
-{
-  for (typename C::iterator it = cntr.begin(); it != cntr.end(); ++it) {
-    delete *it;
-  }
-  cntr.clear();
-}
+GLFWwindow* window = nullptr;
 
 int main(int argc, char* argv[])
 {
@@ -187,12 +179,12 @@ int main(int argc, char* argv[])
   /*
    * STEP 2: Add holes or Steiner points
    */
-  for (const auto& hole : holes) {
+  for (auto& hole : holes) {
     assert(!hole.empty());
     cdt->AddHole(hole);
   }
-  for (const auto& s : steiner) {
-    cdt->AddPoint(s);
+  for (auto& s : steiner) {
+    cdt->AddPoint(&s);
   }
 
   /*
@@ -206,7 +198,7 @@ int main(int argc, char* argv[])
   map = cdt->GetMap();
   const size_t points_in_holes =
       std::accumulate(holes.cbegin(), holes.cend(), size_t(0),
-                      [](size_t cumul, const vector<Point*>& hole) { return cumul + hole.size(); });
+                      [](size_t cumul, const vector<Point>& hole) { return cumul + hole.size(); });
 
   cout << "Number of primary constrained edges = " << polyline.size() << endl;
   cout << "Number of holes = " << holes.size() << endl;
@@ -222,18 +214,18 @@ int main(int argc, char* argv[])
 
   // Cleanup
   delete cdt;
-  FreeClear(polyline);
-  for (vector<Point*>& hole : holes) {
-    FreeClear(hole);
+  polyline.clear();
+  for (vector<Point>& hole : holes) {
+    hole.clear();
   }
-  FreeClear(steiner);
+  steiner.clear();
 
   ShutDown(0);
   return 0;
 }
 
-bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Point*>>& out_holes,
-               vector<Point*>& out_steiner)
+bool ParseFile(string filename, vector<Point>& out_polyline, vector<vector<Point>>& out_holes,
+               vector<Point>& out_steiner)
 {
   enum ParserState {
     Polyline,
@@ -241,7 +233,7 @@ bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Poin
     Steiner,
   };
   ParserState state = Polyline;
-  vector<Point*>* hole = nullptr;
+  vector<Point>* hole = nullptr;
   try {
     string line;
     ifstream myfile(filename);
@@ -272,14 +264,14 @@ bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Poin
           double y = StringToDouble(tokens[1]);
           switch (state) {
             case Polyline:
-              out_polyline.push_back(new Point(x, y));
+              out_polyline.push_back(Point(x, y));
               break;
             case Hole:
               assert(hole != nullptr);
-              hole->push_back(new Point(x, y));
+              hole->push_back(Point(x, y));
               break;
             case Steiner:
-              out_steiner.push_back(new Point(x, y));
+              out_steiner.push_back(Point(x, y));
               break;
             default:
               assert(0);
@@ -296,36 +288,36 @@ bool ParseFile(string filename, vector<Point*>& out_polyline, vector<vector<Poin
   return true;
 }
 
-std::pair<Point, Point> BoundingBox(const std::vector<Point*>& polyline)
+std::pair<Point, Point> BoundingBox(gsl::span<const Point> polyline)
 {
   assert(polyline.size() > 0);
   using Scalar = decltype(p2t::Point::x);
   Point min(std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
   Point max(std::numeric_limits<Scalar>::min(), std::numeric_limits<Scalar>::min());
-  for (const Point* point : polyline) {
-    min.x = std::min(min.x, point->x);
-    min.y = std::min(min.y, point->y);
-    max.x = std::max(max.x, point->x);
-    max.y = std::max(max.y, point->y);
+  for (const Point& point : polyline) {
+    min.x = std::min(min.x, point.x);
+    min.y = std::min(min.y, point.y);
+    max.x = std::max(max.x, point.x);
+    max.y = std::max(max.y, point.y);
   }
   return std::make_pair(min, max);
 }
 
 void GenerateRandomPointDistribution(size_t num_points, double min, double max,
-                                     vector<Point*>& out_polyline,
-                                     vector<vector<Point*>>& out_holes, vector<Point*>& out_steiner)
+                                     vector<Point>& out_polyline,
+                                     vector<vector<Point>>& out_holes, vector<Point>& out_steiner)
 {
-  out_polyline.push_back(new Point(min, min));
-  out_polyline.push_back(new Point(min, max));
-  out_polyline.push_back(new Point(max, max));
-  out_polyline.push_back(new Point(max, min));
+  out_polyline.push_back(Point(min, min));
+  out_polyline.push_back(Point(min, max));
+  out_polyline.push_back(Point(max, max));
+  out_polyline.push_back(Point(max, min));
 
   max -= (1e-4);
   min += (1e-4);
   for (int i = 0; i < num_points; i++) {
     double x = Random(Fun, min, max);
     double y = Random(Fun, min, max);
-    out_steiner.push_back(new Point(x, y));
+    out_steiner.push_back(Point(x, y));
   }
 }
 
@@ -440,16 +432,16 @@ void Draw(const double zoom)
   // green
   glColor3f(0, 1, 0);
 
-  vector<vector<Point*>*> polylines;
+  vector<vector<Point>*> polylines;
   polylines.push_back(&polyline);
-  for (vector<Point*>& hole : holes) {
+  for (vector<Point>& hole : holes) {
       polylines.push_back(&hole);
   }
   for(int i = 0; i < polylines.size(); i++) {
-    const vector<Point*>& poly = *polylines[i];
+    const vector<Point>& poly = *polylines[i];
     glBegin(GL_LINE_LOOP);
       for(int j = 0; j < poly.size(); j++) {
-        glVertex2d(poly[j]->x, poly[j]->y);
+        glVertex2d(poly[j].x, poly[j].y);
       }
     glEnd();
   }

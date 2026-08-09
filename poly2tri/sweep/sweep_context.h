@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <gsl/span>
+
 #include <list>
 #include <vector>
 #include <cstddef>
@@ -51,7 +53,7 @@ class SweepContext {
 public:
 
 /// Constructor
-explicit SweepContext(std::vector<Point*> polyline);
+explicit SweepContext(gsl::span<Point> polyline);
 /// Destructor
 ~SweepContext();
 
@@ -82,7 +84,7 @@ Point* GetPoints();
 
 void RemoveFromMap(Triangle* triangle);
 
-void AddHole(const std::vector<Point*>& polyline);
+void AddHole(gsl::span<Point> polyline);
 
 void AddPoint(Point* point);
 
@@ -147,7 +149,7 @@ Point* tail_;
 Node *af_head_, *af_middle_, *af_tail_;
 
 void InitTriangulation();
-void InitEdges(const std::vector<Point*>& polyline);
+void InitEdges(gsl::span<Point> polyline);
 
 };
 
