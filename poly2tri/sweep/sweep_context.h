@@ -34,6 +34,7 @@
 #include <list>
 #include <vector>
 #include <cstddef>
+#include <unordered_set>
 
 namespace p2t {
 
@@ -136,6 +137,7 @@ friend class Sweep;
 std::vector<Triangle*> triangles_;
 std::list<Triangle*> map_;
 std::vector<Point*> points_;
+std::unordered_set<Point*> point_set_;
 
 // Advancing front
 AdvancingFront* front_;

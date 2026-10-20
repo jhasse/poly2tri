@@ -223,6 +223,38 @@ BOOST_AUTO_TEST_CASE(PolygonTest04)
   }
 }
 
+BOOST_AUTO_TEST_CASE(TouchingHolesTest)
+{
+  std::list<p2t::Point> points;
+  auto point = [&points](double a, double b){
+    points.emplace_back(a, b);
+    return &points.back();
+  };
+  std::vector<p2t::Point*> polyline{
+    point(0, 0),
+    point(1, 0),
+    point(0.5, 1),
+  };
+  auto point_02_02 = p2t::Point(0.2, 0.2);
+  std::vector<p2t::Point*> hole0 {
+    point(0.1, 0.1),
+    point(0.2, 0.1),
+    &point_02_02,
+  };
+  std::vector<p2t::Point*> hole1 {
+    &point_02_02,
+    point(0.3, 0.2),
+    point(0.3, 0.3),
+  };
+  p2t::CDT cdt{ polyline };
+  cdt.AddHole(hole0);
+  cdt.AddHole(hole1);
+  BOOST_CHECK_NO_THROW(cdt.Triangulate());
+  const auto result = cdt.GetTriangles();
+  BOOST_REQUIRE_EQUAL(result.size(), 9);
+  BOOST_CHECK(p2t::IsDelaunay(result));
+}
+
 BOOST_AUTO_TEST_CASE(TestbedFilesTest)
 {
   for (const auto& filename : { "custom.dat", "diamond.dat", "star.dat", "test.dat" }) {

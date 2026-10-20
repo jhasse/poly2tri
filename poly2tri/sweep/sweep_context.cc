@@ -49,11 +49,16 @@ void SweepContext::AddHole(const std::vector<Point*>& polyline)
 {
   InitEdges(polyline);
   for (auto i : polyline) {
-    points_.push_back(i);
+    if (point_set_.insert(i).second) {
+      points_.push_back(i);
+    }
   }
 }
 
 void SweepContext::AddPoint(Point* point) {
+  if (!point_set_.insert(point).second) {
+    throw std::runtime_error("Point already exists");
+  }
   points_.push_back(point);
 }
 
